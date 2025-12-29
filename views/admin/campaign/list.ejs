@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../layout/head') %>
+        <title>Admin - Quản lý Chiến dịch</title>
+</head>
+
+<body>
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+        <%- include('../layout/sidebar') %>
+            <!-- Content Wrapper -->
+            <div id="content-wrapper" class="d-flex flex-column">
+                <!-- Main Content -->
+                <div id="content">
+                    <%- include('../layout/header') %>
+                    <%if(errors.length > 0){%>
+                        <div class="container">
+                            <div class="box mt-3">
+                                <%for(let item of errors){%>
+                                <div><%-JSON.stringify(item)%></div>
+                                <%}%>
+                            </div>
+                        </div>
+                    <%}else{%>
+                        <div class="container-fluid">
+                            <div class="card shadow mt-3">
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">Danh sách Chiến dịch</h6>
+                                    <a class="btn btn-success btn-circle" onclick="openModalCreateTable('campaign')">
+                                        <i class="fas fa-plus"></i>
+                                    </a>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                            <thead>
+                                                <tr>
+                                                    <th>Tên chiến dịch</th>
+                                                    <th>Người tạo</th>
+                                                    <th>Ngày tạo</th>
+                                                    <th>Trạng thái</th>
+                                                    <th>Thao tác</th>
+                                                </tr>
+                                            </thead>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+                <%- include('../layout/footer') %>
+            </div>
+    </div>
+    
+    <!-- Modal thêm/sửa campaign -->
+    <div class="modal fade" id="modal-add-campaign" tabindex="-1" aria-hidden="true">
+        <input type="hidden" id="campaign_select_edit">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+          <div class="modal-content">
+            <button class="modal-btn-close btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            <h3 class="modal-title fs-6 text-uppercase text-center mb-3">Thêm chiến dịch</h3>
+            <div class="row flex-wrap g-3">
+                <div class="col-12">
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Tên chiến dịch</h6>
+                        </div>
+                        <div class="card-body">
+                            <input type="text" class="form-control" id="name" placeholder="Nhập tên chiến dịch">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Trạng thái</h6>
+                        </div>
+                        <div class="card-body">
+                            <div data-plugin="virtual-select" data-config='{"placeholder":"Chọn trạng thái"}' id="active"
+                                data-options='[{"label":"Không hoạt động","value":"0"},{"label":"Hoạt động","value":"1"}]'></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-2 justify-content-center mt-2">
+              <div class="col-6 col-md-auto">
+                <button class="btn btn-cancel box-btn w-100 text-uppercase" type="button"  data-bs-dismiss="modal">Huỷ</button>
+              </div>
+              <div class="col-6 col-md-auto">
+                <button class="btn btn-primary box-btn w-100 text-uppercase" type="button" onclick="addDataTable('campaign')">Lưu</button>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+    
+    <script>
+        $(document).ready(function () {
+            dataTable = $('#dataTable').DataTable({
+                dom: '<"top d-flex flex-wrap gap-2 justify-content-between align-items-center mb-2"pf>rt<"bottom d-flex flex-wrap gap-2 justify-content-between align-items-center mt-2"il><"clear">',
+                serverSide: true,
+                processing: true,
+                responsive: true,
+                pageLength: 25,
+                lengthMenu: [25, 50, 75, 100],
+                paging: true,
+                scrollX: true,
+                ajax: {
+                    url: `/admin/campaign/list/`,
+                    method: 'POST',
+                    dataType: "json",
+                    beforeSend: function() {
+                        loading.show();
+                    },
+                    complete: function() {
+                        loading.hide();
+                    },
+                    dataSrc: function(response){
+                        if (response.data) {
+                            return response.data;
+                        } else {
+                            return [];
+                        }
+                    },
+                },
+                rowId: function(row) {
+                    return  'row-' + row.id;
+                },
+                columns: [
+                    {
+                        data: 'name',
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: 'created_by_name',
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: 'created_at',
+                        orderable: true,
+                        searchable: false,
+                        render: function(data, type, row) {
+                            return data ? moment(data).format('DD/MM/YYYY HH:mm') : '';
+                        }
+                    },
+                    {
+                        data: 'active',
+                        orderable: true,
+                        searchable: false,
+                        render: function(data, type, row){
+                            switch(data){
+                                case 0: return '<span class="badge badge-warning">Không hoạt động</span>';
+                                case 1: return '<span class="badge badge-success">Hoạt động</span>';
+                                default: return '<span class="badge badge-secondary">Không xác định</span>';
+                            }
+                        }
+                    },
+                    {
+                        data: null,
+                        orderable: false,
+                        searchable: false,
+                        render: function (data, type, row) {
+                            return `
+                                <div class="d-flex gap-2">
+                                    <a class="btn btn-info btn-sm btn-circle" data-id="${row.id}" onclick="openModalEditTable('campaign', ${row.id})"><i class="fas fa-pen-square"></i></a>
+                                    <button class="btn btn-danger btn-sm btn-circle" data-id="${row.id}" onclick="deleteCampaign(${row.id},'${row.name}')"><i class="fas fa-trash"></i></button>
+                                </div>
+                            `;
+                        },
+                    },
+                ],
+                // Cấu hình order mặc định DESC
+                order: [], // Để trống để server xử lý order
+                // Cấu hình searching
+                searching: true, // Bật tính năng search
+                // Cấu hình ordering
+                ordering: true, // Bật tính năng sort
+                layout:{
+                    topStart: 'paging',
+                    topEnd: 'search',
+                    bottomStart: ['paging', 'info'],
+                    bottomEnd:  'pageLength'
+                }
+            });
+        });
+
+        // Function xóa campaign
+        function deleteCampaign(id, name) {
+            Swal.fire({
+                title: 'Xác nhận xóa',
+                text: `Bạn có chắc chắn muốn xóa chiến dịch "${name}"?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Xóa',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    loading.show();
+                    $.ajax({
+                        url: `/admin/campaign/delete/${id}`,
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        success: function(response) {
+                            loading.hide();
+                            if (response.success) {
+                                Swal.fire('Thành công!', response.message, 'success');
+                                dataTable.ajax.reload();
+                            } else {
+                                Swal.fire('Lỗi!', response.message, 'error');
+                            }
+                        },
+                        error: function(xhr) {
+                            loading.hide();
+                            let errorMessage = 'Có lỗi xảy ra khi xóa chiến dịch';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMessage = xhr.responseJSON.message;
+                            }
+                            Swal.fire('Lỗi!', errorMessage, 'error');
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+
+</html> 

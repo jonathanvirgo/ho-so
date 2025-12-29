@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../layout/head') %>
+    
+    <title><%= surveyConfig.name %> - <%= project.name %></title>
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/css/survey-system.css" rel="stylesheet">
+</head>
+
+<body class="bg-gradient-primary">
+
+    <div class="container">
+        <div class="survey-form-container">
+            <!-- Survey Header -->
+            <div class="survey-header">
+                <h1><%= surveyConfig.name %></h1>
+                <% if (surveyConfig.description) { %>
+                <p><%= surveyConfig.description %></p>
+                <% } %>
+                <small>Dự án: <%= project.name %></small>
+            </div>
+
+            <!-- Survey Body -->
+            <div class="survey-body">
+                <form id="public-survey-form">
+                    <% surveyFields.forEach(function(field, index) { %>
+                    <div class="survey-field">
+                        <label for="<%= field.field_name %>" class="<%= field.is_required ? 'required' : '' %>">
+                            <%= field.field_label %>
+                        </label>
+
+                        <% if (field.field_type === 'text') { %>
+                            <input type="text" 
+                                   id="<%= field.field_name %>" 
+                                   name="<%= field.field_name %>" 
+                                   class="form-control"
+                                   placeholder="<%= field.placeholder || '' %>"
+                                   <%= field.is_required ? 'required' : '' %>>
+
+                        <% } else if (field.field_type === 'textarea') { %>
+                            <textarea id="<%= field.field_name %>" 
+                                      name="<%= field.field_name %>" 
+                                      class="form-control"
+                                      placeholder="<%= field.placeholder || '' %>"
+                                      <%= field.is_required ? 'required' : '' %>></textarea>
+
+                        <% } else if (field.field_type === 'email') { %>
+                            <input type="email" 
+                                   id="<%= field.field_name %>" 
+                                   name="<%= field.field_name %>" 
+                                   class="form-control"
+                                   placeholder="<%= field.placeholder || 'example@email.com' %>"
+                                   <%= field.is_required ? 'required' : '' %>>
+
+                        <% } else if (field.field_type === 'number') { %>
+                            <input type="number" 
+                                   id="<%= field.field_name %>" 
+                                   name="<%= field.field_name %>" 
+                                   class="form-control"
+                                   placeholder="<%= field.placeholder || '' %>"
+                                   <%= field.is_required ? 'required' : '' %>>
+
+                        <% } else if (field.field_type === 'select') { %>
+                            <div data-plugin="virtual-select"
+                                 data-config='{"placeholder":"<%= field.placeholder || 'Chọn tùy chọn...' %>","search":false}'
+                                 id="<%= field.field_name %>"
+                                 name="<%= field.field_name %>"
+                                 <% if (field.field_options && Array.isArray(field.field_options)) { %>
+                                     data-options='<%= JSON.stringify(field.field_options) %>'
+                                 <% } else { %>
+                                     data-options='[]'
+                                 <% } %>
+                                 <%= field.is_required ? 'required' : '' %>></div>
+
+                        <% } else if (field.field_type === 'multiselect') { %>
+                            <div data-plugin="virtual-select"
+                                 data-config='{"placeholder":"<%= field.placeholder || 'Chọn nhiều tùy chọn...' %>","multiple":true,"search":false}'
+                                 id="<%= field.field_name %>"
+                                 name="<%= field.field_name %>"
+                                 <% if (field.field_options && Array.isArray(field.field_options)) { %>
+                                     data-options='<%= JSON.stringify(field.field_options) %>'
+                                 <% } else { %>
+                                     data-options='[]'
+                                 <% } %>
+                                 <%= field.is_required ? 'required' : '' %>></div>
+
+                        <% } else if (field.field_type === 'radio') { %>
+                            <div class="radio-group">
+                                <% if (field.field_options && Array.isArray(field.field_options)) { %>
+                                    <% field.field_options.forEach(function(option, optIndex) { %>
+                                    <div class="radio-option">
+                                        <input type="radio" 
+                                               id="<%= field.field_name %>_<%= optIndex %>" 
+                                               name="<%= field.field_name %>" 
+                                               value="<%= option.value %>"
+                                               <%= field.is_required ? 'required' : '' %>>
+                                        <label for="<%= field.field_name %>_<%= optIndex %>"><%= option.label %></label>
+                                    </div>
+                                    <% }); %>
+                                <% } %>
+                            </div>
+
+                        <% } else if (field.field_type === 'checkbox') { %>
+                            <div class="checkbox-group">
+                                <% if (field.field_options && Array.isArray(field.field_options)) { %>
+                                    <% field.field_options.forEach(function(option, optIndex) { %>
+                                    <div class="checkbox-option">
+                                        <input type="checkbox" 
+                                               id="<%= field.field_name %>_<%= optIndex %>" 
+                                               name="<%= field.field_name %>" 
+                                               value="<%= option.value %>">
+                                        <label for="<%= field.field_name %>_<%= optIndex %>"><%= option.label %></label>
+                                    </div>
+                                    <% }); %>
+                                <% } %>
+                            </div>
+
+                        <% } else if (field.field_type === 'date') { %>
+                            <div class="flatpickr flatpickr-input flex-fill"
+                                 data-plugin="flatpickr"
+                                 id="<%= field.field_name %>"
+                                 data-options='{"mode":"single", "allowInput": true}'
+                                 aria-label="<%= field.field_label %>">
+                                <input class="form-control"
+                                       type="text"
+                                       name="<%= field.field_name %>"
+                                       placeholder="<%= field.placeholder || 'Chọn ngày...' %>"
+                                       autoComplete="off"
+                                       data-input="data-input"
+                                       <%= field.is_required ? 'required' : '' %>
+                                       aria-label="<%= field.field_label %>"/>
+                            </div>
+
+                        <% } else if (field.field_type === 'datetime') { %>
+                            <div class="flatpickr flatpickr-input flex-fill"
+                                 data-plugin="flatpickr"
+                                 id="<%= field.field_name %>_datetime"
+                                 data-options='{"mode":"single", "allowInput": true, "enableTime": true, "time_24hr": true}'
+                                 aria-label="<%= field.field_label %>">
+                                <input class="form-control"
+                                       type="text"
+                                       name="<%= field.field_name %>"
+                                       placeholder="<%= field.placeholder || 'Chọn ngày và giờ...' %>"
+                                       autoComplete="off"
+                                       data-input="data-input"
+                                       <%= field.is_required ? 'required' : '' %>
+                                       aria-label="<%= field.field_label %>"/>
+                            </div>
+
+                        <% } %>
+
+                        <% if (field.help_text) { %>
+                        <div class="help-text">
+                            <%= field.help_text %>
+                        </div>
+                        <% } %>
+                    </div>
+                    <% }); %>
+
+                    <% if (surveyConfig.require_email && !surveyFields.some(f => f.field_type === 'email')) { %>
+                    <div class="survey-field">
+                        <label for="respondent_email" class="required">Email của bạn</label>
+                        <input type="email" 
+                               id="respondent_email" 
+                               name="respondent_email" 
+                               class="form-control"
+                               placeholder="example@email.com"
+                               required>
+                        <div class="help-text">
+                            Email này sẽ được sử dụng để liên hệ nếu cần thiết.
+                        </div>
+                    </div>
+                    <% } %>
+
+                    <div class="text-center mt-4">
+                        <button type="submit" class="survey-submit-btn">
+                            <i class="fas fa-paper-plane"></i> Gửi Khảo sát
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/vendor/jquery/jquery.min.js"></script>
+    <script src="/vendor/flatpickr/flatpickr.js"></script>
+    <script src="/vendor/flatpickr/flatpickr.vn.js"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="/js/moment.min.js"></script>
+    <script src="/js/sweetalert2@11.js"></script>
+    <script src="/vendor/virtual-select/virtual-select.min.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/sb-admin-2.min.js"></script>
+    <script src="/js/main.js?v=<%= assetVersion %>"></script>
+
+    <!-- Survey System JS -->
+    <script src="/js/survey-system.js?v=<%= assetVersion %>"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Main.js will handle Virtual Select and Flatpickr initialization
+
+            // Initialize public survey form
+            if (typeof initializePublicSurveyForm === 'function') {
+                initializePublicSurveyForm();
+            }
+
+            // Handle form submission to get Virtual Select values
+            $('#surveyForm').on('submit', function(e) {
+                // Get all Virtual Select values and set them to form
+                $('[data-plugin="virtual-select"]').each(function() {
+                    const element = $(this);
+                    const fieldName = element.attr('name');
+                    const vsInstance = VirtualSelect.getElementByIndex(element.attr('id'));
+
+                    if (vsInstance) {
+                        const value = vsInstance.getSelectedValue();
+
+                        // Create or update hidden input
+                        let hiddenInput = $(`input[name="${fieldName}"]`);
+                        if (hiddenInput.length === 0) {
+                            hiddenInput = $(`<input type="hidden" name="${fieldName}">`);
+                            element.after(hiddenInput);
+                        }
+
+                        // Set value
+                        if (Array.isArray(value)) {
+                            hiddenInput.val(value.join(','));
+                        } else {
+                            hiddenInput.val(value || '');
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+
+</html>

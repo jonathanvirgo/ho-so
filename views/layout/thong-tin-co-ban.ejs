@@ -1,0 +1,169 @@
+<div class="d-flex flex-wrap gap-3 justify-content-between mb-2 align-items-center px-2">
+    <div class="d-flex gap-2">
+        <label>Họ tên:</label>
+        <div class="text-primary fw-bold patient-name" style="cursor: pointer;" 
+             onclick="showPatientDetailModalWithData()" title="Click để xem thông tin chi tiết"><%=patient.fullname%></div>
+    </div>
+    <div class="d-flex gap-2">
+        <label>Số điện thoại:</label>
+        <div class="text-success"><%=patient.phone%></div>
+    </div>
+    <% if(path !== 'viem-gan-mt1'){ %>
+    <div class="d-flex gap-2">
+        <label>Chẩn đoán:</label>
+        <div class="text-info"><%=patient.chuan_doan%></div>
+    </div>
+    <% } %>
+    <% if(path == 'viem-gan-mt1'){ %>
+        <div class="d-flex gap-2">
+            <label>Điều tra viên:</label>
+            <div class="text-info"><%=patient.dieu_tra_vien%></div>
+        </div>
+    <% } %>
+    <div class="d-flex gap-2">
+        <label>Phòng:</label>
+        <div class="text-info"><%=patient.phong_dieu_tri%></div>
+    </div>
+    <div class="ms-4">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" <%=patient.bien_ban == 1 ? 'checked' : ''%>  role="switch" onclick="discharged(this, '<%=patient.id%>', '<%=patient.fullname%>', 'bien_ban')">
+            <label class="form-check-label">Biên bản</label>
+        </div>
+    </div>
+    <div class="ms-4">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" <%=patient.khan_cap == 1 ? 'checked' : ''%>  role="switch" onclick="discharged(this, '<%=patient.id%>', '<%=patient.fullname%>', 'khan_cap')">
+            <label class="form-check-label">Khẩn cấp</label>
+        </div>
+    </div>
+    <div class="ms-4">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" <%=patient.active == 2 ? 'checked' : ''%>  role="switch" onclick="discharged(this, '<%=patient.id%>', '<%=patient.fullname%>', 'active')">
+            <label class="form-check-label">Ra Viện</label>
+        </div>
+    </div>
+    <% if(path == 'hoi-chan'){ %>
+    <div>
+        <button class="btn btn-info btn-sm" onclick="downloadPhieuhoichan(<%=patient.id%>)" title="Tải xuống hồ sơ">
+            <i class="fas fa-cloud-download"></i>
+        </button>
+    </div>
+    <% } %>
+</div>
+
+<!-- Dữ liệu bệnh nhân -->
+<script type="application/json" id="patient-data"><%- JSON.stringify(patient) %></script>
+
+<script>
+    // Hàm hiển thị modal với dữ liệu có sẵn
+    function showPatientDetailModalWithData() {
+        const patientData = JSON.parse(document.getElementById('patient-data').textContent);
+        $('#patientDetailModal').modal('show');
+        displayPatientDetail(patientData);
+    }
+
+    async function downloadPhieuhoichan(patient_id) {
+        try {
+            if(!patient_id){
+                toarstError('Vui lòng chọn bệnh nhân');
+                return;
+            }
+            const response = await fetch(`/hoichan-download/${patient_id}`);
+
+            const contentType = response.headers.get("Content-Type");
+
+            if (contentType.includes("application/json")) {
+                // Trường hợp lỗi từ server
+                const error = await response.json();
+                toarstError(error.message || "Tải file thất bại!");
+                return;
+            }
+
+            if (!response.ok) {
+                toarstError("Có lỗi xảy ra khi tải file!");
+                return;
+            }
+
+            const blob = await response.blob();
+            const filename = `phieu-hoi-chan-${patient_id}.docx`;
+
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error("Lỗi khi tải file:", err);
+            toarstError("Không thể kết nối đến máy chủ.");
+        }
+    }
+</script>
+
+<script>
+    function discharged(el, id, name, type){
+        event.preventDefault();
+        var message = '';
+        switch(type){
+            case 'bien_ban':
+                message = el.checked ? 'bỏ biên bản' : 'đánh dấu biên bản';
+                break;
+            case 'khan_cap':
+                message = el.checked ? 'bỏ khẩn cấp' : 'đánh dấu khẩn cấp';
+                break;
+            case 'active':
+                message = el.checked ? 'bệnh nhân đã ra viện' : 'bệnh nhân đang điều trị';
+                break;
+            default: break;
+        }
+        confirmDialog('Xác nhận', 'Bạn có muốn chuyển trạng thái bệnh nhân ' + name + ' ' + message + ' không?').then(responseData =>{
+            if(responseData.isConfirmed && id){
+                const pathname = window.location.pathname; 
+                const parts = pathname.split('/'); // Tách chuỗi thành mảng
+                const path = parts[1]; // Lấy phần tử cuối cùng
+                var data = {id: id, path: path, active: 1, bien_ban: 0, type: type, khan_cap: 0};
+                switch (type) {
+                    case 'bien_ban':
+                        data.bien_ban = el.checked ? 0 : 1;
+                        break;
+                    case 'active':
+                        data.active = el.checked ? 1 : 2;
+                        break;
+                    case 'khan_cap':
+                        data.khan_cap = el.checked ? 0 : 1;
+                        break;
+                    default: break;
+                }
+                $.ajax({
+                    type: 'POST',
+                    url: '/patient/active',
+                    data: data,
+                    beforeSend: function () {
+                        loading.show();
+                    },
+                    success: function (result) {
+                        loading.hide();
+                        if (result.success) {
+                            toarstMessage('Chuyển trạng thái thành công');
+                            el.checked = !el.checked;
+                            if(type == 'active'){
+                                el.disabled = true;
+                            }
+                        } else {
+                            toarstError(result.message);
+                        }
+                    },
+                    error: function (jqXHR, exception) {
+                        loading.hide();
+                        ajax_call_error(jqXHR, exception);
+                    }
+                });
+            }
+        })
+    }
+
+
+
+</script>

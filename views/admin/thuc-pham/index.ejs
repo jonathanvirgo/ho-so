@@ -1,0 +1,1157 @@
+<%- include('../layout/head', {title: isEdit ? 'Sửa thực phẩm' : 'Thêm thực phẩm mới'}) %>
+
+<!-- Custom CSS for food form -->
+<link href="/css/food-admin.css" rel="stylesheet">
+
+<body id="page-top" class="food-form">
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <%- include('../layout/sidebar', {active: 'thuc-pham'}) %>
+        <!-- End of Sidebar -->
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+                <!-- Topbar -->
+                <%- include('../layout/header') %>
+                <!-- End of Topbar -->
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">
+                            <%= isEdit ? 'Sửa thực phẩm' : 'Thêm thực phẩm mới' %>
+                        </h1>
+                        <a href="/admin/thuc-pham" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+                            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Trở về danh sách
+                        </a>
+                    </div>
+
+                    <!-- Form -->
+                    <form id="foodForm">
+                        <% if (isEdit && foodData) { %>
+                            <input type="hidden" name="id" value="<%= foodData.id %>">
+                        <% } %>
+
+                        <!-- Thông tin cơ bản -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Thông tin cơ bản</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="code">Mã thực phẩm</label>
+                                            <%if(isEdit){%>
+                                                <div class="form-control" id="code"><%= foodData ? foodData.code || '' : '' %></div>
+                                            <%}else{%>
+                                                <input type="text" class="form-control" id="code" name="code" 
+                                                value="<%= foodData ? foodData.code || '' : '' %>">
+                                            <%}%>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="weight">Khối lượng (g) <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control" id="weight" name="weight" step="0.01" required
+                                                value="<%= foodData ? foodData.weight || '' : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="name">Tên thực phẩm (tiếng Anh) <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="name" name="name" required
+                                                value="<%= foodData ? foodData.name || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="ten">Tên thực phẩm (tiếng Việt)</label>
+                                            <input type="text" class="form-control" id="ten" name="ten"
+                                                value="<%= foodData ? foodData.ten || '' : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="type">Loại thực phẩm <span class="text-danger">*</span></label>
+                                            <select class="form-control" id="type" name="type" required>
+                                                <option value="raw" <%= foodData && foodData.type === 'raw' ? 'selected' : '' %>>Sống</option>
+                                                <option value="cooked" <%= foodData && foodData.type === 'cooked' ? 'selected' : '' %>>Chín ĐP</option>
+                                                <option value="cooked_vdd" <%= foodData && foodData.type === 'cooked_vdd' ? 'selected' : '' %>>Chín VDD</option>
+                                                <option value="milk" <%= foodData && foodData.type === 'milk' ? 'selected' : '' %>>Sữa</option>
+                                                <option value="ddd" <%= foodData && foodData.type === 'ddd' ? 'selected' : '' %>>Dịch DD</option>
+                                                <option value="cake" <%= foodData && foodData.type === 'cake' ? 'selected' : '' %>>Bánh/kẹo/đồ uống</option>
+                                            </select>
+                                        </div>
+                                        </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="type_year">Năm dữ liệu <span class="text-danger">*</span></label>
+                                            <select class="form-control" id="type_year" name="type_year" required>
+                                                <option value="2025" <%= foodData && foodData.type_year === '2025' ? 'selected' : '' %>>2025</option>
+                                                <option value="2017" <%= foodData && foodData.type_year === '2017' ? 'selected' : '' %>>2017</option>
+                                                <option value="2007" <%= foodData && foodData.type_year === '2007' ? 'selected' : '' %>>2007</option>
+                                                <option value="2000" <%= foodData && foodData.type_year === '2000' ? 'selected' : '' %>>2000</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="active">Trạng thái</label>
+                                            <select class="form-control" id="active" name="active">
+                                                <option value="1" <%= foodData && foodData.active === 1 ? 'selected' : '' %>>Hoạt động</option>
+                                                <option value="0" <%= foodData && foodData.active === 0 ? 'selected' : '' %>>Không hoạt động</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="form-group">
+                                            <label for="note">Ghi chú</label>
+                                            <textarea class="form-control" id="note" name="note" rows="5"><%= foodData ? foodData.note || '' : '' %></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Main Nutrients -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 nutrients-basic">
+                                <h6 class="m-0 font-weight-bold">Chất dinh dưỡng chính</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="edible">Phần ăn được (%)</label>
+                                            <input type="number" class="form-control" id="edible" name="edible" step="0.01"
+                                                value="<%= foodData ? foodData.edible || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="price">Đơn giá tham khảo (VNĐ/kg)</label>
+                                            <input type="number" class="form-control" id="price" name="price" step="100"
+                                                value="<%= foodData ? foodData.price || '' : '' %>" placeholder="Ví dụ: 25000">
+                                            <small class="form-text text-muted">Giá tham khảo, chi phí thực tế tính theo giá nhập kho</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="energy">Năng lượng (kcal)</label>
+                                            <input type="number" class="form-control" id="energy" name="energy" step="0.01"
+                                                value="<%= foodData ? foodData.energy || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="water">Nước (g)</label>
+                                            <input type="number" class="form-control" id="water" name="water" step="0.01"
+                                                value="<%= foodData ? foodData.water || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="protein">Protein (g)</label>
+                                            <input type="number" class="form-control" id="protein" name="protein" step="0.01"
+                                                value="<%= foodData ? foodData.protein || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="fat">Fat (g)</label>
+                                            <input type="number" class="form-control" id="fat" name="fat" step="0.01"
+                                                value="<%= foodData ? foodData.fat || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="carbohydrate">Carbohydrate (g)</label>
+                                            <input type="number" class="form-control" id="carbohydrate" name="carbohydrate" step="0.01"
+                                                value="<%= foodData ? foodData.carbohydrate || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="fiber">Chất xơ (g)</label>
+                                            <input type="number" class="form-control" id="fiber" name="fiber" step="0.01"
+                                                value="<%= foodData ? foodData.fiber || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="ash">Tro (g)</label>
+                                            <input type="number" class="form-control" id="ash" name="ash" step="0.01"
+                                                value="<%= foodData ? foodData.ash || '' : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Khoáng chất -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 nutrients-minerals">
+                                <h6 class="m-0 font-weight-bold">Khoáng chất</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="calci">Calci (mg)</label>
+                                            <input type="number" class="form-control" id="calci" name="calci" step="0.01"
+                                                value="<%= foodData ? foodData.calci || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="phosphorous">Phospho (mg)</label>
+                                            <input type="number" class="form-control" id="phosphorous" name="phosphorous" step="0.01"
+                                                value="<%= foodData ? foodData.phosphorous || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="fe">Sắt (mg)</label>
+                                            <input type="number" class="form-control" id="fe" name="fe" step="0.01"
+                                                value="<%= foodData ? foodData.fe || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="zinc">Kẽm (mg)</label>
+                                            <input type="number" class="form-control" id="zinc" name="zinc" step="0.01"
+                                                value="<%= foodData ? foodData.zinc || '' : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="sodium">Natri (mg)</label>
+                                            <input type="number" class="form-control" id="sodium" name="sodium" step="0.01"
+                                                value="<%= foodData ? foodData.sodium || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="potassium">Kali (mg)</label>
+                                            <input type="number" class="form-control" id="potassium" name="potassium" step="0.01"
+                                                value="<%= foodData ? foodData.potassium || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="magnesium">Magie (mg)</label>
+                                            <input type="number" class="form-control" id="magnesium" name="magnesium" step="0.01"
+                                                value="<%= foodData ? foodData.magnesium || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="manganese">Mangan (mg)</label>
+                                            <input type="number" class="form-control" id="manganese" name="manganese" step="0.01"
+                                                value="<%= foodData ? foodData.manganese || '' : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="copper">Đồng (mg)</label>
+                                            <input type="number" class="form-control" id="copper" name="copper" step="0.01"
+                                                value="<%= foodData ? foodData.copper || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="selenium">Selen (μg)</label>
+                                            <input type="number" class="form-control" id="selenium" name="selenium" step="0.01"
+                                                value="<%= foodData ? foodData.selenium || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="fluoride">Fluoride (mg)</label>
+                                            <input type="number" class="form-control" id="fluoride" name="fluoride" step="0.01"
+                                                value="<%= foodData ? foodData.fluoride || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="iodine">Iodine (μg)</label>
+                                            <input type="number" class="form-control" id="iodine" name="iodine" step="0.01"
+                                                value="<%= foodData ? foodData.iodine || '' : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Axit béo -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 nutrients-fatty">
+                                <h6 class="m-0 font-weight-bold">Axit béo</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="animal_lipid">Lipid động vật (g)</label>
+                                            <input type="number" class="form-control" id="animal_lipid" name="animal_lipid" step="0.01"
+                                                value="<%= foodData ? foodData.animal_lipid || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="total_saturated_fat">Axit béo bão hòa (g)</label>
+                                            <input type="number" class="form-control" id="total_saturated_fat" name="total_saturated_fat" step="0.01"
+                                                value="<%= foodData ? foodData.total_saturated_fat || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="mufa">MUFA (mg)</label>
+                                            <input type="number" class="form-control" id="mufa" name="mufa" step="0.01"
+                                                value="<%= foodData ? foodData.mufa || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="pufa">PUFA (mg)</label>
+                                            <input type="number" class="form-control" id="pufa" name="pufa" step="0.01"
+                                                value="<%= foodData ? foodData.pufa || '' : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="palmitic">Palmitic (g)</label>
+                                            <input type="number" class="form-control" id="palmitic" name="palmitic" step="0.01"
+                                                value="<%= foodData ? foodData.palmitic || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="margaric">Margaric (g)</label>
+                                            <input type="number" class="form-control" id="margaric" name="margaric" step="0.01"
+                                                value="<%= foodData ? foodData.margaric || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="stearic">Stearic (g)</label>
+                                            <input type="number" class="form-control" id="stearic" name="stearic" step="0.01"
+                                                value="<%= foodData ? foodData.stearic || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="arachidic">Arachidic (g)</label>
+                                            <input type="number" class="form-control" id="arachidic" name="arachidic" step="0.01"
+                                                value="<%= foodData ? foodData.arachidic || '' : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="behenic">Behenic (g)</label>
+                                            <input type="number" class="form-control" id="behenic" name="behenic" step="0.01"
+                                                value="<%= foodData ? foodData.behenic || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="lignoceric">Lignoceric (g)</label>
+                                            <input type="number" class="form-control" id="lignoceric" name="lignoceric" step="0.01"
+                                                value="<%= foodData ? foodData.lignoceric || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="myristoleic">Myristoleic (g)</label>
+                                            <input type="number" class="form-control" id="myristoleic" name="myristoleic" step="0.01"
+                                                value="<%= foodData ? foodData.myristoleic || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="palmitoleic">Palmitoleic (g)</label>
+                                            <input type="number" class="form-control" id="palmitoleic" name="palmitoleic" step="0.01"
+                                                value="<%= foodData ? foodData.palmitoleic || '' : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="oleic">Oleic (g)</label>
+                                            <input type="number" class="form-control" id="oleic" name="oleic" step="0.01"
+                                                value="<%= foodData ? foodData.oleic || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="linoleic">Linoleic (g)</label>
+                                            <input type="number" class="form-control" id="linoleic" name="linoleic" step="0.01"
+                                                value="<%= foodData ? foodData.linoleic || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="linolenic">Linolenic (g)</label>
+                                            <input type="number" class="form-control" id="linolenic" name="linolenic" step="0.01"
+                                                value="<%= foodData ? foodData.linolenic || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="arachidonic">Arachidonic (g)</label>
+                                            <input type="number" class="form-control" id="arachidonic" name="arachidonic" step="0.01"
+                                                value="<%= foodData ? foodData.arachidonic || '' : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="form-group">
+                                            <label for="dha">DHA (g)</label>
+                                            <input type="number" class="form-control" id="dha" name="dha" step="0.01"
+                                                value="<%= foodData ? foodData.dha || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="form-group">
+                                            <label for="epa">EPA (g)</label>
+                                            <input type="number" class="form-control" id="epa" name="epa" step="0.01"
+                                                value="<%= foodData ? foodData.epa || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="form-group">
+                                            <label for="unanimal_lipid">Lipid không động vật (g)</label>
+                                            <input type="number" class="form-control" id="unanimal_lipid" name="unanimal_lipid" step="0.01"
+                                                value="<%= foodData ? foodData.unanimal_lipid || '' : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="form-group">
+                                            <label for="trans_fatty_acids">Trans fatty acids (g)</label>
+                                            <input type="number" class="form-control" id="trans_fatty_acids" name="trans_fatty_acids" step="0.01"
+                                                value="<%= foodData ? foodData.trans_fatty_acids || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="form-group">
+                                            <label for="cholesterol">Cholesterol (mg)</label>
+                                            <input type="number" class="form-control" id="cholesterol" name="cholesterol" step="0.01"
+                                                value="<%= foodData ? foodData.cholesterol || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="form-group">
+                                            <label for="mct">MCT (mg)</label>
+                                            <input type="number" class="form-control" id="mct" name="mct" step="0.01"
+                                                value="<%= foodData ? foodData.mct || '' : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Protein và amino acid -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 nutrients-protein">
+                                <h6 class="m-0 font-weight-bold">Protein và Amino acid</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="animal_protein">Animal protein (g)</label>
+                                            <input type="number" class="form-control" id="animal_protein" name="animal_protein" step="0.01"
+                                                value="<%= foodData ? foodData.animal_protein || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="unanimal_protein">Unanimal protein (g)</label>
+                                            <input type="number" class="form-control" id="unanimal_protein" name="unanimal_protein" step="0.01"
+                                                value="<%= foodData ? foodData.unanimal_protein || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="lysin">Lysin (mg)</label>
+                                            <input type="number" class="form-control" id="lysin" name="lysin" step="0.01"
+                                                value="<%= foodData ? foodData.lysin || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="methionin">Methionin (mg)</label>
+                                            <input type="number" class="form-control" id="methionin" name="methionin" step="0.01"
+                                                value="<%= foodData ? foodData.methionin || '' : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="tryptophan">Tryptophan (mg)</label>
+                                            <input type="number" class="form-control" id="tryptophan" name="tryptophan" step="0.01"
+                                                value="<%= foodData ? foodData.tryptophan || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="phenylalanin">Phenylalanin (mg)</label>
+                                            <input type="number" class="form-control" id="phenylalanin" name="phenylalanin" step="0.01"
+                                                value="<%= foodData ? foodData.phenylalanin || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="threonin">Threonin (mg)</label>
+                                            <input type="number" class="form-control" id="threonin" name="threonin" step="0.01"
+                                                value="<%= foodData ? foodData.threonin || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="isoleucine">Isoleucine (mg)</label>
+                                            <input type="number" class="form-control" id="isoleucine" name="isoleucine" step="0.01"
+                                                value="<%= foodData ? foodData.isoleucine || '' : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="arginine">Arginine (mg)</label>
+                                            <input type="number" class="form-control" id="arginine" name="arginine" step="0.01"
+                                                value="<%= foodData ? foodData.arginine || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="histidine">Histidine (mg)</label>
+                                            <input type="number" class="form-control" id="histidine" name="histidine" step="0.01"
+                                                value="<%= foodData ? foodData.histidine || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="valine">Valine (mg)</label>
+                                            <input type="number" class="form-control" id="valine" name="valine" step="0.01"
+                                                value="<%= foodData ? foodData.valine || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="leucine">Leucine (mg)</label>
+                                            <input type="number" class="form-control" id="leucine" name="leucine" step="0.01"
+                                                value="<%= foodData ? foodData.leucine || '' : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="alanine">Alanine (mg)</label>
+                                            <input type="number" class="form-control" id="alanine" name="alanine" step="0.01"
+                                                value="<%= foodData ? foodData.alanine || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="aspartic_acid">Aspartic acid (mg)</label>
+                                            <input type="number" class="form-control" id="aspartic_acid" name="aspartic_acid" step="0.01"
+                                                value="<%= foodData ? foodData.aspartic_acid || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="glutamic_acid">Glutamic acid (mg)</label>
+                                            <input type="number" class="form-control" id="glutamic_acid" name="glutamic_acid" step="0.01"
+                                                value="<%= foodData ? foodData.glutamic_acid || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="glycine">Glycine (mg)</label>
+                                            <input type="number" class="form-control" id="glycine" name="glycine" step="0.01"
+                                                value="<%= foodData ? foodData.glycine || '' : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="proline">Proline (mg)</label>
+                                            <input type="number" class="form-control" id="proline" name="proline" step="0.01"
+                                                value="<%= foodData ? foodData.proline || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="serine">Serine (mg)</label>
+                                            <input type="number" class="form-control" id="serine" name="serine" step="0.01"
+                                                value="<%= foodData ? foodData.serine || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="cystine">Cystine (mg)</label>
+                                            <input type="number" class="form-control" id="cystine" name="cystine" step="0.01"
+                                                value="<%= foodData ? foodData.cystine || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="tyrosine">Tyrosine (mg)</label>
+                                            <input type="number" class="form-control" id="tyrosine" name="tyrosine" step="0.01"
+                                                value="<%= foodData ? foodData.tyrosine || '' : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vitamin -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 nutrients-vitamins">
+                                <h6 class="m-0 font-weight-bold">Vitamin</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="form-group">
+                                            <label for="vitamin_a_rae">Vitamin A (μg RAE)</label>
+                                            <input type="number" class="form-control" id="vitamin_a_rae" name="vitamin_a_rae" step="0.01"
+                                                value="<%= foodData ? foodData.vitamin_a_rae || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="form-group">
+                                            <label for="vitamin_a_ui">Vitamin A (UI)</label>
+                                            <input type="number" class="form-control" id="vitamin_a_ui" name="vitamin_a_ui" step="0.01"
+                                                value="<%= foodData ? foodData.vitamin_a_ui || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="form-group">
+                                            <label for="thiamine">Thiamine/B1 (mg)</label>
+                                            <input type="number" class="form-control" id="thiamine" name="thiamine" step="0.01"
+                                                value="<%= foodData ? foodData.thiamine || '' : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="form-group">
+                                            <label for="riboflavin">Riboflavin/B2 (mg)</label>
+                                            <input type="number" class="form-control" id="riboflavin" name="riboflavin" step="0.01"
+                                                value="<%= foodData ? foodData.riboflavin || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="form-group">
+                                            <label for="vitamin_b6">Vitamin B6 (mg)</label>
+                                            <input type="number" class="form-control" id="vitamin_b6" name="vitamin_b6" step="0.01"
+                                                value="<%= foodData ? foodData.vitamin_b6 || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="form-group">
+                                            <label for="vitamin_b12">Vitamin B12 (μg)</label>
+                                            <input type="number" class="form-control" id="vitamin_b12" name="vitamin_b12" step="0.01"
+                                                value="<%= foodData ? foodData.vitamin_b12 || '' : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="form-group">
+                                            <label for="vitamin_c">Vitamin C (mg)</label>
+                                            <input type="number" class="form-control" id="vitamin_c" name="vitamin_c" step="0.01"
+                                                value="<%= foodData ? foodData.vitamin_c || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="form-group">
+                                            <label for="vitamin_e">Vitamin E (mg)</label>
+                                            <input type="number" class="form-control" id="vitamin_e" name="vitamin_e" step="0.01"
+                                                value="<%= foodData ? foodData.vitamin_e || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="form-group">
+                                            <label for="vitamin_k">Vitamin K (μg)</label>
+                                            <input type="number" class="form-control" id="vitamin_k" name="vitamin_k" step="0.01"
+                                                value="<%= foodData ? foodData.vitamin_k || '' : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                     <div class="col-lg-4 col-md-6">
+                                        <div class="form-group">
+                                            <label for="vitamin_d">Vitamin D (μg)</label>
+                                            <input type="number" class="form-control" id="vitamin_d" name="vitamin_d" step="0.01"
+                                                value="<%= foodData ? foodData.vitamin_d || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="form-group">
+                                            <label for="vitamin_d_ui">Vitamin D UI</label>
+                                            <input type="number" class="form-control" id="vitamin_d_ui" name="vitamin_d_ui" step="0.01"
+                                                value="<%= foodData ? foodData.vitamin_d_ui || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="biotin">Biotin (B7 hoặc vit H)(μg)</label>
+                                            <input type="number" class="form-control" id="biotin" name="biotin" step="0.01"
+                                                value="<%= foodData ? foodData.biotin || '' : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="form-group">
+                                            <label for="niacin">Niacin B3 (mg)</label>
+                                            <input type="number" class="form-control" id="niacin" name="niacin" step="0.01"
+                                                value="<%= foodData ? foodData.niacin || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="form-group">
+                                            <label for="pantothenic_acid">Pantothenic acid B5 (mg)</label>
+                                            <input type="number" class="form-control" id="pantothenic_acid" name="pantothenic_acid" step="0.01"
+                                                value="<%= foodData ? foodData.pantothenic_acid || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="form-group">
+                                            <label for="folic_acid">Folic acid (μg)</label>
+                                            <input type="number" class="form-control" id="folic_acid" name="folic_acid" step="0.01"
+                                                value="<%= foodData ? foodData.folic_acid || '' : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Đường và Carbohydrate chi tiết -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 nutrients-sugars">
+                                <h6 class="m-0 font-weight-bold">Đường và Carbohydrate chi tiết</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="total_sugar">Tổng đường (g)</label>
+                                            <input type="number" class="form-control" id="total_sugar" name="total_sugar" step="0.01"
+                                                value="<%= foodData ? foodData.total_sugar || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="glucose">Glucose (g)</label>
+                                            <input type="number" class="form-control" id="glucose" name="glucose" step="0.01"
+                                                value="<%= foodData ? foodData.glucose || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="fructose">Fructose (g)</label>
+                                            <input type="number" class="form-control" id="fructose" name="fructose" step="0.01"
+                                                value="<%= foodData ? foodData.fructose || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="sucrose">Sucrose (g)</label>
+                                            <input type="number" class="form-control" id="sucrose" name="sucrose" step="0.01"
+                                                value="<%= foodData ? foodData.sucrose || '' : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="form-group">
+                                            <label for="lactose">Lactose (g)</label>
+                                            <input type="number" class="form-control" id="lactose" name="lactose" step="0.01"
+                                                value="<%= foodData ? foodData.lactose || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="form-group">
+                                            <label for="maltose">Maltose (g)</label>
+                                            <input type="number" class="form-control" id="maltose" name="maltose" step="0.01"
+                                                value="<%= foodData ? foodData.maltose || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="form-group">
+                                            <label for="galactose">Galactose (g)</label>
+                                            <input type="number" class="form-control" id="galactose" name="galactose" step="0.01"
+                                                value="<%= foodData ? foodData.galactose || '' : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Carotenoid và chất chống oxy hóa -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 nutrients-carotenoids">
+                                <h6 class="m-0 font-weight-bold">Carotenoid và chất chống oxy hóa</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="caroten">Carotene tổng (μg)</label>
+                                            <input type="number" class="form-control" id="caroten" name="caroten" step="0.01"
+                                                value="<%= foodData ? foodData.caroten || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="b_carotene">Beta-carotene (μg)</label>
+                                            <input type="number" class="form-control" id="b_carotene" name="b_carotene" step="0.01"
+                                                value="<%= foodData ? foodData.b_carotene || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="a_carotene">Alpha-carotene (μg)</label>
+                                            <input type="number" class="form-control" id="a_carotene" name="a_carotene" step="0.01"
+                                                value="<%= foodData ? foodData.a_carotene || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="b_cryptoxanthin">Beta-cryptoxanthin (μg)</label>
+                                            <input type="number" class="form-control" id="b_cryptoxanthin" name="b_cryptoxanthin" step="0.01"
+                                                value="<%= foodData ? foodData.b_cryptoxanthin || '' : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="lycopene">Lycopene (μg)</label>
+                                            <input type="number" class="form-control" id="lycopene" name="lycopene" step="0.01"
+                                                value="<%= foodData ? foodData.lycopene || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="lutein_zeaxanthin">Lutein + Zeaxanthin (μg)</label>
+                                            <input type="number" class="form-control" id="lutein_zeaxanthin" name="lutein_zeaxanthin" step="0.01"
+                                                value="<%= foodData ? foodData.lutein_zeaxanthin || '' : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Isoflavone -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 nutrients-isoflavone">
+                                <h6 class="m-0 font-weight-bold">Isoflavone</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="total_isoflavone">Tổng isoflavone (mg)</label>
+                                            <input type="number" class="form-control" id="total_isoflavone" name="total_isoflavone" step="0.01"
+                                                value="<%= foodData ? foodData.total_isoflavone || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="daidzein">Daidzein (mg)</label>
+                                            <input type="number" class="form-control" id="daidzein" name="daidzein" step="0.01"
+                                                value="<%= foodData ? foodData.daidzein || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="genistein">Genistein (mg)</label>
+                                            <input type="number" class="form-control" id="genistein" name="genistein" step="0.01"
+                                                value="<%= foodData ? foodData.genistein || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            <label for="glycetin">Glycetin (mg)</label>
+                                            <input type="number" class="form-control" id="glycetin" name="glycetin" step="0.01"
+                                                value="<%= foodData ? foodData.glycetin || '' : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Các chất khác -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 nutrients-others">
+                                <h6 class="m-0 font-weight-bold">Các chất khác</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 col-lg-3">
+                                        <div class="form-group">
+                                            <label for="phytosterol">Phytosterol (mg)</label>
+                                            <input type="number" class="form-control" id="phytosterol" name="phytosterol" step="0.01"
+                                                value="<%= foodData ? foodData.phytosterol || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-3">
+                                        <div class="form-group">
+                                            <label for="purine">Purine (mg)</label>
+                                            <input type="number" class="form-control" id="purine" name="purine" step="0.01"
+                                                value="<%= foodData ? foodData.purine || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-3">
+                                        <div class="form-group">
+                                            <label for="choline">Choline (mg)</label>
+                                            <input type="number" class="form-control" id="choline" name="choline" step="0.01"
+                                                value="<%= foodData ? foodData.choline || '' : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-3">
+                                        <div class="form-group">
+                                            <label for="taurine">Taurine (mg)</label>
+                                            <input type="number" class="form-control" id="taurine" name="taurine" step="0.01"
+                                                value="<%= foodData ? foodData.taurine || '' : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Nút lưu -->
+                        <div class="card shadow mb-4">
+                            <div class="card-body text-center">
+                                <button type="submit" class="btn btn-primary mr-2">
+                                    <i class="fas fa-save"></i> 
+                                    <%= isEdit ? 'Cập nhật' : 'Lưu' %>
+                                </button>
+                                <a href="/admin/thuc-pham" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> Danh sách
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+
+            <!-- Footer -->
+            <%- include('../layout/footer') %>
+            <!-- End of Footer -->
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Quill.js CDN -->
+    <link href="/vendor/quill/quill.snow.css" rel="stylesheet">
+    <script src="/vendor/quill/quill.js"></script>
+
+    <style>
+        .quill-wrapper {
+            max-height: 400px;
+            overflow: hidden;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        
+        #quill-editor {
+            height: 300px;
+            overflow-y: auto;
+        }
+        
+        #quill-editor .ql-container {
+            height: calc(100% - 42px);
+            overflow-y: auto;
+        }
+        
+        #quill-editor .ql-editor {
+            min-height: 200px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+
+    <script>
+        let noteEditor;
+
+        $(document).ready(function() {
+            // Hide the original textarea and create Quill container with wrapper
+            $('#note').hide();
+            const wrapper = $('<div class="quill-wrapper"></div>');
+            const quillContainer = $('<div id="quill-editor"></div>');
+            wrapper.append(quillContainer);
+            $('#note').after(wrapper);
+            
+            // Initialize Quill.js for note field
+            noteEditor = new Quill('#quill-editor', {
+                theme: 'snow',
+                modules: {
+                    toolbar: {
+                        container: [
+                            ['bold', 'italic', 'underline', 'strike'],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            [{ 'indent': '-1'}, { 'indent': '+1' }],
+                            ['link', 'image'],
+                            [{ 'header': [1, 2, 3, false] }],
+                            [{ 'color': [] }, { 'background': [] }],
+                            ['clean']
+                        ],
+                        handlers: {
+                            image: imageHandler
+                        }
+                    }
+                },
+                placeholder: 'Nhập ghi chú...'
+            });
+            
+            // Custom image handler for base64 encoding
+            function imageHandler() {
+                const input = document.createElement('input');
+                input.setAttribute('type', 'file');
+                input.setAttribute('accept', 'image/*');
+                input.click();
+
+                input.onchange = async () => {
+                    const file = input.files[0];
+                    if (file) {
+                        // Check file size (limit to 5MB)
+                        if (file.size > 5 * 1024 * 1024) {
+                            alert('Kích thước ảnh không được vượt quá 5MB');
+                            return;
+                        }
+
+                        // Convert to base64
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const base64 = e.target.result;
+                            const range = noteEditor.getSelection(true);
+                            noteEditor.insertEmbed(range.index, 'image', base64);
+                            noteEditor.setSelection(range.index + 1);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                };
+            }
+            
+            // Set initial content if exists
+            const initialContent = $('#note').val();
+            if (initialContent) {
+                noteEditor.root.innerHTML = initialContent;
+            }
+
+            $('#foodForm').on('submit', function(e) {
+                e.preventDefault();
+
+                // Update textarea with Quill.js content before submit
+                if (noteEditor) {
+                    $('#note').val(noteEditor.root.innerHTML);
+                }
+                
+                // Disable submit button
+                const submitBtn = $(this).find('button[type="submit"]');
+                const originalText = submitBtn.html();
+                submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang xử lý...');
+                
+                $.ajax({
+                    url: '/admin/thuc-pham/upsert/',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                title: 'Thành công!',
+                                text: response.message,
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    if (response.data && response.data.id) {
+                                        // Redirect to edit page if it's a new record
+                                        window.location.href = `/admin/thuc-pham/${response.data.id}`;
+                                    } else {
+                                        // Reload current page if it's an edit
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Lỗi!',
+                                text: response.message,
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    },
+                    error: function() {
+                        Swal.fire({
+                            title: 'Lỗi!',
+                            text: 'Có lỗi xảy ra khi lưu dữ liệu.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    },
+                    complete: function() {
+                        // Re-enable submit button
+                        submitBtn.prop('disabled', false).html(originalText);
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>

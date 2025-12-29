@@ -1,0 +1,90 @@
+/* CSS cho form quản lý thực phẩm */
+.food-form .card {
+    margin-bottom: 1.5rem;
+}
+
+.food-form .form-group {
+    margin-bottom: 1rem;
+}
+
+.food-form .card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+}
+
+.food-form .card-header h6 {
+    color: white !important;
+    margin: 0;
+    font-weight: 600;
+}
+
+.food-form .form-control {
+    border: 1px solid #e3e6f0;
+    border-radius: 0.35rem;
+    font-size: 0.875rem;
+}
+
+.food-form .form-control:focus {
+    border-color: #5a5c69;
+    box-shadow: 0 0 0 0.2rem rgba(90, 92, 105, 0.25);
+}
+
+.food-form label {
+    font-weight: 600;
+    color: #5a5c69;
+    margin-bottom: 0.5rem;
+}
+
+.food-form .text-danger {
+    color: #e74a3b !important;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .food-form .col-md-3,
+    .food-form .col-md-4,
+    .food-form .col-md-6 {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Button styling */
+.food-form .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    padding: 0.6rem 1.5rem;
+    font-weight: 600;
+}
+
+.food-form .btn-primary:hover {
+    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+}
+
+.food-form .btn-secondary {
+    background: #6c757d;
+    border: none;
+    padding: 0.6rem 1.5rem;
+    font-weight: 600;
+}
+
+/* Card sections styling */
+.nutrients-basic {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.nutrients-minerals {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.nutrients-fatty {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.nutrients-protein {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.nutrients-vitamins {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+} 

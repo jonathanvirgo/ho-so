@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../layout/head') %>
+    <title>Bệnh nhân viêm gan - Patients</title>
+</head>
+
+<body>
+
+    <!-- Page Wrapper -->
+   <div id="wrapper">
+       <%- include('../layout/sidebar') %>
+
+        <!-- Content Wrapper -->
+       <div id="content-wrapper" class="d-flex flex-column">
+            <!-- Main Content -->
+            <div id="content">
+                <%- include('../layout/header') %>
+                <%if(errors.length > 0){%>
+                    <div class="container">
+                        <div class="box mt-3">
+                            <%for(let item of errors){%>
+                            <div><%-JSON.stringify(item)%></div>
+                            <%}%>
+                        </div>
+                    </div>
+                <%}else{%>
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+                    <%- include('../layout/thong-tin-co-ban.ejs')%>
+                    <div class="d-flex mt-3 gap-4">
+                        <div class="flex-fill form-data card shadow" name="form-data">
+                            <%- include('./module/menu.ejs')%>
+                            <div class="row flex-wrap g-3 card-body">
+                                <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                    <div class="card shadow">
+                                        <div class="card-header py-3">
+                                            <h6 class="m-0 font-weight-bold text-primary">NB có chán ăn/mệt mỏi?</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div data-plugin="virtual-select" data-config='{"placeholder":"Chán ăn mệt mỏi"}' data-value="<%=detailHepatitis.chan_an_met_moi%>" id="chan_an_met_moi"
+                                                data-options='[{"label":"Có","value":1},{"label":"Không","value":0}]'></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                    <div class="card shadow">
+                                        <div class="card-header py-3 text-primary">
+                                            <h6 class="m-0 font-weight-bold text-primary">Biểu hiện ở đường tiêu hóa</h6>
+                                        </div>
+                                        <div class="card-body d-flex gap-2">
+                                            <div class="" data-plugin="virtual-select" data-config='{"placeholder":"Biểu hiện ở đường tiêu hóa"}' id="bieu_hien_tieu_hoa" data-value="<%=detailHepatitis.bieu_hien_tieu_hoa%>" 
+                                            data-options='[{"label":"Đầy bụng chậm tiêu","value":1},{"label":"Đi ngoài sống phân","value":2},{"label":"Nôn, buồn nôn","value":3},{"label":"Tiêu chảy","value":4},{"label":"Táo bón","value":5}, {"label":"Thay đổi vị giác","value":6}, {"label":"Nhiệt miệng","value":7}, {"label":"Khác","value":8} ]'></div>
+                                            <input class="form-control d-none" placeholder="Biểu hiện tiêu hóa khác" type="text" id="bieu_hien_tieu_hoa_khac" value="<%=detailHepatitis.bieu_hien_tieu_hoa_khac%>">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                    <div class="card shadow">
+                                        <div class="card-header py-3 text-primary">
+                                            <h6 class="m-0 font-weight-bold text-primary">Đau tức vùng hạ sườn phải</h6>
+                                        </div>
+                                        <div class="card-body d-flex gap-2 align-items-center">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="dau_tuc_hsp" value="1" <%= detailHepatitis.dau_tuc_hsp === 1 ? 'checked' : '' %>>
+                                                <label class="form-check-label">
+                                                  Có
+                                                </label>
+                                              </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="dau_tuc_hsp" value="2" <%= detailHepatitis.dau_tuc_hsp === 2 ? 'checked' : '' %>>
+                                                <label class="form-check-label">
+                                                  Không
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                    <div class="card shadow">
+                                        <div class="card-header py-3 text-primary">
+                                            <h6 class="m-0 font-weight-bold text-primary">Đau khi nào</h6>
+                                        </div>
+                                        <div class="card-body d-flex gap-2">
+                                            <div class="" data-plugin="virtual-select" data-config='{"placeholder":"Đau tức HSP khi"}' id="dau_tuc_hsp_khi" data-value="<%=detailHepatitis.dau_tuc_hsp_khi%>" 
+                                            data-options='[{"label":"Đau khi vận động","value":1},{"label":"Đau sau ăn","value":2},{"label":"Đau liên tục","value":3},{"label":"Khác","value":4} ]'></div>
+                                            <input class="form-control d-none" placeholder="Đau HSP khác" type="text" id="dau_tuc_hsp_khac" value="<%=detailHepatitis.dau_tuc_hsp_khac%>">
+                                        </div>
+                                    </div>
+                                </div> -->
+                                <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                    <div class="card shadow">
+                                        <div class="card-header py-3 text-primary">
+                                            <h6 class="m-0 font-weight-bold text-primary">Vàng da vàng mắt</h6>
+                                        </div>
+                                        <div class="card-body d-flex gap-3 align-items-center">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="vang_da_vang_mat" value="1" <%= detailHepatitis.vang_da_vang_mat === 1 ? 'checked' : '' %>>
+                                                <label class="form-check-label">
+                                                  Có
+                                                </label>
+                                              </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="vang_da_vang_mat" value="2" <%= detailHepatitis.vang_da_vang_mat === 2 ? 'checked' : '' %>>
+                                                <label class="form-check-label">
+                                                  Không
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                    <div class="card shadow">
+                                        <div class="card-header py-3 text-primary">
+                                            <h6 class="m-0 font-weight-bold text-primary">Biểu hiện phù</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="" data-plugin="virtual-select" data-config='{"placeholder":"Biểu hiện phù"}' id="bieu_hien_phu" data-value="<%=detailHepatitis.bieu_hien_phu%>" 
+                                            data-options='[{"label":"Không phù","value":0},{"label":"Phù mặt","value":1},{"label":"Phù chân","value":2},{"label":"Phù cả mặt và chân","value":3}]'></div>  
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                    <div class="card shadow">
+                                        <div class="card-header py-3 text-primary">
+                                            <h6 class="m-0 font-weight-bold text-primary">Biểu hiện cổ chướng</h6>
+                                        </div>
+                                        <div class="card-body d-flex gap-3 align-items-center">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="bieu_hien_co_chuong" value="1" <%= detailHepatitis.bieu_hien_co_chuong === 1 ? 'checked' : '' %>>
+                                                <label class="form-check-label">
+                                                  Có
+                                                </label>
+                                              </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="bieu_hien_co_chuong" value="2" <%= detailHepatitis.bieu_hien_co_chuong === 2 ? 'checked' : '' %>>
+                                                <label class="form-check-label">
+                                                  Không
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                    <div class="card shadow">
+                                        <div class="card-header py-3 text-primary">
+                                            <h6 class="m-0 font-weight-bold text-primary">Ngứa da</h6>
+                                        </div>
+                                        <div class="card-body d-flex gap-2">
+                                            <div class="" data-plugin="virtual-select" data-config='{"placeholder":"Có ngứa da không"}' id="ngua_da" data-value="<%=detailHepatitis.ngua_da%>" 
+                                            data-options='[{"label":"Không","value":0},{"label":"Cả ngày","value":1},{"label":"Về đêm","value":2},{"label":"Khác","value":3} ]'></div>
+                                            <input class="form-control d-none" placeholder="Ngứa da khác" type="text" id="ngua_da_khac" value="<%=detailHepatitis.ngua_da_khac%>">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                    <div class="card shadow">
+                                        <div class="card-header py-3 text-primary">
+                                            <h6 class="m-0 font-weight-bold text-primary">Xuất huyết tiêu hóa</h6>
+                                        </div>
+                                        <div class="card-body d-flex gap-3 align-items-center">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="xuat_huyet_tieu_hoa" value="1" <%= detailHepatitis.xuat_huyet_tieu_hoa === 1 ? 'checked' : '' %>>
+                                                <label class="form-check-label">
+                                                  Có
+                                                </label>
+                                              </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="xuat_huyet_tieu_hoa" value="2" <%= detailHepatitis.xuat_huyet_tieu_hoa === 2 ? 'checked' : '' %>>
+                                                <label class="form-check-label">
+                                                  Không
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+                <% } %>
+            </div>
+           <%- include('../layout/footer') %>
+       </div>
+   </div>
+   <script src="/js/viem-gan.js?v=<%= assetVersion %>"></script>
+   <script>
+        let hepatitisId = '<%=detailHepatitis.id%>';
+        
+        const bieuHienTieuHoaKhac = document.getElementById("bieu_hien_tieu_hoa_khac");
+        document.getElementById("bieu_hien_tieu_hoa").addEventListener("change", function (evt) {
+            if ($(this).val() == 8) {
+                bieuHienTieuHoaKhac.classList.remove("d-none"); // Hiện input
+            } else {
+                bieuHienTieuHoaKhac.classList.add("d-none"); // Ẩn input
+            }
+        });
+        // const dauHSPKhac = document.getElementById("dau_tuc_hsp_khac");
+        // document.getElementById("dau_tuc_hsp_khi").addEventListener("change", function (evt) {
+        //     if ($(this).val() == 4) {
+        //         dauHSPKhac.classList.remove("d-none"); // Hiện input
+        //     } else {
+        //         dauHSPKhac.classList.add("d-none"); // Ẩn input
+        //     }
+        // });
+        const nguaDaKhac = document.getElementById("ngua_da_khac");
+        document.getElementById("ngua_da").addEventListener("change", function (evt) {
+            if ($(this).val() == 3) {
+                nguaDaKhac.classList.remove("d-none"); // Hiện input
+            } else {
+                nguaDaKhac.classList.add("d-none"); // Ẩn input
+            }
+        });
+   </script>
+</body>
+</html>

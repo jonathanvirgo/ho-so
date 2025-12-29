@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <%- include('../layout/head') %>
+    <title>Tính nguyên liệu - <%= mealTimeName %></title>
+    <script src="/vendor/exceljs/polyfill.js"></script>
+    <script src="/vendor/exceljs/exceljs.min.js"></script>
+</head>
+<body>
+    <div id="wrapper">
+        <%- include('../layout/sidebar') %>
+        <div id="content-wrapper" class="d-flex flex-column">
+            <%- include('../layout/header') %>
+            <div class="container-fluid">
+                <% if(errors.length > 0){%>
+                    <div class="alert alert-danger">
+                        <%for(let item of errors){%>
+                            <div><%-item%></div>
+                        <%}%>
+                    </div>
+                <% } else { %>
+
+                <!-- Header -->
+                <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                    <h1 class="h3 mb-0 text-gray-800">
+                        <i class="fas fa-calculator text-success"></i> 
+                        Tính nguyên liệu: <%= dayLabel %> - <%= mealTimeName %>
+                    </h1>
+                    <div class="btn-group">
+                        <button onclick="window.history.back()" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> Quay lại
+                        </button>
+                        <button onclick="exportToExcel()" class="btn btn-success btn-sm">
+                            <i class="fas fa-file-excel"></i> Xuất Excel
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Info -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-info-circle"></i> Thông tin thực đơn
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <strong>Tên thực đơn:</strong><br>
+                                <%= menuBuild.name %>
+                            </div>
+                            <div class="col-md-2">
+                                <strong>Tuần:</strong><br>
+                                Tuần <%= week %>
+                            </div>
+                            <div class="col-md-2">
+                                <strong>Ngày:</strong><br>
+                                <%= dayLabel %>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Giờ ăn:</strong><br>
+                                <%= mealTimeName %>
+                            </div>
+                            <div class="col-md-2">
+                                <strong>Ngày tạo:</strong><br>
+                                <%= new Date(menuBuild.created_at).toLocaleDateString('vi-VN') %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-primary shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Tổng loại TP</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800"><%= ingredientsList.length %></div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-list fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-success shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Tổng chi phí</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                            <%= ingredientsList.reduce((sum, item) => sum + (item.total_cost || 0), 0).toLocaleString('vi-VN') %> VNĐ
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-info shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">KL thực đơn</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                            <%= (ingredientsList.reduce((sum, item) => sum + (item.total_weight || 0), 0) / 1000).toFixed(2) %> kg
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-weight fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-warning shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">KL cần mua</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                            <%= (ingredientsList.reduce((sum, item) => sum + (item.purchase_weight || 0), 0) / 1000).toFixed(2) %> kg
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ingredients Table -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-table"></i> Danh sách nguyên liệu
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover" id="ingredientsTable">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th width="5%">STT</th>
+                                        <th width="25%">Tên thực phẩm</th>
+                                        <th width="12%" class="text-right">KL thực đơn (g)</th>
+                                        <th width="10%" class="text-right">Phần ăn được (%)</th>
+                                        <th width="12%" class="text-right">KL cần mua (g)</th>
+                                        <th width="12%" class="text-right">Đơn giá (VNĐ/kg)</th>
+                                        <th width="14%" class="text-right">Thành tiền (VNĐ)</th>
+                                        <th width="10%">Nguồn giá</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if(ingredientsList.length === 0) { %>
+                                        <tr>
+                                            <td colspan="8" class="text-center text-muted">
+                                                <i class="fas fa-info-circle"></i> Chưa có nguyên liệu nào
+                                            </td>
+                                        </tr>
+                                    <% } else { %>
+                                        <% ingredientsList.forEach((item, index) => { %>
+                                            <tr>
+                                                <td class="text-center"><%= index + 1 %></td>
+                                                <td>
+                                                    <%= item.food_name %>
+                                                    <% if(item.food_code) { %>
+                                                        <br><small class="text-muted">(<%= item.food_code %>)</small>
+                                                    <% } %>
+                                                </td>
+                                                <td class="text-right"><%= parseFloat(item.total_weight).toFixed(2) %></td>
+                                                <td class="text-right"><%= parseFloat(item.edible).toFixed(2) %>%</td>
+                                                <td class="text-right font-weight-bold text-warning">
+                                                    <%= parseFloat(item.purchase_weight).toFixed(2) %>
+                                                </td>
+                                                <td class="text-right">
+                                                    <%= item.avg_price ? parseFloat(item.avg_price).toLocaleString('vi-VN') : '-' %>
+                                                </td>
+                                                <td class="text-right font-weight-bold text-success">
+                                                    <%= item.total_cost ? parseFloat(item.total_cost).toLocaleString('vi-VN') : '-' %>
+                                                </td>
+                                                <td class="text-center">
+                                                    <% if(item.is_reference) { %>
+                                                        <span class="badge badge-secondary" title="Giá tham khảo từ danh mục">Tham khảo</span>
+                                                    <% } else { %>
+                                                        <span class="badge badge-success" title="Giá thực tế từ nhập kho">Nhập kho</span>
+                                                    <% } %>
+                                                </td>
+                                            </tr>
+                                        <% }); %>
+                                    <% } %>
+                                </tbody>
+                                <% if(ingredientsList.length > 0) { %>
+                                    <tfoot class="thead-light">
+                                        <tr>
+                                            <th colspan="2" class="text-right">TỔNG CỘNG:</th>
+                                            <th class="text-right">
+                                                <%= (ingredientsList.reduce((sum, item) => sum + (item.total_weight || 0), 0)).toFixed(2) %> g
+                                            </th>
+                                            <th></th>
+                                            <th class="text-right font-weight-bold text-warning">
+                                                <%= (ingredientsList.reduce((sum, item) => sum + (item.purchase_weight || 0), 0)).toFixed(2) %> g
+                                            </th>
+                                            <th></th>
+                                            <th class="text-right font-weight-bold text-success">
+                                                <%= ingredientsList.reduce((sum, item) => sum + (item.total_cost || 0), 0).toLocaleString('vi-VN') %> VNĐ
+                                            </th>
+                                            <th></th>
+                                        </tr>
+                                    </tfoot>
+                                <% } %>
+                            </table>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-info-circle"></i> <strong>Ghi chú:</strong>
+                            <ul class="mb-0 mt-2">
+                                <li><strong>KL thực đơn:</strong> Khối lượng thực phẩm đã chế biến trong thực đơn</li>
+                                <li><strong>Phần ăn được:</strong> Tỷ lệ phần ăn được sau khi sơ chế (100% - tỷ lệ thải bỏ)</li>
+                                <li><strong>KL cần mua:</strong> Khối lượng cần đi chợ = KL thực đơn / (Phần ăn được / 100)</li>
+                                <li><strong>Nguồn giá:</strong>
+                                    <span class="badge badge-success">Nhập kho</span> = Tính theo giá nhập kho thực tế (FIFO) |
+                                    <span class="badge badge-secondary">Tham khảo</span> = Giá tham khảo (chưa có nhập kho)
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <% } %>
+            </div>
+            <%- include('../layout/footer') %>
+        </div>
+    </div>
+
+    <script>
+        function exportToExcel() {
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Nguyên liệu');
+
+            // Title
+            worksheet.mergeCells('A1:H1');
+            worksheet.getCell('A1').value = 'TÍNH NGUYÊN LIỆU - <%= dayLabel %> - <%= mealTimeName %>';
+            worksheet.getCell('A1').font = { size: 16, bold: true };
+            worksheet.getCell('A1').alignment = { horizontal: 'center' };
+
+            // Info
+            worksheet.getCell('A2').value = 'Thực đơn: <%= menuBuild.name %>';
+            worksheet.getCell('A3').value = 'Tuần <%= week %> - <%= dayLabel %> - <%= mealTimeName %>';
+
+            // Headers
+            const headers = ['STT', 'Tên thực phẩm', 'KL thực đơn (g)', 'Phần ăn được (%)', 'KL cần mua (g)', 'Đơn giá (VNĐ/kg)', 'Thành tiền (VNĐ)', 'Nguồn giá'];
+            worksheet.addRow([]);
+            const headerRow = worksheet.addRow(headers);
+            headerRow.font = { bold: true };
+            headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9E1F2' } };
+
+            // Data
+            <% ingredientsList.forEach((item, index) => { %>
+                worksheet.addRow([
+                    <%= index + 1 %>,
+                    '<%= item.food_name %>',
+                    <%= parseFloat(item.total_weight).toFixed(2) %>,
+                    <%= parseFloat(item.edible).toFixed(2) %>,
+                    <%= parseFloat(item.purchase_weight).toFixed(2) %>,
+                    <%= item.avg_price || 0 %>,
+                    <%= item.total_cost || 0 %>,
+                    '<%= item.is_reference ? "Tham khảo" : "Nhập kho" %>'
+                ]);
+            <% }); %>
+
+            // Total
+            const totalRow = worksheet.addRow([
+                '', 'TỔNG CỘNG',
+                <%= ingredientsList.reduce((sum, item) => sum + (item.total_weight || 0), 0).toFixed(2) %>,
+                '',
+                <%= ingredientsList.reduce((sum, item) => sum + (item.purchase_weight || 0), 0).toFixed(2) %>,
+                '',
+                <%= ingredientsList.reduce((sum, item) => sum + (item.total_cost || 0), 0) %>,
+                ''
+            ]);
+            totalRow.font = { bold: true };
+
+            // Column widths
+            worksheet.columns = [
+                { width: 8 }, { width: 30 }, { width: 15 }, { width: 15 },
+                { width: 15 }, { width: 18 }, { width: 18 }, { width: 15 }
+            ];
+
+            // Export
+            workbook.xlsx.writeBuffer().then(buffer => {
+                const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'Nguyen_lieu_<%= dayLabel %>_<%= mealTimeName %>.xlsx';
+                a.click();
+            });
+        }
+    </script>
+</body>
+</html>
+

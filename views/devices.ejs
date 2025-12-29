@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <%- include('./layout/head') %>
+    <title>Quản lý thiết bị - Patients</title>
+    <style>
+        .device-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        .device-card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .device-card.current {
+            border-color: #28a745;
+            background-color: #f8fff9;
+        }
+        .device-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .device-icon {
+            font-size: 24px;
+            margin-right: 15px;
+            width: 40px;
+            text-align: center;
+            color: #4e73df;
+        }
+        .device-details {
+            flex: 1;
+        }
+        .device-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .device-meta {
+            font-size: 12px;
+            color: #666;
+        }
+        .device-actions {
+            text-align: right;
+        }
+        .settings-card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #e3e6f0;
+        }
+        .status-badge {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 10px;
+        }
+        .status-current {
+            background-color: #28a745;
+            color: white;
+        }
+        .status-active {
+            background-color: #17a2b8;
+            color: white;
+        }
+        .device-stats {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div id="wrapper">
+        <%- include('./layout/sidebar') %>
+         <!-- Content Wrapper -->
+       <div id="content-wrapper" class="d-flex flex-column">
+        <!-- Main Content -->
+        <div id="content">
+            <%- include('./layout/header') %>
+            <%if(errors.length > 0){%>
+                <div class="container">
+                    <div class="box mt-3">
+                        <%for(let item of errors){%>
+                        <div><%-JSON.stringify(item)%></div>
+                        <%}%>
+                    </div>
+                </div>
+            <%}else{%>
+                <div class="container mt-4">
+                    <div class="row">
+                        <div class="col-12">
+                            <h2><i class="fas fa-mobile-alt"></i> Quản lý thiết bị đăng nhập</h2>
+                            <p class="text-muted">Xem và quản lý các thiết bị đang đăng nhập vào tài khoản của bạn</p>
+                        </div>
+                    </div>
+
+                    <!-- Thống kê thiết bị -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="device-stats">
+                                <div class="row">
+                                    <div class="col-md-3 stat-item">
+                                        <div class="stat-number" id="totalDevices">0</div>
+                                        <div class="stat-label">Tổng thiết bị</div>
+                                    </div>
+                                    <div class="col-md-3 stat-item">
+                                        <div class="stat-number" id="activeDevices">0</div>
+                                        <div class="stat-label">Đang hoạt động</div>
+                                    </div>
+                                    <div class="col-md-3 stat-item">
+                                        <div class="stat-number" id="currentDevice">1</div>
+                                        <div class="stat-label">Thiết bị hiện tại</div>
+                                    </div>
+                                    <div class="col-md-3 stat-item">
+                                        <div class="stat-number" id="otherDevices">0</div>
+                                        <div class="stat-label">Thiết bị khác</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            
+                    <!-- Cài đặt Session -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="settings-card">
+                                <h5><i class="fas fa-cog"></i> Cài đặt Session</h5>
+                                <form id="settingsForm">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <label>Số session tối đa:</label>
+                                            <input type="number" class="form-control" id="maxSessions" min="1" max="10">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label>Thời gian timeout (giờ):</label>
+                                            <input type="number" class="form-control" id="timeoutHours" min="1" max="168">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label>Cho phép nhiều thiết bị:</label>
+                                            <select class="form-control" id="allowMultiple">
+                                                <option value="1">Có</option>
+                                                <option value="0">Không</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label>&nbsp;</label>
+                                            <button type="submit" class="btn btn-primary btn-block">
+                                                <i class="fas fa-save"></i> Lưu cài đặt
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+            
+                    <!-- Danh sách thiết bị -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5><i class="fas fa-list"></i> Thiết bị đang hoạt động</h5>
+                                <div>
+                                    <button class="btn btn-info mr-2" onclick="refreshDevices()">
+                                        <i class="fas fa-sync-alt"></i> Làm mới
+                                    </button>
+                                    <button class="btn btn-warning" onclick="logoutAllOthers()">
+                                        <i class="fas fa-sign-out-alt"></i> Logout tất cả thiết bị khác
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div id="devicesList">
+                                <div class="text-center">
+                                    <i class="fas fa-spinner fa-spin fa-2x"></i>
+                                    <p>Đang tải...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <%}%>
+        </div>
+        <%- include('./layout/footer') %>
+        </div>
+    </div>
+    <!-- Modal xác nhận logout -->
+    <div class="modal fade" id="logoutModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác nhận logout</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn logout thiết bị này?</p>
+                    <p class="text-muted" id="deviceName"></p>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Lưu ý:</strong> Thiết bị sẽ bị đăng xuất ngay lập tức và cần đăng nhập lại để sử dụng.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmLogout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDevices = [];
+        let selectedTokenId = null;
+
+        // Load devices khi trang load
+        $(document).ready(function() {
+            loadDevices();
+            loadSettings();
+        });
+
+        // Load danh sách thiết bị
+        function loadDevices() {
+            $.get('/devices')
+                .done(function(response) {
+                    if (response.success) {
+                        currentDevices = response.data.devices;
+                        displayDevices(response.data.devices);
+                        updateStats(response.data.devices);
+                    } else {
+                        showError('Lỗi khi tải danh sách thiết bị');
+                    }
+                })
+                .fail(function() {
+                    showError('Lỗi kết nối');
+                });
+        }
+
+        // Làm mới danh sách thiết bị
+        function refreshDevices() {
+            loadDevices();
+            showSuccess('Đã làm mới danh sách thiết bị');
+        }
+
+        // Cập nhật thống kê
+        function updateStats(devices) {
+            const total = devices.length;
+            const active = devices.filter(d => d.isCurrentSession || true).length;
+            const current = devices.filter(d => d.isCurrentSession).length;
+            const others = devices.filter(d => !d.isCurrentSession).length;
+
+            $('#totalDevices').text(total);
+            $('#activeDevices').text(active);
+            $('#currentDevice').text(current);
+            $('#otherDevices').text(others);
+        }
+
+        // Load cài đặt
+        function loadSettings() {
+            $.get('/devices/settings')
+                .done(function(response) {
+                    if (response.success) {
+                        const settings = response.data;
+                        $('#maxSessions').val(settings.max_sessions);
+                        $('#timeoutHours').val(settings.session_timeout_hours);
+                        $('#allowMultiple').val(settings.allow_multiple_devices);
+                    }
+                })
+                .fail(function() {
+                    console.log('Không thể tải cài đặt');
+                });
+        }
+
+        // Hiển thị danh sách thiết bị
+        function displayDevices(devices) {
+            const container = $('#devicesList');
+            
+            if (devices.length === 0) {
+                container.html('<div class="text-center"><p>Không có thiết bị nào đang hoạt động</p></div>');
+                return;
+            }
+
+            let html = '';
+            devices.forEach(device => {
+                const isCurrent = device.isCurrentSession;
+                const deviceIcon = getDeviceIcon(device.deviceType);
+                const statusClass = isCurrent ? 'status-current' : 'status-active';
+                const statusText = isCurrent ? 'Hiện tại' : 'Hoạt động';
+                const cardClass = isCurrent ? 'device-card current' : 'device-card';
+                
+                html += `
+                    <div class="${cardClass}">
+                        <div class="device-info">
+                            <div class="device-icon">
+                                <i class="${deviceIcon}"></i>
+                            </div>
+                            <div class="device-details">
+                                <div class="device-name">
+                                    ${device.deviceName}
+                                    <span class="status-badge ${statusClass}">${statusText}</span>
+                                </div>
+                                <div class="device-meta">
+                                    <i class="fas fa-globe"></i> ${device.browser} | 
+                                    <i class="fas fa-desktop"></i> ${device.os} | 
+                                    <i class="fas fa-map-marker-alt"></i> ${device.ipAddress} | 
+                                    <i class="fas fa-clock"></i> ${formatDate(device.lastActivity)}
+                                </div>
+                            </div>
+                            <div class="device-actions">
+                                ${!isCurrent ? `<button class="btn btn-sm btn-outline-danger" onclick="logoutDevice('${device.tokenId}', '${device.deviceName}')">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </button>` : '<span class="text-success"><i class="fas fa-check-circle"></i> Thiết bị hiện tại</span>'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.html(html);
+        }
+
+        // Lấy icon cho loại thiết bị
+        function getDeviceIcon(deviceType) {
+            switch(deviceType) {
+                case 'mobile': return 'fas fa-mobile-alt';
+                case 'tablet': return 'fas fa-tablet-alt';
+                case 'desktop': return 'fas fa-desktop';
+                default: return 'fas fa-question-circle';
+            }
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 60000) { // < 1 phút
+                return 'Vừa xong';
+            } else if (diff < 3600000) { // < 1 giờ
+                return Math.floor(diff / 60000) + ' phút trước';
+            } else if (diff < 86400000) { // < 1 ngày
+                return Math.floor(diff / 3600000) + ' giờ trước';
+            } else {
+                return date.toLocaleDateString('vi-VN');
+            }
+        }
+
+        // Logout một thiết bị
+        function logoutDevice(tokenId, deviceName) {
+            selectedTokenId = tokenId;
+            $('#deviceName').text(deviceName);
+            $('#logoutModal').modal('show');
+        }
+
+        // Xác nhận logout
+        function confirmLogout() {
+            if (!selectedTokenId) return;
+            
+            // Disable button để tránh double click
+            const confirmBtn = $('#logoutModal .btn-danger');
+            confirmBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang xử lý...');
+            
+            $.post('/devices/logout', { tokenId: selectedTokenId })
+                .done(function(response) {
+                    if (response.success) {
+                        showSuccess('Đã logout thiết bị thành công');
+                        loadDevices();
+                    } else {
+                        showError(response.message);
+                    }
+                })
+                .fail(function() {
+                    showError('Lỗi khi logout thiết bị');
+                })
+                .always(function() {
+                    $('#logoutModal').modal('hide');
+                    selectedTokenId = null;
+                    confirmBtn.prop('disabled', false).html('<i class="fas fa-sign-out-alt"></i> Logout');
+                });
+        }
+
+        // Logout tất cả thiết bị khác
+        function logoutAllOthers() {
+            const otherDevices = currentDevices.filter(d => !d.isCurrentSession);
+            
+            if (otherDevices.length === 0) {
+                showInfo('Không có thiết bị nào khác để logout');
+                return;
+            }
+            
+            Swal.fire({
+                title: 'Xác nhận logout',
+                html: `Bạn có chắc chắn muốn logout <strong>${otherDevices.length}</strong> thiết bị khác?<br><br>
+                       <small class="text-muted">Các thiết bị sẽ bị đăng xuất ngay lập tức.</small>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Có, logout tất cả!',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post('/devices/logout-all-others')
+                        .done(function(response) {
+                            if (response.success) {
+                                showSuccess(`Đã logout ${otherDevices.length} thiết bị khác thành công`);
+                                loadDevices();
+                            } else {
+                                showError(response.message);
+                            }
+                        })
+                        .fail(function() {
+                            showError('Lỗi khi logout thiết bị');
+                        });
+                }
+            });
+        }
+
+        // Cập nhật cài đặt
+        $('#settingsForm').submit(function(e) {
+            e.preventDefault();
+            
+            const settings = {
+                max_sessions: parseInt($('#maxSessions').val()),
+                session_timeout_hours: parseInt($('#timeoutHours').val()),
+                allow_multiple_devices: parseInt($('#allowMultiple').val())
+            };
+            
+            $.post('/devices/settings', settings)
+                .done(function(response) {
+                    if (response.success) {
+                        showSuccess('Cập nhật cài đặt thành công');
+                    } else {
+                        showError(response.message);
+                    }
+                })
+                .fail(function() {
+                    showError('Lỗi khi cập nhật cài đặt');
+                });
+        });
+
+        // Utility functions
+        function showSuccess(message) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công!',
+                text: message,
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }
+
+        function showError(message) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi!',
+                text: message
+            });
+        }
+
+        function showInfo(message) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Thông báo',
+                text: message,
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }
+
+        // Auto refresh mỗi 30 giây
+        setInterval(loadDevices, 30000);
+    </script>
+</body>
+</html> 

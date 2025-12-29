@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../layout/head') %>
+    <title>Cấu hình Trường Khảo sát - <%= surveyConfig.name %></title>
+
+    <!-- Custom styles for survey system -->
+    <link href="/css/survey-system.css" rel="stylesheet">
+
+    <!-- jQuery UI for sortable -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/ui-lightness/jquery-ui.css">
+</head>
+
+<body>
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <%- include('../layout/sidebar') %>
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Header -->
+                <%- include('../layout/header') %>
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <div>
+                            <h1 class="h3 mb-0 text-gray-800">Cấu hình Trường Khảo sát</h1>
+                            <p class="mb-0 text-muted">
+                                Dự án: <strong><%= project.name %></strong> | 
+                                Khảo sát: <strong><%= surveyConfig.name %></strong>
+                            </p>
+                        </div>
+                        <div>
+                            <a href="/survey/<%= surveyConfig.survey_url_slug %>" target="_blank" class="d-none d-sm-inline-block btn btn-sm btn-info shadow-sm">
+                                <i class="fas fa-external-link-alt fa-sm text-white-50"></i> Xem Khảo sát
+                            </a>
+                            <a href="/projects/<%= project.id %>/surveys" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+                                <i class="fas fa-arrow-left fa-sm text-white-50"></i> Quay lại
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Survey Info Card -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card border-left-info shadow">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <h5 class="font-weight-bold text-info"><%= surveyConfig.name %></h5>
+                                            <p class="text-gray-600"><%= surveyConfig.description || 'Không có mô tả' %></p>
+                                            <div class="survey-url-display">
+                                                <strong>URL Khảo sát:</strong> 
+                                                <a href="/survey/<%= surveyConfig.survey_url_slug %>" target="_blank">
+                                                    <%= `${req.protocol}://${req.get('host')}/survey/${surveyConfig.survey_url_slug}` %>
+                                                </a>
+                                                <button type="button" class="btn btn-sm btn-outline-primary copy-link-btn ml-2" 
+                                                        onclick="copyLink('<%= `${req.protocol}://${req.get('host')}/survey/${surveyConfig.survey_url_slug}` %>')">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 text-right">
+                                            <% 
+                                            const statusText = surveyConfig.active === 1 ? 'Hoạt động' : 'Tạm dừng';
+                                            const statusClass = surveyConfig.active === 1 ? 'success' : 'warning';
+                                            %>
+                                            <span class="badge badge-<%= statusClass %> badge-lg"><%= statusText %></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Field Configuration -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                                    <h6 class="m-0 font-weight-bold text-primary">Cấu hình Trường</h6>
+                                    <button type="button" class="btn btn-sm btn-success" id="add-field-btn">
+                                        <i class="fas fa-plus"></i> Thêm Trường
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle"></i>
+                                        <strong>Hướng dẫn:</strong> Kéo thả để sắp xếp thứ tự các trường. 
+                                        Các trường sẽ hiển thị theo thứ tự này trong form khảo sát.
+                                    </div>
+
+                                    <form id="field-config-form">
+                                        <input type="hidden" id="survey-config-id" value="<%= surveyConfig.id %>">
+                                        
+                                        <div id="fields-container">
+                                            <!-- Fields will be loaded here -->
+                                        </div>
+
+                                        <div class="text-center mt-4">
+                                            <button type="submit" class="btn btn-primary btn-lg" id="save-fields-btn">
+                                                <i class="fas fa-save"></i> Lưu Cấu hình
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Field Types Reference -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Tham khảo Loại Trường</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h6 class="font-weight-bold">Trường Văn bản:</h6>
+                                            <ul class="list-unstyled">
+                                                <li><strong>Text:</strong> Nhập văn bản ngắn</li>
+                                                <li><strong>Textarea:</strong> Nhập văn bản dài</li>
+                                                <li><strong>Email:</strong> Nhập địa chỉ email</li>
+                                                <li><strong>Number:</strong> Nhập số</li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6 class="font-weight-bold">Trường Lựa chọn:</h6>
+                                            <ul class="list-unstyled">
+                                                <li><strong>Select:</strong> Chọn một tùy chọn</li>
+                                                <li><strong>Multi Select:</strong> Chọn nhiều tùy chọn</li>
+                                                <li><strong>Radio:</strong> Chọn một trong nhiều</li>
+                                                <li><strong>Checkbox:</strong> Chọn nhiều trong nhiều</li>
+                                                <li><strong>Date/DateTime:</strong> Chọn ngày/giờ</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+
+            <!-- Footer -->
+            <%- include('../layout/footer') %>
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Survey System JS -->
+    <script src="/js/survey-system.js?v=<%= assetVersion %>"></script>
+
+    <script>
+        // Pass survey fields data to JavaScript
+        window.surveyFields = <%- JSON.stringify(surveyFields) %>;
+        
+        $(document).ready(function() {
+            // Initialize field configuration
+            if (typeof initializeFieldConfiguration === 'function') {
+                initializeFieldConfiguration();
+            }
+        });
+    </script>
+
+</body>
+
+</html>

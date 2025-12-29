@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../layout/head') %>
+    <title>Chỉnh sửa Dự án - Hệ thống Khảo sát</title>
+
+    <!-- Custom styles for survey system -->
+    <link href="/css/survey-system.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <%- include('../layout/sidebar') %>
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Header -->
+                <%- include('../layout/header') %>
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">Chỉnh sửa Dự án</h1>
+                        <div>
+                            <a href="/projects/<%= project.id %>/surveys" class="d-none d-sm-inline-block btn btn-sm btn-info shadow-sm">
+                                <i class="fas fa-poll fa-sm text-white-50"></i> Quản lý Khảo sát
+                            </a>
+                            <a href="/projects/<%= project.id %>/survey-data" class="d-none d-sm-inline-block btn btn-sm btn-warning shadow-sm">
+                                <i class="fas fa-database fa-sm text-white-50"></i> Dữ liệu Khảo sát
+                            </a>
+                            <a href="/projects" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+                                <i class="fas fa-arrow-left fa-sm text-white-50"></i> Quay lại
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Content Row -->
+                    <div class="row justify-content-center">
+                        <div class="col-xl-8 col-lg-10">
+                            <!-- Project Form Card -->
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Thông tin Dự án</h6>
+                                </div>
+                                <div class="card-body">
+                                    <form id="project-form">
+                                        <input type="hidden" id="project-id" name="id" value="<%= project.id %>">
+                                        
+                                        <div class="form-group">
+                                            <label for="project-name">Tên Dự án <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="project-name" name="name" 
+                                                   value="<%= project.name %>" placeholder="Nhập tên dự án" required>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="project-description">Mô tả Dự án</label>
+                                            <textarea class="form-control" id="project-description" name="description" 
+                                                      rows="4" placeholder="Nhập mô tả chi tiết về dự án"><%= project.description || '' %></textarea>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="project-start-date">Ngày Bắt đầu</label>
+                                                    <input type="date" class="form-control" id="project-start-date" name="start_date" 
+                                                           value="<%= project.start_date ? moment(project.start_date).format('YYYY-MM-DD') : '' %>">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="project-end-date">Ngày Kết thúc</label>
+                                                    <input type="date" class="form-control" id="project-end-date" name="end_date" 
+                                                           value="<%= project.end_date ? moment(project.end_date).format('YYYY-MM-DD') : '' %>">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="project-status">Trạng thái</label>
+                                            <select class="form-control" id="project-status" name="status">
+                                                <option value="1" <%= project.status === 1 ? 'selected' : '' %>>Hoạt động</option>
+                                                <option value="0" <%= project.status === 0 ? 'selected' : '' %>>Tạm dừng</option>
+                                            </select>
+                                        </div>
+
+                                        <% if (project.google_sheet_url) { %>
+                                        <div class="form-group">
+                                            <label>Google Sheet</label>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" value="<%= project.google_sheet_url %>" readonly>
+                                                <div class="input-group-append">
+                                                    <a href="<%= project.google_sheet_url %>" target="_blank" class="btn btn-outline-primary">
+                                                        <i class="fas fa-external-link-alt"></i> Mở
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <small class="form-text text-muted">Google Sheet để lưu trữ dữ liệu khảo sát</small>
+                                        </div>
+                                        <% } %>
+
+                                        <hr>
+
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <small class="text-muted">
+                                                    <strong>Ngày tạo:</strong> <%= moment(project.created_at).format('DD/MM/YYYY HH:mm') %>
+                                                </small>
+                                            </div>
+                                            <% if (project.updated_at) { %>
+                                            <div class="col-md-6 text-right">
+                                                <small class="text-muted">
+                                                    <strong>Cập nhật lần cuối:</strong> <%= moment(project.updated_at).format('DD/MM/YYYY HH:mm') %>
+                                                </small>
+                                            </div>
+                                            <% } %>
+                                        </div>
+
+                                        <hr>
+
+                                        <div class="form-group text-right">
+                                            <button type="button" class="btn btn-secondary" onclick="window.history.back()">
+                                                <i class="fas fa-times"></i> Hủy
+                                            </button>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-save"></i> Cập nhật
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!-- Quick Actions Card -->
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Thao tác nhanh</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <a href="/projects/<%= project.id %>/surveys" class="btn btn-info btn-block">
+                                                <i class="fas fa-poll"></i><br>
+                                                Quản lý Khảo sát
+                                            </a>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <a href="/projects/<%= project.id %>/surveys/create" class="btn btn-success btn-block">
+                                                <i class="fas fa-plus"></i><br>
+                                                Tạo Khảo sát Mới
+                                            </a>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <a href="/projects/<%= project.id %>/survey-data" class="btn btn-warning btn-block">
+                                                <i class="fas fa-database"></i><br>
+                                                Dữ liệu Khảo sát
+                                            </a>
+                                        </div>
+                                        <% if (project.google_sheet_url) { %>
+                                        <div class="col-md-4">
+                                            <a href="<%= project.google_sheet_url %>" target="_blank" class="btn btn-warning btn-block">
+                                                <i class="fas fa-table"></i><br>
+                                                Xem Google Sheet
+                                            </a>
+                                        </div>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+
+            <!-- Footer -->
+            <%- include('../layout/footer') %>
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Survey System JS -->
+    <script src="/js/survey-system.js?v=<%= assetVersion %>"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Initialize date pickers
+            flatpickr("#project-start-date", {
+                dateFormat: "Y-m-d",
+                locale: "vn"
+            });
+
+            flatpickr("#project-end-date", {
+                dateFormat: "Y-m-d",
+                locale: "vn"
+            });
+
+            // Validate end date is after start date
+            $('#project-end-date').on('change', function() {
+                const startDate = $('#project-start-date').val();
+                const endDate = $(this).val();
+
+                if (startDate && endDate && new Date(endDate) < new Date(startDate)) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Cảnh báo!',
+                        text: 'Ngày kết thúc phải sau ngày bắt đầu'
+                    });
+                    $(this).val('');
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>

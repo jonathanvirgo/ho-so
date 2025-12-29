@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../layout/head') %>
+        <title>Admin - Quản lý Log</title>
+</head>
+
+<body>
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+        <%- include('../layout/sidebar') %>
+            <!-- Content Wrapper -->
+            <div id="content-wrapper" class="d-flex flex-column">
+                <!-- Main Content -->
+                <div id="content">
+                    <%- include('../layout/header') %>
+
+                    <div class="container-fluid">
+                        <!-- Page Heading -->
+                        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                            <h1 class="h3 mb-0 text-gray-800">Quản lý Log</h1>
+                        </div>
+
+                        <% if (errors && errors.length > 0) { %>
+                            <% errors.forEach(function(error) { %>
+                                <div class="alert alert-danger" role="alert">
+                                    <%= error %>
+                                </div>
+                            <% }); %>
+                        <% } %>
+
+                        <!-- Activity Logs Card -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-warning">Activity Logs</h6>
+                                <button class="btn btn-danger btn-sm" onclick="clearAllLogs('activity')">
+                                    <i class="fas fa-trash"></i> Xóa toàn bộ
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" id="activityLogsTable" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>User ID</th>
+                                                <th>Name</th>
+                                                <th>Message</th>
+                                                <th>URL</th>
+                                                <th>Method</th>
+                                                <th>IP</th>
+                                                <th>Created At</th>
+                                                <th>Thao tác</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Audit Logs Card -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">Audit Logs</h6>
+                                <button class="btn btn-danger btn-sm" onclick="clearAllLogs('audit')">
+                                    <i class="fas fa-trash"></i> Xóa toàn bộ
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" id="auditLogsTable" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>User ID</th>
+                                                <th>Email</th>
+                                                <th>Action</th>
+                                                <th>Resource</th>
+                                                <th>IP Address</th>
+                                                <th>Timestamp</th>
+                                                <th>Thao tác</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Auth Logs Card -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-success">Auth Logs</h6>
+                                <button class="btn btn-danger btn-sm" onclick="clearAllLogs('auth')">
+                                    <i class="fas fa-trash"></i> Xóa toàn bộ
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" id="authLogsTable" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>Email</th>
+                                                <th>Action</th>
+                                                <th>Success</th>
+                                                <th>IP Address</th>
+                                                <th>Timestamp</th>
+                                                <th>Thao tác</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <%- include('../layout/footer') %>
+            </div>
+    </div>
+    <script>
+        $(document).ready(function() {
+            // Initialize Audit Logs DataTable
+            $('#auditLogsTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: '/admin/logs/audit/list',
+                    type: 'POST'
+                },
+                columns: [
+                    {
+                        data: 'user_id',
+                        orderable: true,
+                        searchable: false
+                    },
+                    {
+                        data: 'email',
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: 'action',
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: 'resource',
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: 'ip_address',
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: 'created_at',
+                        orderable: true,
+                        searchable: false,
+                        render: function(data, type, row) {
+                            return data ? moment(data).format('DD/MM/YYYY HH:mm:ss') : '';
+                        }
+                    },
+                    {
+                        data: 'id',
+                        orderable: false,
+                        searchable: false,
+                        render: function(data, type, row) {
+                            return '<button class="btn btn-danger btn-sm" onclick="deleteLog(\'audit\', ' + data + ')"><i class="fas fa-trash"></i></button>';
+                        }
+                    }
+                ],
+                // Cấu hình order mặc định DESC
+                order: [], // Để trống để server xử lý order
+                // Cấu hình searching
+                searching: true, // Bật tính năng search
+                // Cấu hình ordering
+                ordering: true, // Bật tính năng sort
+                pageLength: 10,
+                language: {
+                    url: '/vendor/datatables/vi.json'
+                },
+                layout:{
+                    topStart: 'paging',
+                    topEnd: 'search',
+                    bottomStart: ['paging', 'info'],
+                    bottomEnd:  'pageLength'
+                }
+            });
+
+            // Initialize Auth Logs DataTable
+            $('#authLogsTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: '/admin/logs/auth/list',
+                    type: 'POST'
+                },
+                columns: [
+                    {
+                        data: 'email',
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: 'action',
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: 'success',
+                        orderable: true,
+                        searchable: false,
+                        render: function(data, type, row) {
+                            return data == 1 ? '<span class="badge badge-success">Success</span>' : '<span class="badge badge-danger">Failed</span>';
+                        }
+                    },
+                    {
+                        data: 'ip_address',
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: 'created_at',
+                        orderable: true,
+                        searchable: false,
+                        render: function(data, type, row) {
+                            return data ? moment(data).format('DD/MM/YYYY HH:mm:ss') : '';
+                        }
+                    },
+                    {
+                        data: 'id',
+                        orderable: false,
+                        searchable: false,
+                        render: function(data, type, row) {
+                            return '<button class="btn btn-danger btn-sm" onclick="deleteLog(\'auth\', ' + data + ')"><i class="fas fa-trash"></i></button>';
+                        }
+                    }
+                ],
+                order: [[5, 'desc']],
+                pageLength: 10,
+                language: {
+                             url: '/vendor/datatables/vi.json'
+                },
+                layout:{
+                    topStart: 'paging',
+                    topEnd: 'search',
+                    bottomStart: ['paging', 'info'],
+                    bottomEnd:  'pageLength'
+                }
+            });
+
+            // Initialize Activity Logs DataTable
+            $('#activityLogsTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: '/admin/logs/activity/list',
+                    type: 'POST'
+                },
+                columns: [
+                    { data: 'user_id' },
+                    { data: 'name' },
+                    { 
+                        data: 'message',
+                        render: function(data, type, row) {
+                            return data && data.length > 50 ? data.substring(0, 50) + '...' : data;
+                        }
+                    },
+                    { data: 'url' },
+                    { data: 'method' },
+                    { data: 'ip' },
+                    { 
+                        data: 'created_at',
+                        render: function(data, type, row) {
+                            return data ? moment(data).format('DD/MM/YYYY HH:mm:ss') : '';
+                        }
+                    },
+                    {
+                        data: 'id',
+                        orderable: false,
+                        render: function(data, type, row) {
+                            return '<button class="btn btn-danger btn-sm" onclick="deleteLog(\'activity\', ' + data + ')"><i class="fas fa-trash"></i></button>';
+                        }
+                    }
+                ],
+                order: [[7, 'desc']],
+                pageLength: 10,
+                language: {
+                             url: '/vendor/datatables/vi.json'
+                },
+                layout:{
+                    topStart: 'paging',
+                    topEnd: 'search',
+                    bottomStart: ['paging', 'info'],
+                    bottomEnd:  'pageLength'
+                }
+            });
+        });
+
+        // Delete individual log
+        function deleteLog(type, id) {
+            Swal.fire({
+                title: 'Xác nhận xóa',
+                text: 'Bạn có chắc chắn muốn xóa log này?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Xóa',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/admin/logs/' + type + '/delete/' + id,
+                        type: 'POST',
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire('Thành công!', response.message, 'success');
+                                // Reload appropriate table
+                                $('#' + type + 'LogsTable').DataTable().ajax.reload();
+                            } else {
+                                Swal.fire('Lỗi!', response.message, 'error');
+                            }
+                        },
+                        error: function() {
+                            Swal.fire('Lỗi!', 'Có lỗi xảy ra khi xóa log', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        // Clear all logs
+        function clearAllLogs(type) {
+            Swal.fire({
+                title: 'Xác nhận xóa toàn bộ',
+                text: 'Bạn có chắc chắn muốn xóa TOÀN BỘ ' + type + ' logs? Hành động này không thể hoàn tác!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Xóa toàn bộ',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/admin/logs/' + type + '/clear-all',
+                        type: 'POST',
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire('Thành công!', response.message, 'success');
+                                // Reload appropriate table
+                                $('#' + type + 'LogsTable').DataTable().ajax.reload();
+                            } else {
+                                Swal.fire('Lỗi!', response.message, 'error');
+                            }
+                        },
+                        error: function() {
+                            Swal.fire('Lỗi!', 'Có lỗi xảy ra khi xóa logs', 'error');
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

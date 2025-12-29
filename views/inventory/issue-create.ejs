@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <%- include('../layout/head') %>
+    <title>Xuất kho - <%= warehouse ? warehouse.name : 'Kho' %></title>
+    <link href="/vendor/virtual-select/virtual-select.min.css" rel="stylesheet">
+    <link href="/vendor/flatpickr/flatpickr.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="wrapper">
+        <%- include('../layout/sidebar') %>
+        <div id="content-wrapper" class="d-flex flex-column">
+            <%- include('../layout/header') %>
+            <div class="container-fluid">
+                <% if(errors.length > 0){%>
+                    <div class="alert alert-danger">
+                        <%for(let item of errors){%>
+                            <div><%-item%></div>
+                        <%}%>
+                    </div>
+                <% } else { %>
+
+                <!-- Header -->
+                <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                    <h1 class="h3 mb-0 text-gray-800">
+                        <i class="fas fa-arrow-up text-warning"></i> Phiếu xuất kho: <%= warehouse.name %>
+                    </h1>
+                    <a href="/inventory/stock/<%= warehouse.id %>" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-arrow-left"></i> Quay lại
+                    </a>
+                </div>
+
+                <!-- Issue Form -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-file-alt"></i> Thông tin phiếu xuất
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <form id="issueForm">
+                            <input type="hidden" id="warehouseId" value="<%= warehouse.id %>">
+                            
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Mã phiếu xuất <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="issueCode" value="<%= issueCode %>" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Ngày xuất <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="issueDate" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Loại xuất</label>
+                                        <select class="form-control" id="issueType">
+                                            <option value="manual">Xuất thủ công</option>
+                                            <option value="menu">Xuất theo thực đơn</option>
+                                            <option value="waste">Hao hụt</option>
+                                            <option value="return">Trả lại</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Người nhận</label>
+                                        <input type="text" class="form-control" id="receiver" placeholder="Tên người nhận">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>Ghi chú</label>
+                                        <textarea class="form-control" id="note" rows="2" placeholder="Ghi chú thêm..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Issue Items -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-list"></i> Chi tiết xuất kho
+                        </h6>
+                        <button type="button" class="btn btn-success btn-sm" onclick="addRow()">
+                            <i class="fas fa-plus"></i> Thêm dòng
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm" id="itemsTable">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th width="5%">STT</th>
+                                        <th width="35%">Thực phẩm <span class="text-danger">*</span></th>
+                                        <th width="15%">Tồn kho hiện tại</th>
+                                        <th width="15%">Số lượng xuất <span class="text-danger">*</span></th>
+                                        <th width="10%">ĐVT</th>
+                                        <th width="15%">Ghi chú</th>
+                                        <th width="5%">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="itemsBody">
+                                    <!-- Rows will be added here -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-info-circle"></i> <strong>Lưu ý:</strong>
+                            <ul class="mb-0 mt-2">
+                                <li>Hệ thống tự động xuất kho theo nguyên tắc <strong>FIFO</strong> (nhập trước xuất trước)</li>
+                                <li>Kiểm tra tồn kho trước khi xuất để tránh xuất quá số lượng có sẵn</li>
+                                <li>Số lượng xuất phải lớn hơn 0 và không vượt quá tồn kho</li>
+                            </ul>
+                        </div>
+
+                        <div class="mt-3 text-right">
+                            <button type="button" class="btn btn-secondary" onclick="window.history.back()">
+                                <i class="fas fa-times"></i> Hủy
+                            </button>
+                            <button type="button" class="btn btn-warning" onclick="saveIssue()">
+                                <i class="fas fa-save"></i> Lưu phiếu xuất
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <% } %>
+            </div>
+            <%- include('../layout/footer') %>
+        </div>
+    </div>
+
+    <script src="/vendor/virtual-select/virtual-select.min.js"></script>
+    <script src="/vendor/flatpickr/flatpickr.js"></script>
+    <script src="/vendor/flatpickr/flatpickr.vn.js"></script>
+    <script>
+        let rowCounter = 0;
+        let foodsData = [];
+        let stockData = {};
+
+        $(document).ready(function() {
+            // Init date picker
+            flatpickr("#issueDate", {
+                locale: "vn",
+                dateFormat: "Y-m-d",
+                defaultDate: new Date()
+            });
+
+            // Load foods and stock
+            loadData();
+
+            // Add first row
+            addRow();
+        });
+
+        async function loadData() {
+            try {
+                // Load foods
+                const foodsResponse = await fetch('/api/foods-for-select');
+                const foodsResult = await foodsResponse.json();
+                if (foodsResult.success) {
+                    foodsData = foodsResult.data;
+                }
+
+                // Load stock summary
+                const warehouseId = $('#warehouseId').val();
+                const stockResponse = await fetch(`/api/inventory/stock-summary/${warehouseId}`);
+                if (stockResponse.ok) {
+                    const stockResult = await stockResponse.json();
+                    if (stockResult.success) {
+                        stockResult.data.forEach(item => {
+                            stockData[item.food_id] = {
+                                available: item.total_quantity,
+                                unit: item.unit
+                            };
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        function addRow() {
+            rowCounter++;
+            const row = `
+                <tr id="row_${rowCounter}">
+                    <td class="text-center">${rowCounter}</td>
+                    <td>
+                        <select id="food_${rowCounter}" class="food-select" onchange="onFoodChange(${rowCounter})"></select>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control form-control-sm text-right" id="stock_${rowCounter}" readonly>
+                    </td>
+                    <td>
+                        <input type="number" class="form-control form-control-sm quantity" id="quantity_${rowCounter}" 
+                               min="0" step="0.01" value="0" oninput="validateQuantity(${rowCounter})">
+                    </td>
+                    <td>
+                        <input type="text" class="form-control form-control-sm" id="unit_${rowCounter}" value="kg" readonly>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control form-control-sm" id="itemNote_${rowCounter}" placeholder="Ghi chú">
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(${rowCounter})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+            $('#itemsBody').append(row);
+
+            // Init VirtualSelect for food
+            VirtualSelect.init({
+                ele: `#food_${rowCounter}`,
+                options: foodsData.map(f => ({ label: f.name, value: f.id })),
+                search: true,
+                placeholder: 'Chọn thực phẩm...'
+            });
+        }
+
+        function onFoodChange(rowId) {
+            const foodId = $(`#food_${rowId}`).val();
+            if (foodId && stockData[foodId]) {
+                const stock = stockData[foodId];
+                $(`#stock_${rowId}`).val(`${parseFloat(stock.available).toFixed(2)} ${stock.unit}`);
+                $(`#unit_${rowId}`).val(stock.unit);
+            } else {
+                $(`#stock_${rowId}`).val('0 kg');
+            }
+        }
+
+        function validateQuantity(rowId) {
+            const foodId = $(`#food_${rowId}`).val();
+            const quantity = parseFloat($(`#quantity_${rowId}`).val()) || 0;
+            
+            if (foodId && stockData[foodId]) {
+                const available = parseFloat(stockData[foodId].available);
+                if (quantity > available) {
+                    $(`#quantity_${rowId}`).addClass('is-invalid');
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Cảnh báo',
+                        text: `Số lượng xuất (${quantity}) vượt quá tồn kho (${available})`,
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                } else {
+                    $(`#quantity_${rowId}`).removeClass('is-invalid');
+                }
+            }
+        }
+
+        function removeRow(rowId) {
+            $(`#row_${rowId}`).remove();
+            // Re-number rows
+            $('#itemsBody tr').each(function(index) {
+                $(this).find('td:first').text(index + 1);
+            });
+        }
+
+        async function saveIssue() {
+            const warehouseId = $('#warehouseId').val();
+            const issueCode = $('#issueCode').val();
+            const issueDate = $('#issueDate').val();
+            const issueType = $('#issueType').val();
+            const receiver = $('#receiver').val();
+            const note = $('#note').val();
+
+            if (!issueDate) {
+                Swal.fire('Lỗi', 'Vui lòng chọn ngày xuất', 'error');
+                return;
+            }
+
+            // Collect items
+            const items = [];
+            let hasError = false;
+
+            $('#itemsBody tr').each(function() {
+                const rowId = $(this).attr('id').split('_')[1];
+                const foodId = $(`#food_${rowId}`).val();
+                const quantity = parseFloat($(`#quantity_${rowId}`).val()) || 0;
+                const itemNote = $(`#itemNote_${rowId}`).val();
+
+                if (foodId && quantity > 0) {
+                    // Validate stock
+                    if (stockData[foodId]) {
+                        const available = parseFloat(stockData[foodId].available);
+                        if (quantity > available) {
+                            hasError = true;
+                            Swal.fire('Lỗi', `Số lượng xuất vượt quá tồn kho cho thực phẩm dòng ${rowId}`, 'error');
+                            return false;
+                        }
+                    }
+
+                    items.push({
+                        food_id: foodId,
+                        quantity: quantity,
+                        unit: 'kg',
+                        note: itemNote || null
+                    });
+                }
+            });
+
+            if (hasError) return;
+
+            if (items.length === 0) {
+                Swal.fire('Lỗi', 'Vui lòng thêm ít nhất 1 thực phẩm', 'error');
+                return;
+            }
+
+            const data = {
+                warehouse_id: warehouseId,
+                issue_code: issueCode,
+                issue_date: issueDate,
+                issue_type: issueType,
+                receiver: receiver,
+                note: note,
+                items: items
+            };
+
+            try {
+                const response = await fetch('/inventory/issue/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công',
+                        text: 'Xuất kho thành công'
+                    }).then(() => {
+                        window.location.href = `/inventory/stock/${warehouseId}`;
+                    });
+                } else {
+                    Swal.fire('Lỗi', result.message, 'error');
+                }
+            } catch (error) {
+                Swal.fire('Lỗi', 'Có lỗi xảy ra: ' + error.message, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../layout/head') %>
+    <title>Danh sách bệnh nhân - Patients</title>
+</head>
+<body>
+
+     <!-- Page Wrapper -->
+    <div id="wrapper">
+        <%- include('../layout/sidebar') %>
+
+         <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            <%- include('../layout/header') %>
+            <!-- Begin Page Content -->
+                <% if(errors.length > 0){%>
+                    <div class="container">
+                        <div class="box mt-3">
+                            <%for(let item of errors){%>
+                                <div><%-JSON.stringify(item)%></div>
+                            <%}%>
+                        </div>
+                    </div>
+                <% }else{ %>
+                    <div class="container-fluid">
+                        <!-- DataTales Example -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">Danh sách bệnh nhân</h6>
+                                <div class="d-flex gap-2">
+                                    <a href="/patient/add/<%=path%>" title="Thêm mới người bệnh" class="btn btn-success btn-circle btn-add-patient">
+                                        <i class="fas fa-plus"></i>
+                                    </a>
+                                    <% if(!['hoi-chan', 'standard'].includes(path)){ %>
+                                    <a href="/patient/export/<%=path%>" title="Tải xuống excel" class="btn btn-info btn-circle btn-add-patient">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                    <% } %>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>Thao tác</th>
+                                                <th>Họ Tên</th>
+                                                <th>Số điện thoại</th>
+                                                <th>Số Phòng</th>
+                                                <% if(path == 'hoi-chan'){ %>
+                                                    <th>Ngày hội chẩn</th>
+                                                <% } %>
+                                                <% if(path !== 'viem-gan-mt1'){ %>
+                                                    <th>Chẩn đoán</th>
+                                                <% } %>
+                                                <% if(path == 'viem-gan-mt1'){ %>
+                                                    <th>Điều tra viên</th>
+                                                    <th>Ngày điều tra</th>
+                                                <% } %>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+            <%- include('../layout/footer') %>
+        </div>
+    </div>
+    <script type="text/javascript">
+        let path = "<%=path%>";
+        var dataTable;
+        $(document).ready(function () {
+            dataTable = $('#dataTable').DataTable({
+                serverSide: true,
+                processing: true,
+                responsive: true,
+                paging: true,
+                pageLength: 25,
+                lengthMenu: [25, 50, 75, 100],
+                ajax: {
+                    url: '/patient/list',
+                    method: 'POST',
+                    dataType: "json",
+                    beforeSend: function() {
+                        loading.show();
+                    },
+                    complete: function() {  // Thêm complete để ẩn loading khi xong
+                        loading.hide();
+                    },
+                    dataSrc: function(response){
+                        if (response.data) {
+                            return response.data;  // Trả về mảng dữ liệu
+                        } else {
+                            return [];  // Trả về mảng rỗng nếu không có dữ liệu
+                        }
+                    },
+                    data: function(n){
+                        if (!n) {
+                            n = {};
+                        }
+                        n['path'] = path;
+                    }
+                },
+                scrollX: true,
+                rowId: function(row) {
+                    return 'patient-' + row.id; // Thêm "row-" vào trước giá trị id
+                },
+                columns: [
+                    {
+                        data: null,
+                        orderable: false, // Không cho phép sort cột actions
+                        searchable: false, // Không search trong cột actions
+                        render: function (data, type, row) {
+                            return `
+                                <div class="d-flex gap-2">
+                                    <a class="btn btn-info btn-sm btn-circle" data-id="${row.id}" href="/patient/edit/<%=path%>/${row.id}" title="Sửa"><i class="fas fa-pen-square"></i></a>
+                                    <button class="btn btn-danger btn-sm btn-circle" data-id="${row.id}" onclick="deletePatient(${row.id}, '${row.fullname}')" title="Xóa"><i class="fas fa-trash"></i></button>
+                                </div>
+                            `;
+                        },
+                    },
+                    {   data: 'fullname',
+                        orderable: true, // Cho phép sort
+                        searchable: true, // Cho phép search
+                        render: function(data, type, row) {
+                            let classAttr = '';
+                            let styleAttr = '';
+                            if (row.active == 2) {
+                                classAttr = 'class="text-danger"';
+                            } else if (row.khan_cap == 1) {
+                                classAttr = 'class="text-success"';
+                            }
+                            if(row.bien_ban == 1) styleAttr = 'style="background-color: #faebd7;"';
+                            return `<a ${classAttr} ${styleAttr} href='/patient/detail/<%=path%>/${row.id}'>${data}</a>`;
+                        },
+                        className: 'min-width-110'
+                    },
+                    {
+                        type: 'html',
+                        data: 'phone',
+                        orderable: true, // Cho phép sort
+                        searchable: true, // Cho phép search
+                        render: function(data, type, row) {
+                            let classAttr = '';
+                            if (row.active == 2) {
+                                classAttr = 'class="text-danger"';
+                            } else if (row.khan_cap == 1) {
+                                classAttr = 'class="text-success"';
+                            }
+
+                            if(row.bien_ban == 1) styleAttr = 'style="background-color: #faebd7;"';
+                            return `<a ${classAttr} href="tel:${data}">${data}</a>`; // Định dạng ngày giờ
+                        }
+                    },
+                    {
+                        data: 'phong_dieu_tri',
+                        className: 'min-width-100',
+                        orderable: true, // Cho phép sort
+                        searchable: true // Cho phép search
+                    },
+                    <% if(path == 'hoi-chan'){ %>
+                        {
+                            data: 'ngay_hoi_chan', // Cột ngày tháng
+                            orderable: true, // Cho phép sort
+                            searchable: false, // Không search cho ngày
+                            render: function(data, type, row) {
+                                // Kiểm tra nếu có Moment.js
+                                return data ? moment(data).format('D/M/YYYY') : ''; // Định dạng ngày giờ
+                            }
+                        },
+                    <% } %>
+                    <% if(path !== 'viem-gan-mt1'){ %>
+                        {
+                            data: 'chuan_doan',
+                            className: 'min-width-200',
+                            orderable: true, // Cho phép sort
+                            searchable: true // Cho phép search
+                        },
+                    <% } %>
+                    <% if(path == 'viem-gan-mt1'){ %>
+                        {
+                            data: 'dieu_tra_vien',
+                            className: 'min-width-200',
+                            orderable: true, // Cho phép sort
+                            searchable: true // Cho phép search
+                        },
+                        {
+                            data: 'ngay_dieu_tra', // Cột ngày tháng
+                            render: function(data, type, row) {
+                                // Kiểm tra nếu có Moment.js
+                                return moment(data).format('D/M/YYYY HH:mm'); // Định dạng ngày giờ
+                            }
+                        }
+                    <% } %>
+                    // {
+                    //     data: 'ngay_nhap_vien', // Cột ngày tháng
+                    //     render: function(data, type, row) {
+                    //         // Kiểm tra nếu có Moment.js
+                    //         return moment(data).format('D/M/YYYY'); // Định dạng ngày giờ
+                    //     }
+                    // },
+                    // { data: 'phong_dieu_tri' },
+                    
+                ],
+                // Cấu hình order mặc định DESC - ưu tiên khẩn cấp
+                order: [], // Để trống để server xử lý order
+                // Cấu hình searching
+                searching: true, // Bật tính năng search
+                // Cấu hình ordering
+                ordering: true, // Bật tính năng sort
+                rowCallback: function(row, data) {
+                    // Thêm thuộc tính onclick hoặc liên kết cho toàn bộ hàng
+                    // $(row).attr('onclick', `window.location.href='/patient/edit/<%=path%>/${row.id}'`);
+                    // $(row).addClass('cursor-poiter')
+                },
+                layout:{
+                    topStart: 'paging',
+                    topEnd: 'search',
+                    bottomStart: ['paging', 'info'],
+                    bottomEnd:  'pageLength'
+                }
+            });
+        });
+
+        function deletePatient(id, name){
+            confirmDialog('Xác nhận', 'Bạn có muốn xóa bệnh nhân ' + name).then(responseData =>{
+                if(responseData.isConfirmed && id){
+                    $.ajax({
+                        type: 'POST',
+                        url: '/patient/active',
+                        data: {id: id, path: path, active: 0},
+                        beforeSend: function () {
+                            loading.show();
+                        },
+                        success: function (result) {
+                            loading.hide();
+                            if (result.success) {
+                                toarstMessage('Xóa bệnh nhân thành công');
+                                document.getElementById('patient-' + id).remove();
+                            } else {
+                                toarstError(result.message);
+                            }
+                        },
+                        error: function (jqXHR, exception) {
+                            loading.hide();
+                            ajax_call_error(jqXHR, exception);
+                        }
+                    });
+                }
+            })
+        }
+    </script>
+</body>
+</html>

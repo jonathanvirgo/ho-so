@@ -1,0 +1,482 @@
+/* Multi-Page Survey Styles */
+
+.multi-page-survey {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+/* Survey Header */
+.survey-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px 30px;
+}
+
+.progress-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.progress {
+    flex: 1;
+    height: 8px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: white;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.page-indicator {
+    background: rgba(255,255,255,0.2);
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 10px;
+    display: inline-block;
+}
+
+/* Survey Content */
+.survey-content {
+    padding: 30px;
+    min-height: 400px;
+}
+
+.survey-pages {
+    position: relative;
+}
+
+.survey-page {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.page-header {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #f8f9fa;
+}
+
+.page-title {
+    color: #2c3e50;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.page-description {
+    color: #6c757d;
+    font-size: 1rem;
+    margin-bottom: 0;
+    line-height: 1.6;
+}
+
+.page-content {
+    max-width: 600px;
+}
+
+/* Form Fields */
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-label {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.form-control {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 12px 15px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-control.is-invalid {
+    border-color: #dc3545;
+}
+
+.form-check {
+    margin-bottom: 12px;
+    padding-left: 0;
+}
+
+.form-check-input {
+    margin-right: 10px;
+    margin-top: 4px;
+}
+
+.form-check-label {
+    font-size: 14px;
+    color: #495057;
+    cursor: pointer;
+    line-height: 1.5;
+}
+
+.form-text {
+    font-size: 12px;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+/* Validation Errors */
+.validation-error {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.validation-error::before {
+    content: "⚠";
+    font-size: 14px;
+}
+
+.validation-summary {
+    margin-bottom: 20px;
+    border-radius: 8px;
+    border: none;
+}
+
+.validation-summary h6 {
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.validation-summary ul {
+    margin-bottom: 0;
+    padding-left: 20px;
+}
+
+.validation-summary li {
+    margin-bottom: 5px;
+}
+
+/* Survey Navigation */
+.survey-navigation {
+    padding: 20px 30px;
+    background: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.survey-navigation .btn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.btn-prev {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-prev:hover:not(:disabled) {
+    background: #5a6268;
+    transform: translateY(-1px);
+}
+
+.btn-prev:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-next {
+    background: #667eea;
+    color: white;
+}
+
+.btn-next:hover {
+    background: #5a6fd8;
+    transform: translateY(-1px);
+}
+
+.btn-submit {
+    background: #28a745;
+    color: white;
+}
+
+.btn-submit:hover {
+    background: #218838;
+    transform: translateY(-1px);
+}
+
+/* Survey Footer */
+.survey-footer {
+    padding: 15px 30px;
+    background: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    text-align: center;
+}
+
+.auto-save-indicator {
+    font-size: 12px;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.auto-save-indicator.text-success {
+    color: #28a745 !important;
+}
+
+.auto-save-indicator.text-warning {
+    color: #ffc107 !important;
+}
+
+.auto-save-indicator.text-danger {
+    color: #dc3545 !important;
+}
+
+/* Field Types */
+.field-group {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.field-group .form-label {
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+/* File Upload */
+.form-control[type="file"] {
+    padding: 8px 12px;
+    background: white;
+}
+
+.form-control[type="file"]::-webkit-file-upload-button {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .multi-page-survey {
+        margin: 10px;
+        border-radius: 8px;
+    }
+    
+    .survey-header {
+        padding: 15px 20px;
+    }
+    
+    .survey-content {
+        padding: 20px;
+    }
+    
+    .survey-navigation {
+        padding: 15px 20px;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .survey-navigation .btn {
+        width: 100%;
+        order: 2;
+    }
+    
+    .btn-prev {
+        order: 1;
+    }
+    
+    .progress-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .progress-text {
+        text-align: center;
+    }
+    
+    .page-title {
+        font-size: 1.25rem;
+    }
+    
+    .page-content {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .survey-header {
+        padding: 12px 15px;
+    }
+    
+    .survey-content {
+        padding: 15px;
+    }
+    
+    .survey-navigation {
+        padding: 12px 15px;
+    }
+    
+    .form-control {
+        padding: 10px 12px;
+    }
+    
+    .page-title {
+        font-size: 1.1rem;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .multi-page-survey {
+        background: #2c3e50;
+        color: #ecf0f1;
+    }
+    
+    .survey-content {
+        background: #2c3e50;
+    }
+    
+    .survey-navigation,
+    .survey-footer {
+        background: #34495e;
+        border-color: #4a5f7a;
+    }
+    
+    .form-control {
+        background: #34495e;
+        border-color: #4a5f7a;
+        color: #ecf0f1;
+    }
+    
+    .form-control:focus {
+        border-color: #667eea;
+        background: #34495e;
+    }
+    
+    .form-label {
+        color: #ecf0f1;
+    }
+    
+    .page-title {
+        color: #ecf0f1;
+    }
+    
+    .page-description {
+        color: #bdc3c7;
+    }
+    
+    .field-group {
+        background: #34495e;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .survey-header,
+    .survey-navigation,
+    .survey-footer {
+        display: none;
+    }
+    
+    .multi-page-survey {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+    
+    .survey-page {
+        display: block !important;
+        page-break-after: always;
+    }
+    
+    .survey-page:last-child {
+        page-break-after: auto;
+    }
+}
+
+/* Accessibility */
+.form-control:focus,
+.btn:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Animation for page transitions */
+.survey-page.page-enter {
+    opacity: 0;
+    transform: translateX(30px);
+}
+
+.survey-page.page-enter-active {
+    opacity: 1;
+    transform: translateX(0);
+    transition: all 0.3s ease;
+}
+
+.survey-page.page-exit {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.survey-page.page-exit-active {
+    opacity: 0;
+    transform: translateX(-30px);
+    transition: all 0.3s ease;
+}

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chính Sách Riêng Tư</title>
+    <meta name="description" content="Chính sách riêng tư và bảo mật thông tin cho ứng dụng">
+    <%- include('./layout/head')%>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="container">
+    <div class="content-wrapper">
+        <h1 class="page-title">Chính Sách Riêng Tư</h1>
+        <div class="page-content">
+            <p class="text-justify">Ứng dụng này cam kết bảo vệ thông tin cá nhân của người dùng và tuân thủ các quy định về bảo mật dữ liệu.</p>
+            
+            <h2 class="section-title">Thông tin thu thập</h2>
+            <p class="text-muted">Chúng tôi chỉ thu thập thông tin cần thiết để cung cấp và cải thiện dịch vụ.</p>
+            
+            <h2 class="section-title">Sử dụng thông tin</h2>
+            <p class="text-muted">Thông tin được sử dụng để:</p>
+            <ul class="list-group">
+                <li class="list-group-item">Cung cấp dịch vụ tốt hơn</li>
+                <li class="list-group-item">Xác thực người dùng</li>
+                <li class="list-group-item">Phân tích và cải thiện hệ thống</li>
+            </ul>
+            
+            <h2 class="section-title">Bảo mật</h2>
+            <p class="text-muted">Chúng tôi áp dụng các biện pháp bảo mật cao nhất để bảo vệ thông tin của bạn.</p>
+            
+            <h2 class="section-title">Thay đổi chính sách</h2>
+            <p class="text-muted">Chúng tôi sẽ thông báo khi có bất kỳ thay đổi nào trong chính sách này.</p>
+        </div>
+    </div>
+    <%- include('./layout/footer') %>
+</body>
+</html>
+<style>
+    .container {
+        padding: 20px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .page-title {
+        color: #333;
+        margin-bottom: 30px;
+        font-size: 28px;
+    }
+    .section-title {
+        color: #666;
+        margin-top: 25px;
+        font-size: 22px;
+    }
+    .text-muted {
+        color: #888;
+        line-height: 1.6;
+    }
+    .list-group-item {
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+        padding: 10px 15px;
+        margin-bottom: 5px;
+        border-radius: 4px;
+    }
+</style>

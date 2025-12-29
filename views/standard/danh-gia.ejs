@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../layout/head') %>
+    <title>Phiếu hội chẩn - Patients</title>
+</head>
+
+<body>
+
+    <!-- Page Wrapper -->
+   <div id="wrapper">
+       <%- include('../layout/sidebar') %>
+
+        <!-- Content Wrapper -->
+       <div id="content-wrapper" class="d-flex flex-column">
+            <!-- Main Content -->
+            <div id="content">
+                <%- include('../layout/header') %>
+                <%if(errors.length > 0){%>
+                    <div class="container">
+                        <div class="box mt-3">
+                            <%for(let item of errors){%>
+                            <div><%-JSON.stringify(item)%></div>
+                            <%}%>
+                        </div>
+                    </div>
+                <%}else{%>
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+                    <%- include('../layout/thong-tin-co-ban.ejs')%>
+                    <input type="hidden" id="type" value="<%=type%>">
+                    <input type="hidden" id="patient_id" value="<%=patient.id%>">
+                    <div class="card shadow mt-3" name="form-data">
+                        <%- include('./module/menu.ejs')%>
+                        <div class="card-body p-0">
+                            <div class="d-lg-flex d-block gap-3">
+                                <div class="card shadow card-list-date">
+                                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                        <h6 class="m-0 font-weight-bold text-primary">Ngày</h6>
+                                        <div class="">
+                                            <div class="btn btn-success btn-circle" id="datepicker">
+                                                <i class="fas fa-plus"></i>
+                                                <input class="form-control position-absolute" type="text" placeholder="Ngày nhập viện" 
+                                                                value="" data-input="data-input" autoComplete="off"
+                                                                aria-label="Ngày sinh"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body p-0 d-flex flex-column" id="list-date">
+                                        <% if(times.length > 0){%>
+                                            <% for(let time of times){ %>
+                                                <div class="py-2 ws-nowrap card <%= time.id == timeActiveId ? 'border-left-info text-info shadow' : ''%>">
+                                                    <div class="px-2 cursor-poiter" id="time_<%=time.id%>" onclick="getDataTime(<%=time.id%>)"><%= moment(time.time).format('h:mm D/M/YYYY')%></div>
+                                                    <div class="position-absolute right-1 cursor-poiter text-danger" onclick="deleteTime(<%=time.id%>)"><i class="fas fa-trash"></i></div>
+                                                    <div class="position-absolute right-4 cursor-poiter text-info px-2" onclick="editTime(<%=time.id%>)"><i class="fas fa-pencil-alt"></i></div>
+                                                </div>
+                                            <% } %>
+                                        <% } %>
+                                    </div>
+                                </div>
+                                <div class="flex-fill form-data card shadow" >
+                                    <div class="row flex-wrap g-3 card-body">
+                                        <div class="col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Tình trạng người bệnh</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <textarea class="form-control" id="tinh_trang_nguoi_benh" rows="5" placeholder="Tình trạng người bệnh"><%=detailStandard.tinh_trang_nguoi_benh%></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Khẩu phần 24H</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                   <textarea class="form-control" id="khau_phan_an_24h" rows="5" placeholder="Khẩu phần 24H"><%=detailStandard.khau_phan_an_24h%></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Tiêu hóa</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                   <textarea class="form-control" id="tieu_hoa" rows="5" placeholder="Tiêu hóa"><%=detailStandard.tieu_hoa%></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Đánh giá</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <textarea class="form-control" id="danh_gia" rows="5" placeholder="Đánh gía"><%=detailStandard.danh_gia%></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Kết quả cận lâm sàng</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <textarea class="form-control" id="ket_qua_can_lam_sang" rows="5" placeholder="Kết quả cận lâm sàng"><%=detailStandard.ket_qua_can_lam_sang%></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Can thiệp tiếp</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="d-flex gap-2 align-items-center">
+                                                        <input type="text" class="form-control" id="can_thiep_kcal" placeholder="kcal/kg" value="<%=detailStandard.can_thiep_kcal ? detailStandard.can_thiep_kcal : '' %>" oninput="formatInputFloat(event)">
+                                                        x
+                                                        <input type="text" class="form-control" id="can_thiep_kg" placeholder="cân HT" value="<%=detailStandard.can_thiep_kg ? detailStandard.can_thiep_kg : ''%>" oninput="formatInputFloat(event)">
+                                                        = 
+                                                        <span id="can_thiep_total"></span>
+                                                    </div>
+                                                    <textarea id="can_thiep_note" class="form-control mt-3" rows="5" placeholder="Ghi chú"><%=detailStandard.can_thiep_note%></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Chế độ dinh dưỡng</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div data-plugin="virtual-select" data-config='{"placeholder":"Chế độ dinh dưỡng"}' id="che_do_dinh_duong" data-value="<%=detailStandard.che_do_dinh_duong%>"
+                                                        data-options='[{"label":"Đường miệng","value":1},{"label":"Đường tiêu hóa","value":2},{"label":"Tĩnh mạch toàn phần","value":3},{"label":"Tĩnh mạch kết hợp","value":4}]'></div>
+                                                    <textarea class="form-control mt-3" id="che_do_dinh_duong_note" rows="5" placeholder="Ghi chú"><%=detailStandard.che_do_dinh_duong_note%></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Bổ xung</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <textarea class="form-control" id="bo_sung" rows="5" placeholder="Bổ sung"><%=detailStandard.bo_sung%></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Chú ý</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <textarea class="form-control" id="chu_y" rows="5" placeholder="Chú ý"><%=detailStandard.chu_y%></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+            </div>
+           <%- include('../layout/footer') %>
+       </div>
+   </div>
+   <script src="/js/phieu-hoi-chan.js?v=<%= assetVersion %>"></script>
+   <script>
+        var standardId = '<%=detailStandard.id%>';
+        var timeActive = '<%=timeActiveId%>';
+        var listTime = <%- JSON.stringify(times) %>;
+        var flatpickrInstance;
+        var isEditTime = false;
+        var idEditTime;
+        document.addEventListener('DOMContentLoaded', function() {
+
+            function calculateCanThiepTotal() {
+                const canThiepKcal = $('#can_thiep_kcal').val() && !isNaN($('#can_thiep_kcal').val()) ? parseInt($('#can_thiep_kcal').val()) : 0;
+                const canThiepKg = $('#can_thiep_kg').val() && !isNaN($('#can_thiep_kg').val()) ? parseInt($('#can_thiep_kg').val()) : 0;
+                if(canThiepKcal > 0 && canThiepKg > 0){
+                    $('#can_thiep_total').text((canThiepKcal * canThiepKg).toFixed(0));
+                }else{
+                    $('#can_thiep_total').text('');
+                }
+            }
+            calculateCanThiepTotal();
+            document.getElementById("can_thiep_kcal").addEventListener("input", function (evt) {
+                calculateCanThiepTotal();
+            })
+            document.getElementById("can_thiep_kg").addEventListener("input", function (evt) {
+                calculateCanThiepTotal();
+            })
+        });
+   </script>
+</body>
+</html>

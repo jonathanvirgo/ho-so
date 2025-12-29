@@ -1,0 +1,19 @@
+<div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+    <nav class="nav nav-underline nav-menu-main">
+        <a class="nav-link <%=type == 'lam-sang' ? 'active' : ''%>" aria-current="page" href="/uon-van/<%=patient.id%>/lam-sang" onclick="changeTetanusPage(event, this, <%=patient.id%>, '<%=type%>')">Lâm sàng</a>
+        <a class="nav-link <%=type == 'sga' ? 'active' : ''%>" href="/uon-van/<%=patient.id%>/sga" onclick="changeTetanusPage(event, this, <%=patient.id%>, '<%=type%>')">SGA</a>
+        <a class="nav-link <%=type == 'khau-phan-an' ? 'active' : ''%>" href="/uon-van/<%=patient.id%>/khau-phan-an" onclick="changeTetanusPage(event, this, <%=patient.id%>, '<%=type%>')">Khẩu phần ăn</a>
+        <a class="nav-link <%=type == 'tinh-trang-tieu-hoa' ? 'active' : ''%>" href="/uon-van/<%=patient.id%>/tinh-trang-tieu-hoa" onclick="changeTetanusPage(event, this, <%=patient.id%>, '<%=type%>')">Tình trạng tiêu hóa</a>
+    </nav>
+    <div class="">
+        <% if(!['khau-phan-an'].includes(type)){%>
+        <a class="btn btn-primary btn-circle" id="save_Tetanus" onclick="createTetanus(<%=patient.id%>,'<%=type%>')">
+            <i class="fas fa-sd-card"></i>
+        </a>
+        <% }else{ %>
+        <a class="btn btn-success btn-circle" onclick="openModalCreateBoarding('<%=type%>')">
+            <i class="fas fa-plus"></i>
+        </a>
+        <% } %>
+    </div>
+</div>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <%- include('../layout/head') %>
+    <title>Chi tiết tồn kho - <%= warehouse ? warehouse.name : 'Kho' %></title>
+</head>
+<body>
+    <div id="wrapper">
+        <%- include('../layout/sidebar') %>
+        <div id="content-wrapper" class="d-flex flex-column">
+            <%- include('../layout/header') %>
+            <div class="container-fluid">
+                <% if(errors.length > 0){%>
+                    <div class="alert alert-danger">
+                        <%for(let item of errors){%>
+                            <div><%-item%></div>
+                        <%}%>
+                    </div>
+                <% } else { %>
+
+                <!-- Header -->
+                <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                    <h1 class="h3 mb-0 text-gray-800">
+                        <i class="fas fa-list text-info"></i> Chi tiết tồn kho theo lô: <%= warehouse.name %>
+                    </h1>
+                    <div class="btn-group">
+                        <a href="/inventory/stock/<%= warehouse.id %>" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> Quay lại
+                        </a>
+                        <a href="/inventory/receipt/create/<%= warehouse.id %>" class="btn btn-primary btn-sm">
+                            <i class="fas fa-arrow-down"></i> Nhập kho
+                        </a>
+                        <a href="/inventory/issue/create/<%= warehouse.id %>" class="btn btn-warning btn-sm">
+                            <i class="fas fa-arrow-up"></i> Xuất kho
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Stock Detail Table -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-table"></i> Chi tiết tồn kho theo lô (FIFO)
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover table-sm" id="stockDetailTable">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th width="5%">STT</th>
+                                        <th width="20%">Tên thực phẩm</th>
+                                        <th width="10%">Mã lô</th>
+                                        <th width="10%">Ngày nhập</th>
+                                        <th width="10%">Hạn SD</th>
+                                        <th width="9%" class="text-right">KL nhập</th>
+                                        <th width="9%" class="text-right">KL xuất</th>
+                                        <th width="9%" class="text-right">Còn lại</th>
+                                        <th width="8%">ĐVT</th>
+                                        <th width="10%" class="text-right">Đơn giá</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if(stockList.length === 0) { %>
+                                        <tr>
+                                            <td colspan="10" class="text-center text-muted">
+                                                <i class="fas fa-info-circle"></i> Không có dữ liệu
+                                            </td>
+                                        </tr>
+                                    <% } else { %>
+                                        <% stockList.forEach((item, index) => { 
+                                            let rowClass = '';
+                                            if(item.expiry_status === 'expired') {
+                                                rowClass = 'table-danger';
+                                            } else if(item.expiry_status === 'warning') {
+                                                rowClass = 'table-warning';
+                                            }
+                                        %>
+                                            <tr class="<%= rowClass %>">
+                                                <td class="text-center"><%= index + 1 %></td>
+                                                <td>
+                                                    <%= item.food_name %>
+                                                    <% if(item.food_code) { %>
+                                                        <br><small class="text-muted">(<%= item.food_code %>)</small>
+                                                    <% } %>
+                                                </td>
+                                                <td>
+                                                    <%= item.batch_code || '-' %>
+                                                </td>
+                                                <td>
+                                                    <%= new Date(item.receipt_date).toLocaleDateString('vi-VN') %>
+                                                </td>
+                                                <td>
+                                                    <% if(item.expiry_date) { %>
+                                                        <%= new Date(item.expiry_date).toLocaleDateString('vi-VN') %>
+                                                        <% if(item.days_to_expiry !== null) { %>
+                                                            <br>
+                                                            <small class="<%= item.days_to_expiry < 0 ? 'text-danger' : (item.days_to_expiry <= 7 ? 'text-warning' : 'text-success') %>">
+                                                                (<%= item.days_to_expiry %> ngày)
+                                                            </small>
+                                                        <% } %>
+                                                    <% } else { %>
+                                                        <span class="text-muted">-</span>
+                                                    <% } %>
+                                                </td>
+                                                <td class="text-right">
+                                                    <%= parseFloat(item.quantity_in).toFixed(2) %>
+                                                </td>
+                                                <td class="text-right text-danger">
+                                                    <%= parseFloat(item.quantity_out).toFixed(2) %>
+                                                </td>
+                                                <td class="text-right font-weight-bold text-success">
+                                                    <%= parseFloat(item.quantity_available).toFixed(2) %>
+                                                </td>
+                                                <td><%= item.unit %></td>
+                                                <td class="text-right">
+                                                    <%= item.unit_price ? parseFloat(item.unit_price).toLocaleString('vi-VN') : '-' %>
+                                                </td>
+                                            </tr>
+                                        <% }); %>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Legend -->
+                        <div class="mt-3">
+                            <small>
+                                <span class="badge badge-danger">■</span> Đã hết hạn &nbsp;
+                                <span class="badge badge-warning">■</span> Sắp hết hạn (≤7 ngày) &nbsp;
+                                <span class="badge badge-light">■</span> Bình thường
+                            </small>
+                        </div>
+
+                        <!-- Note -->
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-info-circle"></i> <strong>Lưu ý:</strong>
+                            <ul class="mb-0 mt-2">
+                                <li>Danh sách được sắp xếp theo nguyên tắc <strong>FIFO</strong> (First In First Out - Nhập trước xuất trước)</li>
+                                <li>Khi xuất kho, hệ thống tự động trừ từ lô nhập cũ nhất</li>
+                                <li>Các lô có <strong>KL còn lại = 0</strong> đã được ẩn khỏi danh sách</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <% } %>
+            </div>
+            <%- include('../layout/footer') %>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#stockDetailTable').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/vi.json'
+                },
+                order: [[3, 'asc'], [4, 'asc']], // Sắp xếp theo ngày nhập, hạn SD
+                pageLength: 25
+            });
+        });
+    </script>
+</body>
+</html>
+

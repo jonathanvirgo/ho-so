@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../layout/head') %>
+    <title>Tạo Khảo sát Mới - <%= project.name %></title>
+    
+    <!-- Custom styles for survey system -->
+    <link href="/css/survey-system.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <%- include('../layout/sidebar') %>
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Header -->
+                <%- include('../layout/header') %>
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <div>
+                            <h1 class="h3 mb-0 text-gray-800">Tạo Khảo sát Mới</h1>
+                            <p class="mb-0 text-muted">Dự án: <strong><%= project.name %></strong></p>
+                        </div>
+                        <a href="/projects/<%= project.id %>/surveys" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+                            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Quay lại
+                        </a>
+                    </div>
+
+                    <!-- Content Row -->
+                    <div class="row justify-content-center">
+                        <div class="col-xl-8 col-lg-10">
+                            <!-- Survey Config Form Card -->
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Thông tin Khảo sát</h6>
+                                </div>
+                                <div class="card-body">
+                                    <form id="survey-config-form">
+                                        <input type="hidden" id="project-id" value="<%= project.id %>">
+                                        
+                                        <div class="form-group">
+                                            <label for="survey-name">Tên Khảo sát <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="survey-name" name="name" 
+                                                   placeholder="Nhập tên khảo sát" required>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="survey-description">Mô tả Khảo sát</label>
+                                            <textarea class="form-control" id="survey-description" name="description" 
+                                                      rows="3" placeholder="Nhập mô tả chi tiết về khảo sát"></textarea>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="survey-url-slug">URL Slug <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">/survey/</span>
+                                                </div>
+                                                <input type="text" class="form-control" id="survey-url-slug" name="survey_url_slug" 
+                                                       placeholder="url-khao-sat" required pattern="[a-z0-9\-]+">
+                                            </div>
+                                            <small class="form-text text-muted">
+                                                Chỉ sử dụng chữ thường, số và dấu gạch ngang. VD: khao-sat-khach-hang-2025
+                                            </small>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="survey-is-active">Trạng thái</label>
+                                                    <select class="form-control" id="survey-is-active" name="active">
+                                                        <option value="1">Hoạt động</option>
+                                                        <option value="0">Tạm dừng</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Tùy chọn</label>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" id="allow-multiple-responses" name="allow_multiple_responses">
+                                                        <label class="form-check-label" for="allow-multiple-responses">
+                                                            Cho phép nhiều phản hồi từ cùng một người
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" id="require-email" name="require_email">
+                                                        <label class="form-check-label" for="require-email">
+                                                            Bắt buộc nhập email
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="success-message">Thông báo thành công</label>
+                                            <textarea class="form-control" id="success-message" name="success_message" 
+                                                      rows="2" placeholder="Cảm ơn bạn đã tham gia khảo sát!">Cảm ơn bạn đã tham gia khảo sát!</textarea>
+                                            <small class="form-text text-muted">
+                                                Thông báo hiển thị sau khi người dùng gửi khảo sát thành công
+                                            </small>
+                                        </div>
+
+                                        <hr>
+
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-info-circle"></i>
+                                            <strong>Bước tiếp theo:</strong> Sau khi tạo khảo sát, bạn sẽ được chuyển đến trang 
+                                            cấu hình các trường để thiết lập form khảo sát.
+                                        </div>
+
+                                        <div class="form-group text-right">
+                                            <button type="button" class="btn btn-secondary" onclick="window.history.back()">
+                                                <i class="fas fa-times"></i> Hủy
+                                            </button>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-save"></i> Tạo Khảo sát
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+
+            <!-- Footer -->
+            <%- include('../layout/footer') %>
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Survey System JS -->
+    <script src="/js/survey-system.js?v=<%= assetVersion %>"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Auto-generate URL slug from survey name
+            $('#survey-name').on('input', function() {
+                const name = $(this).val();
+                const slug = createSlug(name);
+                
+                $('#survey-url-slug').val(slug);
+            });
+
+            // Validate URL slug format
+            $('#survey-url-slug').on('input', function() {
+                const slug = $(this).val();
+                const validSlug = slug.replace(/[^a-z0-9-]/g, '');
+                
+                if (slug !== validSlug) {
+                    $(this).val(validSlug);
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>

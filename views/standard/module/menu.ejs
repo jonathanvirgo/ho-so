@@ -1,0 +1,17 @@
+<div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+    <nav class="nav nav-underline nav-menu-main">
+        <a class="nav-link <%=type == 'thong-tin-chung' ? 'active' : ''%>" aria-current="page" href="/standard/<%=patient.id%>/thong-tin-chung" onclick="changeStandardPage(event, this, <%=patient.id%>, '<%=type%>')">Thông tin chung</a>
+        <a class="nav-link <%=type == 'danh-gia' ? 'active' : ''%>" href="/standard/<%=patient.id%>/danh-gia" onclick="changeStandardPage(event, this, <%=patient.id%>, '<%=type%>')">Đánh giá</a>
+    </nav>
+    <div class="">
+        <a class="btn btn-primary btn-circle" id="save_Standard" onclick="createStandard(<%=patient.id%>,'<%=type%>')">
+            <i class="fas fa-sd-card"></i>
+        </a>
+        <!-- <a class="btn btn-success btn-circle" id="save_Standard" onclick="downloadStandard(<%=patient.id%>, <%=detailStandard.id%>)">
+            <i class="fas fa-download"></i>
+        </a> -->
+        <a class="btn btn-info btn-circle" id="save_Standard" onclick="downloadStandardTemplate()">
+            <i class="fas fa-download"></i>
+        </a>
+    </div>
+</div>

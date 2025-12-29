@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../layout/head') %>
+    <title>Phiếu hội chẩn - Patients</title>
+</head>
+
+<body>
+
+    <!-- Page Wrapper -->
+   <div id="wrapper">
+       <%- include('../layout/sidebar') %>
+
+        <!-- Content Wrapper -->
+       <div id="content-wrapper" class="d-flex flex-column">
+            <!-- Main Content -->
+            <div id="content">
+                <%- include('../layout/header') %>
+                <%if(errors.length > 0){%>
+                    <div class="container">
+                        <div class="box mt-3">
+                            <%for(let item of errors){%>
+                            <div><%-JSON.stringify(item)%></div>
+                            <%}%>
+                        </div>
+                    </div>
+                <%}else{%>
+                    <!-- Begin Page Content -->
+                    <div class="container-fluid">
+                        <%- include('../layout/thong-tin-co-ban.ejs')%>
+                        <input type="hidden" id="type" value="<%=type%>">
+                        <input type="hidden" id="patient_id" value="<%=patient.id%>">
+                        <div class="d-flex mt-3 gap-4">
+                            <div class="flex-fill" name="form-data">
+                                <%- include('./module/menu.ejs')%>
+                                <div class="card shadow">
+                                    <div class="card-header py-3">
+                                        <h6 class="m-0 font-weight-bold text-primary">Thông tin chung</h6>
+                                    </div>
+                                    <div class="card-body row flex-wrap g-3">
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Cân nặng(Kg)</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <input type="text" class="form-control" id="cn" placeholder="Cân nặng" value="<%=detailStandard.cn%>" oninput="formatInputFloat(event)">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Chiều cao(cm)</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <input type="text" class="form-control" id="cc" placeholder="Chiều cao" value="<%=detailStandard.cc%>" oninput="formatInputFloat(event)">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">BMI</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="form-control" id="bmi"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Cân thường có(kg)</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <input type="text" class="form-control" id="ctc" placeholder="Cân thường có" value="<%=detailStandard.ctc%>" oninput="formatInputFloat(event)">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Cân lý tưởng(kg)</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="form-control" id="clt1"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card shadow">
+                                    <div class="card-header py-3">
+                                        <h6 class="m-0 font-weight-bold text-primary">Đánh giá tình trạng dinh dưỡng</h6>
+                                    </div>
+                                    <div class="card-body row flex-wrap g-3">
+                                        <div class="col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Chẩn đoán lâm sàng</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <textarea class="form-control" id="chuan_doan_ls" rows="5" placeholder="Chẩn đoán lâm sàng"><%=detailStandard.chuan_doan_ls%></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Ngày hội chẩn</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="flatpickr flatpickr-input flex-fill" data-plugin="flatpickr" id="ngay_hoi_chan"
+                                                        data-options='{"mode":"single", "allowInput": true}'
+                                                        aria-label="Ngày hội chẩn">
+                                                        <input class="form-control" type="text" placeholder="Ngày hội chẩn" autoComplete="off"  
+                                                                value="<%=detailStandard.ngay_hoi_chan ? moment(detailStandard.ngay_hoi_chan).format('DD-MM-YYYY') : ''%>" data-input="data-input"
+                                                                aria-label="Ngày hội chẩn"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                                <div class="card shadow">
+                                                    <div class="card-header py-3">
+                                                        <h6 class="m-0 font-weight-bold text-primary">Thay đổi cân nặng trong 1 tháng qua</h6>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <% if(patient.tuoi.nam > 18){%>
+                                                            <div data-plugin="virtual-select" data-config='{"placeholder":"Thay đổi cân nặng trong 1 tháng"}' id="cn_1_thang" data-value="<%=detailStandard.cn_1_thang%>"
+                                                                data-options='[{"label":"Giảm <5%, ổn định, tăng cân","value":0},{"label":"giảm 5-10%","value":1},{"label":"giảm >=10%","value":2}]'></div>
+                                                        <%}else{%>
+                                                            <div data-plugin="virtual-select" data-config='{"placeholder":"Thay đổi cân nặng trong 1 tháng"}' id="cn_1_thang" data-value="<%=detailStandard.cn_1_thang%>"
+                                                                data-options='[{"label":"Tăng theo tuổi","value":0},{"label":"Giảm vừa <= 5%","value":1},{"label":"Giảm nhiều >5%","value":2}]'></div>
+                                                        <%}%>
+                                                    </div>
+                                                </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Khẩu phần ăn</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div data-plugin="virtual-select" data-config='{"placeholder":"Khẩu phần ăn"}' id="khau_phan_an" data-value="<%=detailStandard.khau_phan_an%>"
+                                                        data-options='[{"label":"Bình thường","value":0},{"label":">=50% bình thường","value":1},{"label":"<50% bình thường","value":2}]'></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Triệu chứng tiêu hóa 2 tuần qua</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div data-plugin="virtual-select" data-config='{"placeholder":"Triệu chứng tiêu hóa 2 tuần qua"}' id="trieu_chung_th" data-value="<%=detailStandard.trieu_chung_th%>"
+                                                        data-options='[{"label":"Không có triệu chứng","value":0},{"label":"Nhẹ và vừa","value":1},{"label":"Nhiều/Nặng","value":2}]'></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Giảm chức năng hoạt động</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div data-plugin="virtual-select" data-config='{"placeholder":"Giảm chức năng hoạt động"}' id="giam_chuc_nang_hd" data-value="<%=detailStandard.giam_chuc_nang_hd%>"
+                                                        data-options='[{"label":"Không","value":0},{"label":"Nhẹ và vừa","value":1},{"label":"Nhiều/Nặng","value":2}]'></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Nhu cầu chuyển hóa, stress</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div data-plugin="virtual-select" data-config='{"placeholder":"Nhu cầu chuyển hóa, stress"}' id="nhu_cau_chuyen_hoa" data-value="<%=detailStandard.nhu_cau_chuyen_hoa%>"
+                                                        data-options='[{"label":"Thấp(mổ phiên, các bệnh mạn tính ổn định, bại não, hội chứng đói nhanh, hóa trị liệu)","value":0},{"label":"Tăng(đại phẫu, nhiễm khuẩn, suy tạng, nhiễm trùng máu)","value":1},{"label":"Tăng cao(bỏng nặng, gãy xương, phục hồi giai đoạn cuối)","value":2}]'></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Khám lâm sàng</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div data-plugin="virtual-select" data-config='{"placeholder":"Khám lâm sàng"}' id="kham_lam_sang" data-value="<%=detailStandard.kham_lam_sang%>"
+                                                        data-options='[{"label":"Bình thường","value":0},{"label":"Mức độ nhẹ đến vừa","value":1},{"label":"Mức độ nặng","value":2}]'></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3 text-primary">
+                                                    <h6 class="m-0 font-weight-bold text-primary">NB>=70/Refeeding/ RL nuốt/ Kém HT/ Albumin <35 g/L </h6>
+                                                </div>
+                                                <div class="card-body d-flex gap-2 align-items-center">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="chon_tt_1" value="1" <%= detailStandard.chon_tt_1 === '1' ? 'checked' : '' %>>
+                                                        <label class="form-check-label">
+                                                        Có
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="chon_tt_1" value="0" <%= detailStandard.chon_tt_1 === '0' ? 'checked' : '' %>>
+                                                        <label class="form-check-label">
+                                                        Không
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Chẩn đoánh dinh dưỡng <span id="chuan_doan_dinh_duong"></span></h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    A=không nguy cơ (0-3 điểm) B=SDD nhẹ/vừa (4-8 điểm) C= SDD nặng (9-12 điểm)
+                                                    Tham khảo: Delsky et al (1987),Covinsky et al (1999), Sacks GS et al (2000)
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card shadow">
+                                    <div class="card-header py-3">
+                                        <h6 class="m-0 font-weight-bold text-primary">Kế hoạch và can thiệp dinh dưỡng</h6>
+                                    </div>
+                                    <div class="card-body row flex-wrap g-3">
+                                        <div class="col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Tiền sử bệnh</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <textarea class="form-control" id="tien_su_benh" rows="5" placeholder="Tiền sử bệnh"><%=detailStandard.tien_su_benh%></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Tình trạng người bệnh</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <textarea class="form-control" id="tinh_trang_nguoi_benh" rows="5" placeholder="Tình trạng người bệnh"><%=detailStandard.tinh_trang_nguoi_benh%></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Khẩu phần 24H</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <textarea class="form-control" id="khau_phan_an_24h" rows="5" placeholder="Khẩu phần 24H"><%=detailStandard.khau_phan_an_24h%></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Tiêu hóa</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <textarea class="form-control" id="tieu_hoa" rows="5" placeholder="Tiêu hóa"><%=detailStandard.tieu_hoa%></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Đường nuôi</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div data-plugin="virtual-select" data-config='{"placeholder":"Đường nuôi"}' id="duong_nuoi" data-value="<%=detailStandard.duong_nuoi%>"
+                                                        data-options='[{"label":"Đường miệng","value":1},{"label":"Đường tiêu hóa","value":2},{"label":"Tĩnh mạch toàn phần","value":3},{"label":"Tĩnh mạch kết hợp","value":4}]'></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Dịch</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <input type="text" class="form-control" id="dich_vao" placeholder="Dịch vào" value="<%=detailStandard.dich_vao ? detailStandard.dich_vao : ''%>" oninput="formatInputFloat(event)">
+                        
+                                                    <input type="text" class="form-control mt-3" id="dich_ra" placeholder="Dịch ra" value="<%=detailStandard.dich_ra ? detailStandard.dich_ra : ''%>" oninput="formatInputFloat(event)">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">E NCKN</h6>
+                                                </div>
+                                                <div class="card-body d-flex gap-2 align-items-center" style="width: calc(100% - 2.5rem);">
+                                                    <input type="number" placeholder="kcal/kg" class="form-control" id="e_nckn" value="<%=detailStandard.e_nckn%>">
+                                                    <div class="d-flex gap-2 align-items-center flex-fill">
+                                                        <span style="min-width: fit-content;">kcal/kg x </span> 
+                                                        <span style="min-width: fit-content;" id="clt2"></span>  
+                                                        <span style="min-width: fit-content;">kg =</span>    
+                                                        <span style="min-width: fit-content;" id="e_nckn_total"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Can thiệp</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="d-flex gap-2 align-items-center">
+                                                        <input type="text" class="form-control" id="can_thiep_kcal" placeholder="kcal/kg" value="<%=detailStandard.can_thiep_kcal ? detailStandard.can_thiep_kcal : '' %>" oninput="formatInputFloat(event)">
+                                                        x
+                                                        <input type="text" class="form-control" id="can_thiep_kg" placeholder="cân HT" value="<%=detailStandard.can_thiep_kg ? detailStandard.can_thiep_kg : ''%>" oninput="formatInputFloat(event)">
+                                                        = 
+                                                        <span id="can_thiep_total"></span>
+                                                    </div>
+                                                    <textarea id="can_thiep_note" class="form-control mt-3" rows="5" placeholder="Ghi chú"><%=detailStandard.can_thiep_note%></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Chế độ dinh dưỡng</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div data-plugin="virtual-select" data-config='{"placeholder":"Chế độ dinh dưỡng"}' id="che_do_dinh_duong" data-value="<%=detailStandard.che_do_dinh_duong%>"
+                                                        data-options='[{"label":"Đường miệng","value":1},{"label":"Đường tiêu hóa","value":2},{"label":"Tĩnh mạch toàn phần","value":3},{"label":"Tĩnh mạch kết hợp","value":4}]'></div>
+                                                    <textarea class="form-control mt-3" id="che_do_dinh_duong_note" rows="5" placeholder="Ghi chú"><%=detailStandard.che_do_dinh_duong_note%></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Kết quả cận lâm sàng</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <textarea class="form-control" id="ket_qua_can_lam_sang" rows="5" placeholder="Kết quả cận lâm sàng"><%=detailStandard.ket_qua_can_lam_sang%></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Bổ sung</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <textarea class="form-control" id="bo_sung" rows="5" placeholder="Bổ sung"><%=detailStandard.bo_sung%></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Chú ý</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <textarea class="form-control" id="chu_y" rows="5" placeholder="Chú ý"><%=detailStandard.chu_y%></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <% } %>
+            </div>
+           <%- include('../layout/footer') %>
+       </div>
+   </div>
+   <script src="/js/bmi.js?v=<%= assetVersion %>"></script>
+   <script src="/js/phieu-hoi-chan.js?v=<%= assetVersion %>"></script>
+   <script>
+        var standardId = '<%=detailStandard.id%>';
+        var timeActive = '<%=timeActiveId%>';
+        var listTime = <%- JSON.stringify(times) %>;
+        var flatpickrInstance;
+        var isEditTime = false;
+        var idEditTime;
+   </script>
+</body>
+</html>

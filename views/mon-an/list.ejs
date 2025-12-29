@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../layout/head') %>
+    <title>Quản lý món ăn - Patients</title>
+</head>
+
+<body>
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+        <%- include('../layout/sidebar') %>
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            <%- include('../layout/header') %>
+            <!-- Begin Page Content -->
+            <% if(errors.length> 0){%>
+                <div class="container">
+                    <div class="box mt-3">
+                        <%for(let item of errors){%>
+                            <div><%-JSON.stringify(item)%></div>
+                        <%}%>
+                    </div>
+                </div>
+            <% }else{ %>
+                <div class="container-fluid">
+                    <!-- Page Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">Quản lý món ăn</h1>
+                        <a href="/admin/mon-an/new" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+                            <i class="fas fa-plus fa-sm text-white-50"></i> Thêm món ăn mới
+                        </a>
+                    </div>
+
+                    <!-- DataTales Example -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Danh sách món ăn</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Tên món ăn</th>
+                                            <th>Mô tả</th>
+                                            <th>Loại món</th>
+                                            <th>Số thực phẩm</th>
+                                            <th>Tổng KL (g)</th>
+                                            <th>Năng lượng (kcal)</th>
+                                            <th>Chia sẻ</th>
+                                            <th>Ngày tạo</th>
+                                            <th>Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            <% } %>
+            <%- include('../layout/footer') %>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#dataTable').DataTable({
+                dom: '<"top d-flex flex-wrap gap-2 justify-content-between align-items-center mb-2"pf>rt<"bottom d-flex flex-wrap gap-2 justify-content-between align-items-center mt-2"il><"clear">',
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: '/admin/mon-an/list',
+                    type: 'POST'
+                },
+                columns: [
+                    {
+                        data: 'name',
+                        name: 'name',
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: 'description',
+                        name: 'description',
+                        orderable: false,
+                        searchable: true,
+                        render: function(data, type, row) {
+                            if (data && data.length > 50) {
+                                return data.substring(0, 50) + '...';
+                            }
+                            return data || '';
+                        }
+                    },
+                    {
+                        data: 'category',
+                        name: 'category',
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: 'food_count',
+                        name: 'food_count',
+                        orderable: true,
+                        searchable: false
+                    },
+                    {
+                        data: 'total_weight',
+                        name: 'total_weight',
+                        orderable: true,
+                        searchable: false,
+                        render: function(data, type, row) {
+                            return parseFloat(data || 0).toFixed(1);
+                        }
+                    },
+                    {
+                        data: 'total_energy',
+                        name: 'total_energy',
+                        orderable: true,
+                        searchable: false,
+                        render: function(data, type, row) {
+                            return parseFloat(data || 0).toFixed(1);
+                        }
+                    },
+                    {
+                        data: 'share',
+                        name: 'share',
+                        orderable: true,
+                        searchable: false,
+                        render: function(data, type, row) {
+                            if (data == 1) {
+                                return '<span class="badge bg-success"><i class="fas fa-share-alt"></i> Có</span>';
+                            } else {
+                                return '<span class="badge bg-secondary"><i class="fas fa-lock"></i> Không</span>';
+                            }
+                        }
+                    },
+                    {
+                        data: 'created_at',
+                        name: 'created_at',
+                        orderable: true,
+                        searchable: false,
+                        render: function(data, type, row) {
+                            if (data) {
+                                return moment(data).format('DD/MM/YYYY HH:mm');
+                            }
+                            return '';
+                        }
+                    },
+                    {
+                        data: null,
+                        orderable: false,
+                        searchable: false,
+                        render: function(data, type, row) {
+                            return `
+                                <div class="btn-group" role="group">
+                                    <a href="/admin/mon-an/${row.id}" class="btn btn-sm btn-info" title="Xem chi tiết">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteDish(${row.id})" title="Xóa">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            `;
+                        }
+                    }
+                ],
+                // Cấu hình order mặc định (sẽ được override bởi server nếu có)
+                order: [], // Để trống để server xử lý order
+                // Cấu hình searching
+                searching: true, // Bật tính năng search
+                // Cấu hình ordering
+                ordering: true, // Bật tính năng sort
+                language: {
+                    url: '/vendor/datatables/vi.json'
+                },
+                layout:{
+                    topStart: 'paging',
+                    topEnd: 'search',
+                    bottomStart: ['paging', 'info'],
+                    bottomEnd:  'pageLength'
+                }
+            });
+        });
+
+        function deleteDish(id) {
+            Swal.fire({
+                title: 'Bạn có chắc chắn?',
+                text: "Món ăn sẽ bị xóa và không thể khôi phục!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Xóa',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `/admin/mon-an/delete/${id}`,
+                        type: 'POST',
+                        success: function(response) {
+                            if (response.success) {
+                                toastr.success(response.message);
+                                $('#dataTable').DataTable().ajax.reload();
+                            } else {
+                                toastr.error(response.message);
+                            }
+                        },
+                        error: function() {
+                            toastr.error('Có lỗi xảy ra khi xóa món ăn!');
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+
+</body>
+
+</html> 

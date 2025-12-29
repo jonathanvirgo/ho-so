@@ -1,0 +1,22 @@
+<div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+    <nav class="nav nav-underline nav-menu-main">
+        <a class="nav-link <%=type == 'dau-hieu-nhap-vien' ? 'active' : ''%>" aria-current="page" href="/viem-gan/<%=patient.id%>/dau-hieu-nhap-vien" onclick="changeHepatitisPage(event, this, <%=patient.id%>, '<%=type%>')">Dấu hiệu nhập viện</a>
+        <a class="nav-link <%=type == 'thoi-quen-an-uong' ? 'active' : ''%>" href="/viem-gan/<%=patient.id%>/thoi-quen-an-uong" onclick="changeHepatitisPage(event, this, <%=patient.id%>, '<%=type%>')">Thói quen ăn uống</a>
+        <a class="nav-link <%=type == 'tinh-trang-dinh-duong' ? 'active' : ''%>" href="/viem-gan/<%=patient.id%>/tinh-trang-dinh-duong" onclick="changeHepatitisPage(event, this, <%=patient.id%>, '<%=type%>')">Tình trạng dinh dưỡng</a>
+        <a class="nav-link <%=type == 'can-thiep-dinh-duong' ? 'active' : ''%>" href="/viem-gan/<%=patient.id%>/can-thiep-dinh-duong" onclick="changeHepatitisPage(event, this, <%=patient.id%>, '<%=type%>')">Can thiệp dinh dưỡng</a>
+        <a class="nav-link <%=type == 'sga' ? 'active' : ''%>" href="/viem-gan/<%=patient.id%>/sga" onclick="changeHepatitisPage(event, this, <%=patient.id%>, '<%=type%>')">SGA</a>
+        <a class="nav-link <%=type == 'che-do-an-noi-tru' ? 'active' : ''%>" href="/viem-gan/<%=patient.id%>/che-do-an-noi-tru" onclick="changeHepatitisPage(event, this, <%=patient.id%>, '<%=type%>')">Chế độ ăn nội trú</a>
+        <a class="nav-link <%=type == 'che-do-an-ngoai-tru' ? 'active' : ''%>" href="/viem-gan/<%=patient.id%>/che-do-an-ngoai-tru" onclick="changeHepatitisPage(event, this, <%=patient.id%>, '<%=type%>')">Chế độ ăn ngoại trú</a>
+    </nav>
+    <div class="">
+        <% if(!['che-do-an-noi-tru', 'che-do-an-ngoai-tru'].includes(type)){%>
+        <a class="btn btn-primary btn-circle" id="save_hepatitis" onclick="createHepatitis(<%=patient.id%>,'<%=type%>')">
+            <i class="fas fa-sd-card"></i>
+        </a>
+        <% }else{ %>
+        <a class="btn btn-success btn-circle" onclick="openModalCreateBoarding('<%=type%>')">
+            <i class="fas fa-plus"></i>
+        </a>
+        <% } %>
+    </div>
+</div>

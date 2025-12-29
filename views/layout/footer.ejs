@@ -1,0 +1,100 @@
+<!-- Footer -->
+ <footer class="sticky-footer bg-white">
+    <div class="container my-auto">
+        <div class="copyright text-center my-auto">
+            <span>Copyright &copy; hotrodinhduongtoiuu@gmail.com</span>
+        </div>
+    </div>
+</footer>
+<!-- End of Footer -->
+<div id="loading-page">
+    <div class="lds-ellipsis">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+</div>
+<!-- Logout Modal-->
+<div class="modal fade" id="logoutModal" tabindex="-1" aria-hidden="true">
+   <div class="modal-dialog" role="document">
+       <div class="modal-content">
+           <div class="modal-header">
+               <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+               <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                   <span aria-hidden="true">×</span>
+               </button>
+           </div>
+           <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+           <div class="modal-footer">
+               <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+               <a class="btn btn-primary" href="/logout">Logout</a>
+           </div>
+       </div>
+   </div>
+</div>
+
+<!-- Modal hiển thị thông tin bệnh nhân đầy đủ -->
+<div class="modal fade" id="patientDetailModal" tabindex="-1" aria-labelledby="patientDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="patientDetailModalLabel">Thông tin chi tiết bệnh nhân</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="patientDetailContent">
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Đang tải...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scroll to Top Button-->
+<a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+</a>
+
+<!-- Bootstrap core JavaScript-->
+<script src="/vendor/jquery/jquery.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<script src="/vendor/flatpickr/flatpickr.js"></script>
+<script src="/vendor/flatpickr/flatpickr.vn.js"></script>
+
+<!-- Core plugin JavaScript-->
+<script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+<script src="/js/moment.min.js"></script>
+<script src="/js/sweetalert2@11.js"></script>
+<script src="/vendor/virtual-select/virtual-select.min.js"></script>
+
+<!-- Custom scripts for all pages-->
+ <!-- Page level plugins -->
+ <script src="/vendor/datatables/dataTables.min.js"></script>
+ <script src="/vendor/datatables/dataTables.bootstrap5.min.js"></script>
+ <script src="/js/bootstrap.bundle.min.js"></script>
+<script src="/js/sb-admin-2.min.js"></script>
+<script src="/js/main.js?v=<%= assetVersion %>"></script>
+<script src="/js/responsive-table.js?v=<%= assetVersion %>"></script>
+
+<!-- Pass user data to JavaScript -->
+<% if(typeof user !== 'undefined' && user) { %>
+<script>
+    window.currentUser = {
+        id: <%= user.id %>,
+        isAdmin: <%= user.isAdmin %>,
+        campaign_id: <%= user.campaign_id || 'null' %>
+    };
+</script>
+<% } %>
+
+<!-- Campaign Selector for Admin -->
+<% if(typeof user !== 'undefined' && user && user.isAdmin) { %>
+<script src="/js/campaign-selector.js"></script>
+<% } %>

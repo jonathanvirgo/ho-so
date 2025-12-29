@@ -1,0 +1,119 @@
+ <!-- Sidebar -->
+ <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion toggled" id="accordionSidebar">
+
+    <!-- Sidebar - Brand -->
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/">
+        <div class="sidebar-brand-icon rotate-n-15">
+            <i class="fas fa-laugh-wink"></i>
+        </div>
+        <div class="sidebar-brand-text mx-3">Patients</div>
+    </a>
+
+    <!-- Divider -->
+    <hr class="sidebar-divider my-0">
+
+    <!-- Nav Item - Dashboard -->
+    <li class="nav-item active">
+        <a class="nav-link" href="/">
+            <i class="fas fa-fw fa-house-user"></i>
+            <span>Dashboard</span></a>
+    </li>
+    <!-- Divider -->
+    <hr class="sidebar-divider">
+    <div class="sidebar-heading">Chiến dịch</div>
+    <!-- Campaign Selector for Admin -->
+    <% if(user.isAdmin){ %>
+    <li class="nav-item">
+        <div class="nav-link">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-fw fa-flag mr-2"></i>
+                <div class="flex-grow-1">
+                    <select id="campaignSelector" class="form-control form-control-sm" style="font-size: 0.8rem;">
+                        <option value="">Đang tải...</option>
+                    </select>
+                    <% if(!user.campaign_id) { %>
+                    <small class="text-warning mt-1 d-block">⚠️ Vui lòng chọn chiến dịch để tiếp tục</small>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </li>
+    <% } %>
+
+    <!-- Divider -->
+    <hr class="sidebar-divider">
+    <% if(user.isAdmin || user.role_id.includes(3)){%>
+    <li class="nav-item">
+        <a class="nav-link" href="/viem-gan">
+            <i class="fas fa-vest-patches"></i>
+            <span>Viêm gan</span></a>
+    </li>
+    <% } %>
+    <% if(user.isAdmin || user.role_id.includes(4)){%>
+        <li class="nav-item">
+            <a class="nav-link" href="/uon-van">
+                <i class="fas fa-vials"></i>
+                <span>Uốn Ván</span></a>
+        </li>
+    <% } %>
+    <% if(user.isAdmin || user.role_id.includes(5)){%>
+        <li class="nav-item">
+            <a class="nav-link" href="/hoi-chan">
+                <i class="fas fa-tasks"></i>
+                <span>Hội chẩn</span></a>
+        </li>
+    <% } %>
+    <% if(user.isAdmin || user.role_id.includes(6)){%>
+        <li class="nav-item">
+            <a class="nav-link" href="/viem-gan-mt1">
+                <i class="fas fa-swatchbook"></i>
+                <span>Viêm gan Mt1</span></a>
+        </li>
+    <% } %>
+    <% if(user.isAdmin || user.role_id.includes(7)){%>
+        <li class="nav-item">
+            <a class="nav-link" href="/research">
+                <i class="fas fa-weight"></i>
+                <span>Đánh giá KPA</span></a>
+        </li>
+        <hr class="sidebar-divider mb-0">
+        <li class="nav-item">
+            <a class="nav-link" href="/admin/mon-an">
+                <i class="fas fa-drumstick-bite"></i>
+                <span>Món ăn</span></a>
+        </li>
+    <% } %>
+    <% if(user.isAdmin || user.role_id.includes(8)){%>
+        <li class="nav-item">
+            <a class="nav-link" href="/standard">
+                <i class="fa-brands fa-suse"></i>
+                <span>Phiếu hội chẩn</span></a>
+        </li>
+    <% } %>
+    <% if(user.isAdmin){%>
+        <li class="nav-item">
+            <a class="nav-link" href="/menu-build">
+                <i class="fa-brands fa-optin-monster"></i>
+                <span>Thực đơn</span></a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/inventory/warehouses">
+                <i class="fa-brands fa-first-order"></i>
+                <span>Kho</span></a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/admin">
+                <i class="fas fa-chart-line"></i>
+                <span>Admin</span></a>
+        </li>
+    <% } %>
+    
+    <!-- Divider -->
+    <hr class="sidebar-divider">
+    <!-- Sidebar Toggler (Sidebar) -->
+    <div class="text-center d-none d-md-inline">
+        <button class="rounded-circle border-0" id="sidebarToggle"></button>
+    </div>
+
+</ul>
+<!-- End of Sidebar -->

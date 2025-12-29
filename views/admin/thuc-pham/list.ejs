@@ -1,0 +1,770 @@
+<%- include('../layout/head', {title: 'Quản lý thực phẩm'}) %>
+
+<body id="page-top">
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <%- include('../layout/sidebar', {active: 'thuc-pham'}) %>
+        <!-- End of Sidebar -->
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+                <!-- Topbar -->
+                <%- include('../layout/header') %>
+                <!-- End of Topbar -->
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">Quản lý thực phẩm</h1>
+                        <div class="d-flex align-items-center justify-content-between gap-2">
+                            <a class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#modal-import-excel">
+                                <i class="fas fa-plus fa-sm text-white-50"></i> Import Excel
+                            </a>
+                            <a href="/admin/thuc-pham/new" class="d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+                                <i class="fas fa-plus fa-sm text-white-50"></i> Thêm thực phẩm mới
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- DataTales Example -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Danh sách thực phẩm</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Tên thực phẩm</th>
+                                            <th>Loại</th>
+                                            <th>Năm</th>
+                                            <th>Tên tiếng Việt</th>
+                                            <th>Khối lượng (g)</th>
+                                            <th>Protein (g)</th>
+                                            <th>Năng lượng (kcal)</th>
+                                            <th>Ngày tạo</th>
+                                            <th>Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+
+            <!-- Footer -->
+            <%- include('../layout/footer') %>
+            <!-- End of Footer -->
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+       <div class="modal fade" id="modal-import-excel" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <button class="modal-btn-close btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h3 class="modal-title fs-6 text-uppercase text-center mb-3">Import Food</h3>
+                <div class="row flex-wrap g-3">
+                    <div class="col-12 col-sm-4">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Năm dữ liệu</h6>
+                            </div>
+                            <div class="card-body">
+                                <div  data-plugin="virtual-select" data-config='{"placeholder":"Năm dữ liệu"}' id="type_year"
+                                    data-options='[{"label":"2017","value":"2017"},{"label":"2000","value":"2000"},{"label":"2025","value":"2025"}]'></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-4">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Loại thực phẩm</h6>
+                            </div>
+                            <div class="card-body">
+                                <div  data-plugin="virtual-select" data-config='{"placeholder":"Loại thực phẩm"}' id="type"
+                                    data-options='[{"label":"Sống","value":"raw"},{"label":"Chín ĐP","value":"cooked"},{"label":"Chín VDD","value":"cooked_vdd"},{"label":"Sữa","value":"milk"},{"label":"Dịch DD","value":"ddd"},{"label":"Bánh/kẹo/đồ uống","value":"cake"}]'></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-4">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">File Excel</h6>
+                            </div>
+                            <div class="card-body">
+                                <input type="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="form-control" id="file-import">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Loại import</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="importType" id="create-new" value="create" checked>
+                                    <label class="form-check-label" for="create-new">Tạo mới</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="importType" id="update-existing" value="update">
+                                    <label class="form-check-label" for="update-existing">Cập nhật</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-2 justify-content-center mt-2">
+                    <div class="col-6 col-md-auto">
+                        <button class="btn btn-cancel box-btn w-100 text-uppercase" type="button"  data-bs-dismiss="modal">Huỷ</button>
+                    </div>
+                    <div class="col-6 col-md-auto">
+                        <button class="btn btn-primary box-btn w-100 text-uppercase" type="button" onclick="callApiImport()">Lưu</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/vendor/read-excel-file/read-excel-file.min.js"></script>
+    <script>
+        var listDataFood = [];
+        var fileExcel;
+        $(document).ready(function() {
+            // Initialize DataTable
+            $('#dataTable').DataTable({
+                dom: '<"top d-flex flex-wrap gap-2 justify-content-between align-items-center mb-2"pf>rt<"bottom d-flex flex-wrap gap-2 justify-content-between align-items-center mt-2"il><"clear">',
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: '/admin/thuc-pham/list',
+                    type: 'POST',
+                    data: function(d) {
+                        return d;
+                    }
+                },
+                columns: [
+                    {
+                        data: 'name',
+                        width: '20%',
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: 'type',
+                        width: '8%',
+                        className: 'text-center',
+                        orderable: true,
+                        searchable: false,
+                        render: function(data, type, row) {
+                            if(data === 'raw'){
+                                return '<span class="badge badge-info">Sống</span>';
+                            }else if(data === 'cooked'){
+                                return '<span class="badge badge-success">Chín ĐP</span>';
+                            }else if(data === 'cooked_vdd'){
+                                return '<span class="badge badge-warning">Chín VDD</span>';
+                            }else if(data === 'milk'){
+                                return '<span class="badge badge-primary">Sữa</span>';
+                            }else if(data === 'ddd'){
+                                return '<span class="badge badge-danger">Dịch DD</span>';
+                            }else if(data === 'cake'){
+                                return '<span class="badge badge-secondary">Bánh/kẹo/đồ uống</span>';
+                            }
+                        }
+                    },
+                    {
+                        data: 'type_year',
+                        width: '6%',
+                        className: 'text-center',
+                        orderable: true,
+                        searchable: false,
+                        render: function(data, type, row) {
+                            return '<span class="badge badge-secondary">' + data + '</span>';
+                        }
+                    },
+                    {
+                        data: 'ten',
+                        width: '20%',
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: 'weight',
+                        width: '8%',
+                        className: 'text-center',
+                        orderable: true,
+                        searchable: false
+                    },
+                    {
+                        data: 'protein',
+                        width: '8%',
+                        className: 'text-center',
+                        orderable: true,
+                        searchable: false
+                    },
+                    {
+                        data: 'energy',
+                        width: '8%',
+                        className: 'text-center',
+                        orderable: true,
+                        searchable: false
+                    },
+                    {
+                        data: 'created_at',
+                        width: '15%',
+                        orderable: true,
+                        searchable: false,
+                        render: function(data, type, row) {
+                            if (data) {
+                                return moment(data).format('DD/MM/YYYY HH:mm');
+                            }
+                            return '';
+                        }
+                    },
+                    {
+                        data: null,
+                        width: '10%',
+                        orderable: false,
+                        searchable: false,
+                        render: function(data, type, row) {
+                            return `
+                                <div class="btn-group" role="group">
+                                    <a href="/admin/thuc-pham/${row.id}" class="btn btn-info btn-sm" title="Sửa">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="deleteFood(${row.id})" title="Xóa">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            `;
+                        }
+                    }
+                ],
+                // Cấu hình order mặc định (sẽ được override bởi server nếu có)
+                order: [], // Để trống để server xử lý order
+                // Cấu hình searching
+                searching: true, // Bật tính năng search
+                // Cấu hình ordering
+                ordering: true, // Bật tính năng sort
+                language: {
+                    url: '/vendor/datatables/vi.json'
+                },
+                layout:{
+                    topStart: 'paging',
+                    topEnd: 'search',
+                    bottomStart: ['paging', 'info'],
+                    bottomEnd:  'pageLength'
+                }
+            });
+        });
+
+        // Delete function
+        function deleteFood(id) {
+            Swal.fire({
+                title: 'Bạn có chắc chắn?',
+                text: "Dữ liệu sẽ không thể khôi phục sau khi xóa!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Xóa',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `/admin/thuc-pham/delete/${id}`,
+                        type: 'POST',
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire(
+                                    'Đã xóa!',
+                                    response.message,
+                                    'success'
+                                );
+                                $('#dataTable').DataTable().ajax.reload();
+                            } else {
+                                Swal.fire(
+                                    'Lỗi!',
+                                    response.message,
+                                    'error'
+                                );
+                            }
+                        },
+                        error: function() {
+                            Swal.fire(
+                                'Lỗi!',
+                                'Có lỗi xảy ra khi xóa dữ liệu.',
+                                'error'
+                            );
+                        }
+                    });
+                }
+            });
+        }
+
+        document.getElementById('file-import').addEventListener('change', function(e) {
+            fileExcel = e.target.files[0];
+            if (!fileExcel) return;
+        })
+
+
+        function dataFood2017(rows){
+            if($('#type').val() == 'raw'){
+                for(let [index, item] of rows.entries()){
+                    if(index > 1){
+                        listDataFood.push({
+                            active: 1,
+                            type: $('#type').val(),
+                            type_year: $('#type_year').val(),
+                            code: item[0],
+                            name: item[1],
+                            ten: item[1],
+                            weight: item[2],
+                            edible: item[3],
+                            energy: item[4],
+                            water: item[5],
+                            protein: item[6],
+                            fat: item[7],
+                            carbohydrate: item[8],
+                            fiber: item[9],
+                            ash: item[10],
+                            calci: item[11],
+                            phosphorous: item[12],
+                            fe: item[13],
+                            zinc: item[14],
+                            sodium: item[15],
+                            potassium: item[16],
+                            magnesium: item[17],
+                            manganese: item[18],
+                            copper: item[19],
+                            selenium: item[20],
+                            vitamin_c: item[21],
+                            thiamine: item[22],
+                            riboflavin: item[23],
+                            niacin: item[24],
+                            pantothenic_acid: item[25],
+                            vitamin_b6: item[26],
+                            folate: item[27],
+                            folic_acid: item[28],
+                            biotin: item[29],
+                            vitamin_b12: item[30],
+                            vitamin_a_rae: item[32],
+                            vitamin_d: item[33],
+                            vitamin_e: item[34],
+                            vitamin_k: item[35],
+                            b_carotene: item[36],
+                            a_carotene: item[37],
+                            b_cryptoxanthin: item[38],
+                            total_sugar: item[39],
+                            galactose: item[40],
+                            maltose: item[41],
+                            lactose: item[42],
+                            fructose: item[43],
+                            glucose: item[44],
+                            sucrose: item[45],
+                            lycopene: item[46],
+                            lutein_zeaxanthin: item[47],
+                            total_isoflavone: item[48],
+                            daidzein: item[49],
+                            genistein: item[50],
+                            glycetin: item[51],
+                            phytosterol: item[52],
+                            purine: item[53],
+                            total_fat: item[54],
+                            total_saturated_fat: item[55],
+                            palmitic: item[56],
+                            margaric: item[57],
+                            stearic: item[58],
+                            arachidic: item[59],
+                            behenic: item[60],
+                            lignoceric: item[61],
+                            mufa: item[62],
+                            myristoleic: item[63],
+                            palmitoleic: item[64],
+                            oleic: item[65],
+                            pufa: item[66],
+                            linoleic: item[67],
+                            linolenic: item[68],
+                            arachidonic: item[69],
+                            epa: item[70],
+                            dha: item[71],
+                            trans_fatty_acids: item[72],
+                            cholesterol: item[73],
+                            lysin: item[74],
+                            methionin: item[75],
+                            tryptophan: item[76],
+                            phenylalanin: item[77],
+                            threonin: item[78],
+                            valine: item[79],
+                            leucine: item[80],
+                            isoleucine: item[81],
+                            arginine: item[82],
+                            histidine: item[83],
+                            cystine: item[84],
+                            tyrosine: item[85],
+                            alanine: item[86],
+                            aspartic_acid: item[87],
+                            glutamic_acid: item[88],
+                            glycine: item[89],
+                            proline: item[90],
+                            serine: item[91]
+                        })
+                    }
+                }
+            }else if($('#type').val() == 'cooked_vdd'){
+                for(let [index, item] of rows.entries()){
+                    if(index > 0){
+                        listDataFood.push({
+                            active: 1,
+                            type: $('#type').val(),
+                            type_year: $('#type_year').val(),
+                            code: item[0],
+                            name: item[1],
+                            ten: item[1],
+                            weight: parseNumber(item[3]),
+                            energy: parseNumber(item[4]),
+                            protein: parseNumber(item[5]),
+                            fat: parseNumber(item[6]),
+                            carbohydrate: parseNumber(item[7]),
+                            fiber: parseNumber(item[8]),
+                            total_sugar: parseNumber(item[9]),
+                            vitamin_a_rae: parseNumber(item[10]),
+                            vitamin_c: parseNumber(item[11]),
+                            calci: parseNumber(item[12]),
+                            fe: parseNumber(item[13]),
+                            sodium: parseNumber(item[14]),
+                            potassium: parseNumber(item[15]),
+                            zinc: parseNumber(item[16]),
+                            cholesterol: parseNumber(item[17]),
+                            note: item[2]
+                        })
+                    }
+                }
+            }else if($('#type').val() == 'cooked'){
+                for(let [index, item] of rows.entries()){
+                    if(index > 0){
+                        listDataFood.push({
+                            active: 1,
+                            type: $('#type').val(),
+                            type_year: $('#type_year').val(),
+                            code: item[0],
+                            name: item[1],
+                            ten: item[1],
+                            note: item[2],
+                            weight: 1,
+                            energy: parseNumber(item[5]),
+                            protein: parseNumber(item[6]),
+                            fat: parseNumber(item[7]),
+                            carbohydrate: parseNumber(item[8]),
+                            fiber: parseNumber(item[9]),
+                            total_sugar: parseNumber(item[10]),
+                            vitamin_a_rae: parseNumber(item[11]),
+                            vitamin_c: parseNumber(item[12]),
+                            calci: parseNumber(item[13]),
+                            fe: parseNumber(item[14])
+                        })
+                    }
+                }
+            }
+        }
+
+        function dataFood2000(rows){
+            console.log("rows",rows, $('#type').val(), $('#type_year').val());
+            if($('#type').val() == 'raw'){
+                for(let [index, item] of rows.entries()){
+                    if(index > 1){
+                        listDataFood.push({
+                            active: 1,
+                            type: $('#type').val(),
+                            type_year: $('#type_year').val(),
+                            code: item[0],
+                            name: item[1],
+                            ten: item[1],
+                            weight: item[2],
+                            edible: item[4],
+                            energy: item[5],
+                            water: item[6],
+                            protein: item[7],
+                            animal_protein: item[8],
+                            unanimal_protein: item[9],
+                            fat: item[10],
+                            animal_lipid: item[11],
+                            unanimal_lipid: item[12],
+                            carbohydrate: item[13],
+                            fiber: item[14],
+                            ash: item[15],
+                            vitamin_a_rae: item[16],  
+                            b_carotene: item[17],  
+                            thiamine: item[18],  
+                            riboflavin: item[19],  
+                            niacin: item[20],  
+                            vitamin_c: item[21],  
+                            calci: item[22],  
+                            phosphorous: item[23],  
+                            fe: item[24],  
+                            sodium: item[25],  
+                            potassium: item[26],  
+                            magnesium: item[27], 
+                            zinc: item[28], 
+                            manganese: item[29],  
+                            copper: item[30],  
+                            fluoride: item[31],  
+                            iodine: item[32],
+                            selenium: item[33],
+
+                            palmitic: item[35],  
+                            stearic: item[36],  
+                            linoleic: item[37],  
+                            linolenic: item[38],  
+                            cholesterol: item[39]
+                        })
+                    }
+                }
+            }else if($('#type').val() == 'cooked'){
+
+            }
+        }
+
+        function dataFood2025(rows){
+            if($('#type').val() == 'milk'){
+                for(let [index, item] of rows.entries()){
+                    if(index > 2){
+                        listDataFood.push({
+                            active: 1,
+                            type: $('#type').val(),
+                            type_year: $('#type_year').val(),
+                            name: item[0],
+                            ten: item[0],
+                            weight: item[1],
+                            energy: item[2],
+                            protein: item[3],
+                            fat: item[4],
+                            carbohydrate: item[5]
+                        })
+                    }
+                }
+            }
+            if($('#type').val() == 'ddd'){
+                for(let [index, item] of rows.entries()){
+                    if(index > 1){
+                        listDataFood.push({
+                            active: 1,
+                            type: $('#type').val(),
+                            type_year: $('#type_year').val(),
+                            name: item[0],
+                            ten: item[0],
+                            weight: item[1],
+                            energy: item[2],
+                            protein: item[3],
+                            fat: item[4],
+                            carbohydrate: item[5],
+                            fiber: item[6],
+                            ash: item[7],
+                            calci: item[8],
+                            phosphorous: item[9],
+                            fe: item[10],
+                            zinc: item[11],
+                            sodium: item[12],
+                            potassium: item[13],
+                            magnesium: item[14],
+                            manganese: item[15],
+                            copper: item[16],
+                            selenium: item[17],
+                            vitamin_c: item[18],
+                            thiamine: item[19],
+                            riboflavin: item[20],
+                            niacin: item[21],
+                            pantothenic_acid: item[22],
+                            vitamin_b6: item[23],
+                            folate: item[24],
+                            folic_acid: item[25],
+                            biotin: item[26],
+                            vitamin_b12: item[27],
+                            vitamin_a_rae: item[29],
+                            vitamin_d: item[30],
+                            vitamin_e: item[31],
+                            vitamin_k: item[32],
+                            b_carotene: item[33],
+                            a_carotene: item[34],
+                            b_cryptoxanthin: item[35],
+                            total_sugar: item[36],
+                            galactose: item[37],
+                            maltose: item[38],
+                            lactose: item[39],
+                            fructose: item[40],
+                            glucose: item[41],
+                            sucrose: item[42],
+                            lycopene: item[43],
+                            lutein_zeaxanthin: item[44],
+                            total_isoflavone: item[45],
+                            daidzein: item[46],
+                            genistein: item[47],
+                            glycetin: item[48],
+                            phytosterol: item[49],
+                            purine: item[50],
+                            total_fat: item[51],
+                            total_saturated_fat: item[52],
+                            palmitic: item[53],
+                            margaric: item[54],
+                            stearic: item[55],
+                            arachidic: item[56],
+                            behenic: item[57],
+                            lignoceric: item[58],
+                            mufa: item[59],
+                            myristoleic: item[60],
+                            palmitoleic: item[61],
+                            oleic: item[62],
+                            pufa: item[63],
+                            linoleic: item[64],
+                            linolenic: item[65],
+                            arachidonic: item[66],
+                            epa: item[67],
+                            dha: item[68],
+                            trans_fatty_acids: item[69],
+                            cholesterol: item[70],
+                            lysin: item[71],
+                            methionin: item[72],
+                            tryptophan: item[73],
+                            phenylalanin: item[74],
+                            threonin: item[75],
+                            valine: item[76],
+                            leucine: item[77],
+                            isoleucine: item[78],
+                            arginine: item[79],
+                            histidine: item[80],
+                            cystine: item[81],
+                            tyrosine: item[82],
+                            alanine: item[83],
+                            aspartic_acid: item[84],
+                            glutamic_acid: item[85],
+                            glycine: item[86],
+                            proline: item[87],
+                            serine: item[88]
+                        })
+                    }
+                }
+            }
+        }
+        async function callApiImport(){
+            if(!$('#type_year').val() || !$('#type').val()){
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: 'Vui lòng chọn năm dữ liệu và loại thực phẩm!'
+                });
+                return;
+            }
+            if(!fileExcel){
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: 'Vui lòng chọn file Excel!'
+                });
+                return;
+            }
+
+            await readXlsxFile(fileExcel).then(function(rows) {
+               if(rows.length < 3){
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi!',
+                        text: 'Dữ liệu không hợp lệ hoặc thiếu dữ liệu!'
+                    });
+                    return;
+                }else{
+                    console.log('readXlsxFile', rows);
+                    switch($('#type_year').val()){
+                        case '2017': dataFood2017(rows); break;
+                        case '2000': dataFood2000(rows); break;
+                        case '2025': dataFood2025(rows); break;
+                        default: break;
+                    }
+                }
+            })
+
+            if(listDataFood.length == 0){
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: 'Dữ liệu không hợp lệ hoặc thiếu dữ liệu!'
+                });
+                return;
+            }
+            console.log("listDataFood", listDataFood);
+            const importType = document.querySelector('input[name="importType"]:checked').value;
+            let url = '/api/import-food';
+            if (importType === 'update') {
+                url = '/api/update-food';
+            }
+            // Send data to backend API
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: JSON.stringify({ rows: listDataFood, type_year: $('#type_year').val(), type: $('#type').val() }),
+                contentType: 'application/json',
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Thành công!',
+                            text: response.message
+                        }).then(() => {
+                            // Reload the DataTable to show new records
+                            $('#dataTable').DataTable().ajax.reload();
+                            $('#modal-import-excel').modal('hide');
+                            listDataFood = [];
+                            listDataFood.length = 0;
+                            fileExcel = null;
+                            document.getElementById('file-import').value = '';
+                            document.querySelector('#type_year').reset();
+                            document.querySelector('#type').reset();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi!',
+                            text: response.message
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi!',
+                        text: 'Có lỗi xảy ra khi import dữ liệu!'
+                    });
+                }
+            });
+        }
+    </script>
+    
+    <!-- Moment.js for date formatting -->
+    <script src="/js/moment.min.js"></script>
+
+</body>
+</html>

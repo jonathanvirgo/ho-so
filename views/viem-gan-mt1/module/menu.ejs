@@ -1,0 +1,19 @@
+<div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+    <nav class="nav nav-underline nav-menu-main">
+        <a class="nav-link <%=type == 'dau-hieu-nhap-vien' ? 'active' : ''%>" aria-current="page" href="/viem-gan-mt1/<%=patient.id%>/dau-hieu-nhap-vien" onclick="changeHepatitisPage(event, this, <%=patient.id%>, '<%=type%>')">Dấu hiệu nhập viện</a>
+        <a class="nav-link <%=type == 'sga' ? 'active' : ''%>" href="/viem-gan-mt1/<%=patient.id%>/sga" onclick="changeHepatitisPage(event, this, <%=patient.id%>, '<%=type%>')">SGA</a>
+        <a class="nav-link <%=type == 'so-gan' ? 'active' : ''%>" href="/viem-gan-mt1/<%=patient.id%>/so-gan" onclick="changeHepatitisPage(event, this, <%=patient.id%>, '<%=type%>')">Xơ gan</a>
+        <a class="nav-link <%=type == 'khau-phan-an' ? 'active' : ''%>" href="/viem-gan-mt1/<%=patient.id%>/khau-phan-an" onclick="changeHepatitisPage(event, this, <%=patient.id%>, '<%=type%>')">Khẩu phần ăn</a>
+    </nav>
+    <div class="">
+        <% if(type != 'khau-phan-an'){%>
+        <a class="btn btn-primary btn-circle" id="save_hepatitis" onclick="createHepatitis(<%=patient.id%>,'<%=type%>')">
+            <i class="fas fa-sd-card"></i>
+        </a>
+        <% }else{ %>
+        <a class="btn btn-success btn-circle" onclick="openModalCreateBoardingMt1('<%=type%>')">
+            <i class="fas fa-plus"></i>
+        </a>
+        <% } %>
+    </div>
+</div>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <%- include('../layout/head') %>
+        <title>Danh sách phiếu xuất kho - <%= warehouse ? warehouse.name : 'Kho' %>
+        </title>
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <%- include('../layout/sidebar') %>
+            <div id="content-wrapper" class="d-flex flex-column">
+                <%- include('../layout/header') %>
+
+                    <div class="container-fluid">
+                        <!-- Page Heading -->
+                        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                            <h1 class="h3 mb-0 text-gray-800">
+                                <i class="fas fa-file-export"></i> Danh sách phiếu xuất kho
+                                <% if (warehouse) { %>
+                                    - <%= warehouse.name %>
+                                        <% } %>
+                            </h1>
+                            <div>
+                                <a href="/inventory/stock/<%= warehouse ? warehouse.id : '' %>"
+                                    class="btn btn-secondary btn-sm">
+                                    <i class="fas fa-arrow-left"></i> Quay lại
+                                </a>
+                                <a href="/inventory/issue/create/<%= warehouse ? warehouse.id : '' %>"
+                                    class="btn btn-primary btn-sm">
+                                    <i class="fas fa-plus"></i> Tạo phiếu xuất
+                                </a>
+                            </div>
+                        </div>
+
+                        <% if (errors && errors.length> 0) { %>
+                            <div class="alert alert-danger">
+                                <% errors.forEach(function(error) { %>
+                                    <p>
+                                        <%= error %>
+                                    </p>
+                                    <% }); %>
+                            </div>
+                            <% } %>
+
+                                <!-- DataTable -->
+                                <div class="card shadow mb-4">
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered" id="issueTable" width="100%"
+                                                cellspacing="0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Mã phiếu</th>
+                                                        <th>Ngày xuất</th>
+                                                        <th>Loại xuất</th>
+                                                        <th>Người nhận</th>
+                                                        <th>Số mặt hàng</th>
+                                                        <th>Trạng thái</th>
+                                                        <th>Người tạo</th>
+                                                        <th>Thao tác</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                    </div>
+
+                    <%- include('../layout/footer') %>
+            </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            const warehouseId = <%= warehouse ?warehouse.id: 'null' %>;
+
+            if (!warehouseId) {
+                Swal.fire('Lỗi', 'Không tìm thấy thông tin kho', 'error');
+                return;
+            }
+
+            const table = $('#issueTable').DataTable({
+                ajax: {
+                    url: `/api/inventory/issues/${warehouseId}`,
+                    dataSrc: 'data'
+                },
+                columns: [
+                    { data: 'issue_code' },
+                    {
+                        data: 'issue_date',
+                        render: function (data) {
+                            return data ? new Date(data).toLocaleDateString('vi-VN') : '';
+                        }
+                    },
+                    {
+                        data: 'issue_type',
+                        render: function (data) {
+                            const types = {
+                                'manual': 'Thủ công',
+                                'menu': 'Từ thực đơn',
+                                'other': 'Khác'
+                            };
+                            return types[data] || data;
+                        }
+                    },
+                    { data: 'receiver' },
+                    { data: 'item_count' },
+                    {
+                        data: 'status',
+                        render: function (data) {
+                            const badges = {
+                                'pending': '<span class="badge badge-warning">Chờ xác nhận</span>',
+                                'confirmed': '<span class="badge badge-success">Đã xác nhận</span>',
+                                'cancelled': '<span class="badge badge-danger">Đã hủy</span>'
+                            };
+                            return badges[data] || data;
+                        }
+                    },
+                    { data: 'created_by_name' },
+                    {
+                        data: null,
+                        orderable: false,
+                        render: function (data, type, row) {
+                            return `
+                                <a href="/inventory/issue/export/${row.id}" class="btn btn-sm btn-success" title="Xuất Excel">
+                                    <i class="fas fa-file-excel"></i>
+                                </a>
+                            `;
+                        }
+                    }
+                ],
+                order: [[1, 'desc']],
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/vi.json'
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

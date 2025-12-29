@@ -1,0 +1,16 @@
+<div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+    <nav class="nav nav-underline nav-menu-main">
+        <a class="nav-link <%=type == 'khau-phan-an' ? 'active' : ''%>" href="/uon-van/<%=patient.id%>/khau-phan-an" onclick="changeTetanusPage(event, this, <%=patient.id%>, '<%=type%>')">Khẩu phần ăn</a>
+    </nav>
+    <div class="">
+        <% if(!['khau-phan-an'].includes(type)){%>
+        <a class="btn btn-primary btn-circle" id="save_Tetanus" onclick="createTetanus(<%=patient.id%>,'<%=type%>')">
+            <i class="fas fa-sd-card"></i>
+        </a>
+        <% }else{ %>
+        <a class="btn btn-success btn-circle" onclick="openModalCreateBoarding('<%=type%>')">
+            <i class="fas fa-plus"></i>
+        </a>
+        <% } %>
+    </div>
+</div>

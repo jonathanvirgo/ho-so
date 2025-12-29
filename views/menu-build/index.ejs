@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <%- include('../layout/head') %>
+    <title>Quản lý Thực đơn - Menu Build</title>
+</head>
+
+<body>
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+        <%- include('../layout/sidebar') %>
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            <!-- Main Content -->
+            <div id="content">
+                <%- include('../layout/header') %>
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+                    <% if(errors.length > 0) { %>
+                        <div class="alert alert-danger">
+                            <% for(let error of errors) { %>
+                                <div><%= error %></div>
+                            <% } %>
+                        </div>
+                    <% } %>
+
+                    <!-- Page Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">
+                            <i class="fas fa-utensils"></i> Quản lý Thực đơn
+                        </h1>
+                        <a href="/menu-build/create" class="btn btn-primary btn-icon-split">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-plus"></i>
+                            </span>
+                            <span class="text">Tạo thực đơn mới</span>
+                        </a>
+                    </div>
+
+                    <!-- DataTable Card -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Danh sách Thực đơn</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover" id="menuBuildTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Tên thực đơn</th>
+                                            <th>Loại hiển thị</th>
+                                            <th>Trạng thái</th>
+                                            <th>Ngày tạo</th>
+                                            <th>Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Data will be loaded via AJAX -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.container-fluid -->
+            </div>
+            <!-- End of Main Content -->
+
+            <%- include('../layout/footer') %>
+        </div>
+        <!-- End of Content Wrapper -->
+    </div>
+    <!-- End of Page Wrapper -->
+    <script>
+        $(document).ready(function() {
+            // Initialize DataTable
+            const table = $('#menuBuildTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: '/menu-build/list',
+                    type: 'POST',
+                    error: function(xhr, error, thrown) {
+                        console.error('DataTable error:', error, thrown);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi',
+                            text: 'Không thể tải dữ liệu'
+                        });
+                    }
+                },
+                columns: [
+                    { data: 'id' },
+                    { 
+                        data: 'name',
+                        render: function(data, type, row) {
+                            let html = '<strong>' + data + '</strong>';
+                            if (row.description) {
+                                html += '<br><small class="text-muted">' + row.description + '</small>';
+                            }
+                            return html;
+                        }
+                    },
+                    { 
+                        data: 'view_type',
+                        render: function(data, type, row) {
+                            if (data === 'week') {
+                                return '<span class="badge badge-info">Tuần ' + (row.selected_week || 1) + '</span>';
+                            } else {
+                                return '<span class="badge badge-primary">Cả tháng</span>';
+                            }
+                        }
+                    },
+                    { 
+                        data: 'status',
+                        render: function(data) {
+                            const statusMap = {
+                                'draft': '<span class="badge badge-secondary">Nháp</span>',
+                                'active': '<span class="badge badge-success">Đang dùng</span>',
+                                'archived': '<span class="badge badge-dark">Lưu trữ</span>'
+                            };
+                            return statusMap[data] || data;
+                        }
+                    },
+                    { 
+                        data: 'created_at',
+                        render: function(data) {
+                            return moment(data).format('DD/MM/YYYY HH:mm');
+                        }
+                    },
+                    {
+                        data: null,
+                        orderable: false,
+                        render: function(data, type, row) {
+                            return `
+                                <div class="btn-group" role="group">
+                                    <a href="/menu-build/edit/${row.id}" class="btn btn-sm btn-info" title="Chỉnh sửa">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-danger btn-delete" data-id="${row.id}" title="Xóa">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            `;
+                        }
+                    }
+                ],
+                order: [[7, 'desc']], // Sort by created_at desc
+                language: {
+                    url: '/vendor/datatables/vi.json'
+                },
+                pageLength: 25,
+                layout:{
+                    topStart: 'paging',
+                    topEnd: 'search',
+                    bottomStart: ['paging', 'info'],
+                    bottomEnd:  'pageLength'
+                }
+            });
+
+            // Delete handler
+            $('#menuBuildTable').on('click', '.btn-delete', function() {
+                const id = $(this).data('id');
+                
+                Swal.fire({
+                    title: 'Xác nhận xóa',
+                    text: 'Bạn có chắc chắn muốn xóa thực đơn này?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Xóa',
+                    cancelButtonText: 'Hủy'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '/menu-build/delete/' + id,
+                            type: 'POST',
+                            success: function(response) {
+                                if (response.success) {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Thành công',
+                                        text: response.message,
+                                        timer: 2000
+                                    });
+                                    table.ajax.reload();
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Lỗi',
+                                        text: response.message
+                                    });
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Lỗi',
+                                    text: 'Không thể xóa thực đơn'
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+

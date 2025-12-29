@@ -1,0 +1,290 @@
+/* Menu Build Styles */
+
+.menu-table {
+    font-size: 0.9rem;
+    margin-bottom: 0;
+}
+
+.menu-table th {
+    background-color: #4e73df;
+    color: white;
+    text-align: center;
+    vertical-align: middle;
+    font-weight: 600;
+    padding: 0.75rem;
+    border: 1px solid #3a5bc7;
+}
+
+.menu-table td {
+    vertical-align: middle;
+    padding: 0.5rem;
+    border: 1px solid #e3e6f0;
+}
+
+.day-header {
+    background-color: #5a5c69;
+    color: white;
+    font-weight: 600;
+    text-align: center;
+    min-width: 100px;
+}
+
+.category-cell {
+    background-color: #f8f9fc;
+    font-weight: 500;
+    text-align: center;
+    min-width: 120px;
+}
+
+.dish-select {
+    width: 100%;
+    min-width: 200px;
+}
+
+.week-section {
+    margin-bottom: 2rem;
+}
+
+.week-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.week-header h5 {
+    margin: 0;
+    font-weight: 600;
+}
+
+.category-toggle-btn {
+    margin: 0.25rem;
+    transition: all 0.3s ease;
+}
+
+.category-toggle-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.hidden-category {
+    display: none;
+}
+
+/* Meal Toggle Buttons */
+.meal-toggle-btn {
+    margin: 0.25rem;
+    min-width: 140px;
+    transition: all 0.3s ease;
+}
+
+.meal-toggle-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.meal-toggle-btn i {
+    margin-right: 5px;
+}
+
+/* Meal Section */
+.meal-section {
+    margin-bottom: 20px;
+}
+
+.meal-header {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px 8px 0 0;
+    margin-bottom: 0;
+}
+
+.meal-header h6 {
+    margin: 0;
+    color: white;
+}
+
+.meal-table {
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
+}
+
+/* VirtualSelect customization */
+.vscomp-wrapper {
+    width: 100% !important;
+    min-width: 200px;
+}
+
+.vscomp-toggle-button {
+    min-height: 38px;
+    border-radius: 0.25rem;
+}
+
+.vscomp-search-input {
+    border-radius: 0.25rem;
+}
+
+/* Fix VirtualSelect dropdown trong modal */
+.modal .vscomp-dropbox-container {
+    z-index: 1060 !important; /* Higher than modal backdrop (1050) */
+}
+
+.vscomp-dropbox-container {
+    z-index: 1000 !important;
+}
+
+.swal2-container .vscomp-dropbox-container {
+    z-index: 10000 !important; /* Higher than SweetAlert2 */
+}
+
+.select2-container--bootstrap-5 .select2-selection--single {
+    padding: 0.375rem 0.75rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .menu-table {
+        font-size: 0.8rem;
+    }
+    
+    .menu-table th,
+    .menu-table td {
+        padding: 0.4rem;
+    }
+    
+    .dish-select {
+        min-width: 150px;
+    }
+    
+    .week-header {
+        padding: 0.75rem 1rem;
+    }
+    
+    .week-header h5 {
+        font-size: 1rem;
+    }
+}
+
+/* Print styles */
+@media print {
+    .btn,
+    .card-header,
+    .category-toggle-btn {
+        display: none !important;
+    }
+    
+    .week-section {
+        page-break-inside: avoid;
+    }
+    
+    .menu-table {
+        font-size: 0.85rem;
+    }
+}
+
+/* Loading animation */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loading-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #4e73df;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Status badges */
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.status-draft {
+    background-color: #6c757d;
+    color: white;
+}
+
+.status-active {
+    background-color: #28a745;
+    color: white;
+}
+
+.status-archived {
+    background-color: #343a40;
+    color: white;
+}
+
+/* Card enhancements */
+.card-shadow-lg {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.card-header-gradient {
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    color: white;
+}
+
+/* Button enhancements */
+.btn-icon-split .icon {
+    padding: 0.5rem 0.75rem;
+}
+
+.btn-icon-split .text {
+    padding: 0.5rem 0.75rem;
+}
+
+/* Form enhancements */
+.form-control:focus,
+.select2-container--bootstrap-5.select2-container--focus .select2-selection {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+/* Table hover effect */
+.menu-table tbody tr:hover {
+    background-color: #f8f9fc;
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #858796;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state h4 {
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    margin-bottom: 1.5rem;
+}
+

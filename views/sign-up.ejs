@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./layout/head') %>
+        <title>Đăng ký</title>
+</head>
+<body class="bg-gradient-primary">
+    <div class="container">
+
+        <div class="card o-hidden border-0 shadow-lg my-5">
+            <div class="card-body p-0">
+                <!-- Nested Row within Card Body -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="p-5">
+                            <div class="text-center">
+                                <h1 class="h4 text-gray-900 mb-4">Tạo tài khoản!</h1>
+                            </div>
+                            <form class="user">
+                                <div class="form-group">
+                                    <input type="text" class="form-control form-control-user" id="exampleFullName"
+                                        placeholder="Họ tên">
+                                </div>
+                                <div class="form-group">
+                                    <input type="email" class="form-control form-control-user" id="exampleInputEmail" onchange="checkEmailInput(event, '', 0)"
+                                        placeholder="Email Address">
+                                    <label class="form-labels fs-6 text-danger ps-1 pt-1 d-none" id="exampleInputEmail_error">Vui lòng nhập Email</label>   
+                                </div>
+                                <div class="form-group">
+                                    <input type="password" class="form-control form-control-user" onchange="checkInputEmpty(event, '', 0)"
+                                        id="exampleInputPassword" placeholder="Password">
+                                    <label class="form-labels fs-6 text-danger ps-1 pt-1 d-none" id="exampleInputPassword_error">Vui lòng nhập mật khẩu</label>  
+                                </div>
+                                <div class="form-group">
+                                    <input type="password" class="form-control form-control-user" onchange="checkInputEmpty(event, '', 0)"
+                                        id="exampleRepeatPassword" placeholder="Repeat Password">
+                                    <label class="form-labels fs-6 text-danger ps-1 pt-1 d-none" id="exampleRepeatPassword_error">Vui lòng nhập xác nhận mật khẩu</label>  
+                                </div>
+                                <a class="btn btn-primary btn-user btn-block" onclick="signUp()">
+                                    Đăng ký
+                                </a>
+                                <hr>
+                                <!-- <a href="index.html" class="btn btn-google btn-user btn-block">
+                                    <i class="fab fa-google fa-fw"></i> Register with Google
+                                </a>
+                                <a href="index.html" class="btn btn-facebook btn-user btn-block">
+                                    <i class="fab fa-facebook-f fa-fw"></i> Register with Facebook
+                                </a> -->
+                            </form>
+                            <hr>
+                            <!-- <div class="text-center">
+                                <a class="small" href="forgot-password.html">Forgot Password?</a>
+                            </div> -->
+                            <div class="text-center">
+                                <a class="small" href="/login">Bạn đã có tài khoản? Đăng nhập!</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="loading-page" class="d-none">
+            <div class="lds-ellipsis">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+          <!-- Bootstrap core JavaScript-->
+          <script src="/vendor/jquery/jquery.min.js"></script>
+          <script src="/js/bootstrap.bundle.min.js"></script>
+  
+          <!-- Core plugin JavaScript-->
+          <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+          <script src="/js/sweetalert2@11.js"></script>
+          <!-- Custom scripts for all pages-->
+          <script src="/js/sb-admin-2.min.js"></script>
+          <script src="/js/main.js?v=<%= assetVersion %>"></script>
+          <script src="https://www.google.com/recaptcha/api.js?render=<%=reCAPTCHA_site_key%>"></script>
+    </div>
+    <script>
+        const site_key = '<%=reCAPTCHA_site_key%>';
+         document.addEventListener('keyup', function (event) {
+            if (event.key === 'Enter') {
+                // Xử lý code tại đây khi người dùng nhấn phím Enter
+                signUp();
+            }
+        });
+        function signUp(){
+            loading.show();
+            let param = {
+                fullname: document.getElementById('exampleFullName').value,
+                email: document.getElementById('exampleInputEmail').value,
+                password: document.getElementById('exampleInputPassword').value
+            }
+
+            let confirm_password = document.getElementById('exampleRepeatPassword').value;
+            let errors = [];
+            if(!param.email){
+                toggleErrorHtml('exampleInputEmail', false, 'Vui lòng nhập email', true);
+                errors.push(1);
+            }
+
+            if(!param.password){
+                toggleErrorHtml('exampleInputPassword', false, 'Vui lòng nhập password', true);
+                errors.push(1);
+            }
+
+            if(!confirm_password){
+                toggleErrorHtml('exampleRepeatPassword', false, 'Vui lòng nhập xác nhận password', true);
+                errors.push(1);
+            }
+
+            if(param.password !== confirm_password){
+                toggleErrorHtml('exampleInputPassword', false, 'Mật khẩu không trùng khớp', true);
+                errors.push(1);
+            }
+            if(errors.length > 0){
+                loading.hide();
+                return
+            }
+            grecaptcha.ready(function() {
+                grecaptcha.execute(site_key, {action: 'signup'}).then(async function(token) {
+                    signUpSubmit({...param, token});
+                });
+            });
+        }
+
+        function signUpSubmit(param){
+            $.ajax({
+                url: '/sign-up',
+                type: 'POST',
+                data: param,
+                beforeSend: function () {
+                    loading.show();
+                },
+                success: function (result) {
+                    loading.hide();
+                    if(result.success){
+                        toarstMessage('Tạo tài khoản thành công vui lòng liên hệ quản trị viên để kích hoạt tài khoản!', 'Thành công', 30000);
+                    }else{
+                        toarstError(result.message, 'Lỗi');
+                    }
+                },
+                error: function(jqXHR, exception){
+                    loading.hide();
+                    ajax_call_error(jqXHR, exception);
+                }
+            })
+        }
+    </script>
+</body>
+</html>

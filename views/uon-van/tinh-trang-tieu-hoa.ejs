@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../layout/head') %>
+    <title>Bệnh nhân uốn ván - Patients</title>
+</head>
+
+<body>
+
+    <!-- Page Wrapper -->
+   <div id="wrapper">
+       <%- include('../layout/sidebar') %>
+
+        <!-- Content Wrapper -->
+       <div id="content-wrapper" class="d-flex flex-column">
+            <!-- Main Content -->
+            <div id="content">
+                <%- include('../layout/header') %>
+                <%if(errors.length > 0){%>
+                    <div class="container">
+                        <div class="box mt-3">
+                            <%for(let item of errors){%>
+                            <div><%-JSON.stringify(item)%></div>
+                            <%}%>
+                        </div>
+                    </div>
+                <%}else{%>
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+                    <%- include('../layout/thong-tin-co-ban.ejs')%>
+                    <input type="hidden" id="type" value="<%=type%>">
+                    <input type="hidden" id="patient_id" value="<%=patient.id%>">
+                    <div class="card shadow mt-3" name="form-data">
+                        <%- include('./module/menu.ejs')%>
+                        <div class="card-body p-0">
+                            <div class="d-lg-flex d-block gap-3">
+                                <div class="card shadow card-list-date">
+                                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                        <h6 class="m-0 font-weight-bold text-primary">Ngày</h6>
+                                        <div class="">
+                                            <div class="btn btn-success btn-circle" id="datepicker">
+                                                <i class="fas fa-plus"></i>
+                                                <input class="form-control position-absolute" type="text" placeholder="Ngày nhập viện" 
+                                                                value="" data-input="data-input" autoComplete="off"
+                                                                aria-label="Ngày sinh"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body p-0 d-flex flex-column" id="list-date">
+                                        <% if(times.length > 0){%>
+                                            <% for(let time of times){ %>
+                                                <div class="py-2 ws-nowrap card <%= time.id == timeActiveId ? 'border-left-info text-info shadow' : ''%>">
+                                                    <div class="px-2 cursor-poiter" id="time_<%=time.id%>" onclick="getDataTime(<%=time.id%>)"><%= moment(time.time).format('h:mm D/M/YYYY')%></div>
+                                                    <div class="position-absolute right-1 cursor-poiter text-danger" onclick="deleteTime(<%=time.id%>)"><i class="fas fa-trash"></i></div>
+                                                    <div class="position-absolute right-4 cursor-poiter text-info px-2" onclick="editTime(<%=time.id%>)"><i class="fas fa-pencil-alt"></i></div>
+                                                </div>
+                                            <% } %>
+                                        <% } %>
+                                    </div>
+                                </div>
+                                <div class="flex-fill form-data card shadow" >
+                                    <div class="row flex-wrap g-3 card-body">
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Chướng bụng</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div data-plugin="virtual-select" data-config='{"placeholder":"Chướng bụng"}' id="chuong_bung" data-value="<%=detailTetanus.chuong_bung%>"
+                                                        data-options='[{"label":"Không chướng","value":0},{"label":"Mức độ nhẹ","value":1},{"label":"Mức độ vừa","value":2},{"label":"Mức độ nặng","value":3}]'></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3 text-primary">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Trào ngược</h6>
+                                                </div>
+                                                <div class="card-body d-flex gap-3 align-items-center">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="trao_nguoc" value="1" <%= detailTetanus.trao_nguoc === 1 ? 'checked' : '' %>>
+                                                        <label class="form-check-label">
+                                                          Có
+                                                        </label>
+                                                      </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="trao_nguoc" value="2" <%= detailTetanus.trao_nguoc === 2 ? 'checked' : '' %>>
+                                                        <label class="form-check-label">
+                                                          Không
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3 text-primary">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Táo bón</h6>
+                                                </div>
+                                                <div class="card-body d-flex gap-3 align-items-center">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="tao_bon" value="1" <%= detailTetanus.tao_bon === 1 ? 'checked' : '' %>>
+                                                        <label class="form-check-label">
+                                                          Có
+                                                        </label>
+                                                      </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="tao_bon" value="2" <%= detailTetanus.tao_bon === 2 ? 'checked' : '' %>>
+                                                        <label class="form-check-label">
+                                                          Không
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3 text-primary">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Phân lỏng trên 3 lần/ngày</h6>
+                                                </div>
+                                                <div class="card-body d-flex gap-3 align-items-center">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="phan_long_3_ngay" value="1" <%= detailTetanus.phan_long_3_ngay === 1 ? 'checked' : '' %>>
+                                                        <label class="form-check-label">
+                                                          Có
+                                                        </label>
+                                                      </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="phan_long_3_ngay" value="2" <%= detailTetanus.phan_long_3_ngay === 2 ? 'checked' : '' %>>
+                                                        <label class="form-check-label">
+                                                          Không
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3 text-primary">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Tăng đường máu > 10mmol/L</h6>
+                                                </div>
+                                                <div class="card-body d-flex gap-3 align-items-center">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="duong_mau_10" value="1" <%= detailTetanus.duong_mau_10 === 1 ? 'checked' : '' %>>
+                                                        <label class="form-check-label">
+                                                          Có
+                                                        </label>
+                                                      </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="duong_mau_10" value="2" <%= detailTetanus.duong_mau_10 === 2 ? 'checked' : '' %>>
+                                                        <label class="form-check-label">
+                                                          Không
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3 text-primary">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Tăng đường máu > 20mmol/L</h6>
+                                                </div>
+                                                <div class="card-body d-flex gap-3 align-items-center">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="duong_mau_20" value="1" <%= detailTetanus.duong_mau_20 === 1 ? 'checked' : '' %>>
+                                                        <label class="form-check-label">
+                                                          Có
+                                                        </label>
+                                                      </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="duong_mau_20" value="2" <%= detailTetanus.duong_mau_20 === 2 ? 'checked' : '' %>>
+                                                        <label class="form-check-label">
+                                                          Không
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Số lần đi ngoài</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <input type="number" class="form-control" id="so_lan_di_ngoai" placeholder="Số lần đi ngoài" value="<%=detailTetanus.so_lan_di_ngoai%>">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Tình trạng phân</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <input type="text" class="form-control" id="tinh_trang_phan" placeholder="Tình trạng phân" value="<%=detailTetanus.tinh_trang_phan%>">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Dịch tồn dư(ml)</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <input type="number" class="form-control" id="dich_ton_du" placeholder="Dịch tồn dư(ml)" value="<%=detailTetanus.dich_ton_du%>">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+            </div>
+           <%- include('../layout/footer') %>
+       </div>
+   </div>
+   <script src="/js/uon-van.js?v=<%= assetVersion %>"></script>
+   <script>
+    var tetanusId = '<%=detailTetanus.id%>';
+    var timeActive = '<%=timeActiveId%>';
+    var listTime = <%- JSON.stringify(times) %>;
+    var flatpickrInstance;
+    var isEditTime = false;
+    var idEditTime;
+   </script>
+</body>
+</html>

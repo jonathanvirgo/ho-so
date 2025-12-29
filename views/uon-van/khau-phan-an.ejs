@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../layout/head') %>
+    <title>Bệnh nhân uốn ván - Patients</title>
+</head>
+
+<body>
+    <!-- Page Wrapper -->
+   <div id="wrapper">
+       <%- include('../layout/sidebar') %>
+
+        <!-- Content Wrapper -->
+       <div id="content-wrapper" class="d-flex flex-column">
+            <!-- Main Content -->
+            <div id="content">
+                <%- include('../layout/header') %>
+                <%if(errors.length > 0){%>
+                    <div class="container">
+                        <div class="box mt-3">
+                            <%for(let item of errors){%>
+                            <div><%-JSON.stringify(item)%></div>
+                            <%}%>
+                        </div>
+                    </div>
+                <%}else{%>
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+                    <%- include('../layout/thong-tin-co-ban.ejs')%>
+
+                    <div class="d-flex mt-3 gap-4">
+                        <div class="flex-fill form-data card shadow" name="form-data">
+                            <%- include('./module/menu.ejs')%>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>Ngày</th>
+                                                <th>Nuôi dưỡng <br> đường tiêu hóa</th>
+                                                <th>Nuôi dưỡng <br> đường tĩnh mạch</th>
+                                                <th>Ghi chú</th>
+                                                <th>Thao tác</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+                <% } %>
+            </div>
+           <%- include('../layout/footer') %>
+       </div>
+   </div>
+
+   <div class="modal fade" id="modal-add-broading" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-90">
+      <div class="modal-content">
+        <button class="modal-btn-close btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+        <h3 class="modal-title fs-6 text-uppercase text-center mb-3">Thêm khẩu phần ăn</h3>
+        <div class="row flex-wrap g-3">
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Ngày</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="flatpickr flatpickr-input" data-plugin="flatpickr" id="ngay"
+                                data-options='{"mode":"single", "allowInput": true}'>
+                            <input class="form-control" type="text" placeholder="Ngày" id="ngay_input"
+                                data-input="data-input" autoComplete="off"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Nuôi dưỡng đường tiêu hóa</h6>
+                    </div>
+                    <div class="card-body">
+                        <input type="text" class="form-control" id="nd_duong_th" placeholder="Nuôi dưỡng đường tiêu hóa">
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Nuôi dưỡng tĩnh mạch</h6>
+                    </div>
+                    <div class="card-body">
+                        <input type="text" class="form-control" id="nd_tinh_mac" placeholder="Nuôi dưỡng tĩnh mạch">
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Ghi chú</h6>
+                    </div>
+                    <div class="card-body">
+                        <input type="text" class="form-control" id="note" placeholder="Ghi chú">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row g-2 justify-content-center mt-2">
+          <div class="col-6 col-md-auto">
+            <button class="btn btn-cancel box-btn w-100 text-uppercase" type="button"  data-bs-dismiss="modal">Huỷ</button>
+          </div>
+          <div class="col-6 col-md-auto">
+            <button class="btn btn-primary box-btn w-100 text-uppercase" type="button" onclick="addBroading(<%=patient.id%>,'<%=type%>')">Lưu</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+    <script src="/js/uon-van.js?v=<%= assetVersion %>"></script>
+   <script type="text/javascript">
+    let tetanusId;
+    var dataTable;
+    var listBroading = [];
+    const id = '<%=patient.id%>';
+    const type = '<%=type%>';
+    var boardingId, ngay_fp;
+    $(document).ready(function () {
+        dataTable = $('#dataTable').DataTable({
+            dom: '<"top d-flex flex-wrap gap-2 justify-content-between align-items-center mb-2"pf>rt<"bottom d-flex flex-wrap gap-2 justify-content-between align-items-center mt-2"il><"clear">',
+            serverSide: true,
+            processing: true,
+            responsive: true,
+            pageLength: 25,
+            lengthMenu: [25, 50, 75, 100],
+            paging: true,
+            scrollX: true,
+            ajax: {
+                url: `/uon-van-list/${id}/${type}`,
+                method: 'POST',
+                dataType: "json",
+                beforeSend: function() {
+                    loading.show();
+                },
+                complete: function() {  // Thêm complete để ẩn loading khi xong
+                        loading.hide();
+                },
+                dataSrc: function(response){
+                    if (response.data) {
+                        return response.data;  // Trả về mảng dữ liệu
+                    } else {
+                        return [];  // Trả về mảng rỗng nếu không có dữ liệu
+                    }
+                },
+            },
+            initComplete: function (settings, json) {
+                // Dữ liệu sau khi DataTable tải xong
+                listBroading = json.data;
+            },
+            rowId: function(row) {
+                return type + '-' + row.id; // Thêm "row-" vào trước giá trị id
+            },
+            columns: [
+                {
+                        data: 'time',
+                        orderable: true,
+                        searchable: true, // Cột ngày tháng
+                    render: function(data, type, row) {
+                        // Kiểm tra nếu có Moment.js
+                        return moment(data).format('D/M/YYYY'); // Định dạng ngày giờ
+                    }
+                },
+                {
+                        data: 'nd_duong_th',
+                        orderable: true,
+                        searchable: true, className: 'min-width-200' },
+                {
+                        data: 'nd_tinh_mac',
+                        orderable: true,
+                        searchable: true, className: 'min-width-200' },
+                // {
+                //         data: 'ngay_nhap_vien' ,
+                //         orderable: true,
+                //         searchable: true},
+                {
+                        data: 'note',
+                        orderable: true,
+                        searchable: true, className: 'min-width-200' },
+                {
+                        data: null,
+                        orderable: false,
+                        searchable: false,
+                    render: function (data, type, row) {
+                        return `
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-info btn-sm btn-circle" data-id="${row.id}" onclick="openModalEditBoarding(${row.id}, '<%=type%>')"><i class="fas fa-pen-square"></i></button>
+                                <button class="btn btn-danger btn-sm btn-circle" data-id="${row.id}" onclick="deleteBoarding(${row.id}, '<%=type%>','${row.time}')"><i class="fas fa-trash"></i></button>
+                            </div>
+                        `;
+                    },
+                },
+            ],
+
+            // Cấu hình order mặc định DESC
+            order: [],
+            layout:{
+                topStart: 'paging',
+                topEnd: 'search',
+                bottomStart: ['paging', 'info'],
+                bottomEnd:  'pageLength'
+            }
+        });
+    });
+</script>
+</body>
+</html>

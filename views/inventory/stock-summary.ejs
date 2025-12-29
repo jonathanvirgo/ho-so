@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <%- include('../layout/head') %>
+        <title>Tồn kho - <%= warehouse ? warehouse.name : 'Kho' %>
+        </title>
+</head>
+
+<body>
+    <div id="wrapper">
+        <%- include('../layout/sidebar') %>
+            <div id="content-wrapper" class="d-flex flex-column">
+                <%- include('../layout/header') %>
+                    <div class="container-fluid">
+                        <% if(errors.length> 0){%>
+                            <div class="alert alert-danger">
+                                <%for(let item of errors){%>
+                                    <div><%-item%></div>
+                                    <%}%>
+                            </div>
+                            <% } else { %>
+
+                                <!-- Header -->
+                                <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                                    <h1 class="h3 mb-0 text-gray-800">
+                                        <i class="fas fa-boxes text-success"></i> Tồn kho: <%= warehouse.name %>
+                                    </h1>
+                                    <div class="btn-group">
+                                        <a href="/inventory/warehouses" class="btn btn-secondary btn-sm">
+                                            <i class="fas fa-arrow-left"></i> Quay lại
+                                        </a>
+                                        <a href="/inventory/receipts/<%= warehouse.id %>"
+                                            class="btn btn-success btn-sm">
+                                            <i class="fas fa-file-import"></i> DS Phiếu nhập
+                                        </a>
+                                        <a href="/inventory/issues/<%= warehouse.id %>" class="btn btn-danger btn-sm">
+                                            <i class="fas fa-file-export"></i> DS Phiếu xuất
+                                        </a>
+                                        <a href="/inventory/receipt/create/<%= warehouse.id %>"
+                                            class="btn btn-primary btn-sm">
+                                            <i class="fas fa-arrow-down"></i> Nhập kho
+                                        </a>
+                                        <a href="/inventory/issue/create/<%= warehouse.id %>"
+                                            class="btn btn-warning btn-sm">
+                                            <i class="fas fa-arrow-up"></i> Xuất kho
+                                        </a>
+                                        <a href="/inventory/stock-detail/<%= warehouse.id %>"
+                                            class="btn btn-info btn-sm">
+                                            <i class="fas fa-list"></i> Chi tiết theo lô
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <!-- Summary Cards -->
+                                <div class="row mb-4">
+                                    <div class="col-xl-3 col-md-6 mb-4">
+                                        <div class="card border-left-primary shadow h-100 py-2">
+                                            <div class="card-body">
+                                                <div class="row no-gutters align-items-center">
+                                                    <div class="col mr-2">
+                                                        <div
+                                                            class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                            Tổng loại TP</div>
+                                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                            <%= stockList.length %>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-auto">
+                                                        <i class="fas fa-list fa-2x text-gray-300"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xl-3 col-md-6 mb-4">
+                                        <div class="card border-left-success shadow h-100 py-2">
+                                            <div class="card-body">
+                                                <div class="row no-gutters align-items-center">
+                                                    <div class="col mr-2">
+                                                        <div
+                                                            class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                            Tổng giá trị</div>
+                                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                            <%= stockList.reduce((sum, item)=> sum +
+                                                                (parseFloat(item.total_value) || 0),
+                                                                0).toLocaleString('vi-VN') %> VNĐ
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-auto">
+                                                        <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xl-3 col-md-6 mb-4">
+                                        <div class="card border-left-warning shadow h-100 py-2">
+                                            <div class="card-body">
+                                                <div class="row no-gutters align-items-center">
+                                                    <div class="col mr-2">
+                                                        <div
+                                                            class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                                            Sắp hết hạn</div>
+                                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                            <%= expiringList.length %>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-auto">
+                                                        <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xl-3 col-md-6 mb-4">
+                                        <div class="card border-left-danger shadow h-100 py-2">
+                                            <div class="card-body">
+                                                <div class="row no-gutters align-items-center">
+                                                    <div class="col mr-2">
+                                                        <div
+                                                            class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                                            Đã hết hạn</div>
+                                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                            <%= stockList.filter(item=> item.expiry_status ===
+                                                                'expired').length %>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-auto">
+                                                        <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Stock Table -->
+                                <div class="card shadow mb-4">
+                                    <div class="card-header py-3">
+                                        <h6 class="m-0 font-weight-bold text-primary">
+                                            <i class="fas fa-table"></i> Tổng hợp tồn kho
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered table-hover" id="stockTable">
+                                                <thead class="thead-light">
+                                                    <tr>
+                                                        <th width="5%">STT</th>
+                                                        <th width="10%">Mã TP</th>
+                                                        <th width="25%">Tên thực phẩm</th>
+                                                        <th width="10%" class="text-right">Tồn kho</th>
+                                                        <th width="8%">ĐVT</th>
+                                                        <th width="10%" class="text-right">Đơn giá TB</th>
+                                                        <th width="12%" class="text-right">Giá trị</th>
+                                                        <th width="10%">Hạn gần nhất</th>
+                                                        <th width="10%">Trạng thái</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <% if(stockList.length===0) { %>
+                                                        <tr>
+                                                            <td colspan="9" class="text-center text-muted">
+                                                                <i class="fas fa-info-circle"></i> Kho trống
+                                                            </td>
+                                                        </tr>
+                                                        <% } else { %>
+                                                            <% stockList.forEach((item, index)=> { %>
+                                                                <tr>
+                                                                    <td class="text-center">
+                                                                        <%= index + 1 %>
+                                                                    </td>
+                                                                    <td>
+                                                                        <%= item.food_code || '-' %>
+                                                                    </td>
+                                                                    <td>
+                                                                        <%= item.food_name %>
+                                                                    </td>
+                                                                    <td class="text-right font-weight-bold">
+                                                                        <%= parseFloat(item.total_quantity).toFixed(2)
+                                                                            %>
+                                                                    </td>
+                                                                    <td>
+                                                                        <%= item.unit %>
+                                                                    </td>
+                                                                    <td class="text-right">
+                                                                        <%= item.avg_unit_price ?
+                                                                            parseFloat(item.avg_unit_price).toLocaleString('vi-VN')
+                                                                            : '-' %>
+                                                                    </td>
+                                                                    <td
+                                                                        class="text-right font-weight-bold text-success">
+                                                                        <%= item.total_value ?
+                                                                            parseFloat(item.total_value).toLocaleString('vi-VN')
+                                                                            : '-' %>
+                                                                    </td>
+                                                                    <td>
+                                                                        <% if(item.nearest_expiry) { %>
+                                                                            <%= new
+                                                                                Date(item.nearest_expiry).toLocaleDateString('vi-VN')
+                                                                                %>
+                                                                                <% } else { %>
+                                                                                    <span class="text-muted">-</span>
+                                                                                    <% } %>
+                                                                    </td>
+                                                                    <td>
+                                                                        <% if(item.expiry_status==='expired' ) { %>
+                                                                            <span class="badge badge-danger">Hết
+                                                                                hạn</span>
+                                                                            <% } else if(item.expiry_status==='warning'
+                                                                                ) { %>
+                                                                                <span class="badge badge-warning">Sắp
+                                                                                    hết hạn</span>
+                                                                                <% } else { %>
+                                                                                    <span
+                                                                                        class="badge badge-success">OK</span>
+                                                                                    <% } %>
+                                                                    </td>
+                                                                </tr>
+                                                                <% }); %>
+                                                                    <% } %>
+                                                </tbody>
+                                                <% if(stockList.length> 0) { %>
+                                                    <tfoot class="thead-light">
+                                                        <tr>
+                                                            <th colspan="6" class="text-right">TỔNG CỘNG:</th>
+                                                            <th class="text-right font-weight-bold text-success">
+                                                                <%= stockList.reduce((sum, item)=> sum +
+                                                                    (parseFloat(item.total_value) || 0),
+                                                                    0).toLocaleString('vi-VN') %> VNĐ
+                                                            </th>
+                                                            <th colspan="2"></th>
+                                                        </tr>
+                                                    </tfoot>
+                                                    <% } %>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Expiring Items Alert -->
+                                <% if(expiringList.length> 0) { %>
+                                    <div class="card shadow mb-4 border-left-warning">
+                                        <div class="card-header py-3 bg-warning">
+                                            <h6 class="m-0 font-weight-bold text-white">
+                                                <i class="fas fa-exclamation-triangle"></i> Cảnh báo: Thực phẩm sắp hết
+                                                hạn (7 ngày)
+                                            </h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="table-responsive">
+                                                <table class="table table-sm table-bordered">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Tên TP</th>
+                                                            <th>Mã lô</th>
+                                                            <th>Hạn SD</th>
+                                                            <th>Còn lại (ngày)</th>
+                                                            <th>Tồn kho</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <% expiringList.forEach(item=> { %>
+                                                            <tr
+                                                                class="<%= item.days_to_expiry < 0 ? 'table-danger' : 'table-warning' %>">
+                                                                <td>
+                                                                    <%= item.food_name %>
+                                                                </td>
+                                                                <td>
+                                                                    <%= item.batch_code || '-' %>
+                                                                </td>
+                                                                <td>
+                                                                    <%= new
+                                                                        Date(item.expiry_date).toLocaleDateString('vi-VN')
+                                                                        %>
+                                                                </td>
+                                                                <td class="font-weight-bold">
+                                                                    <%= item.days_to_expiry %> ngày
+                                                                </td>
+                                                                <td>
+                                                                    <%= parseFloat(item.quantity_available).toFixed(2)
+                                                                        %>
+                                                                        <%= item.unit %>
+                                                                </td>
+                                                            </tr>
+                                                            <% }); %>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <% } %>
+
+                                        <% } %>
+                    </div>
+                    <%- include('../layout/footer') %>
+            </div>
+    </div>
+
+    <script>
+        const data = <% -JSON.stringify(stockList) %>
+            console.log("stockList", data);
+        $(document).ready(function () {
+            $('#stockTable').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/vi.json'
+                },
+                order: [[2, 'asc']]
+            });
+        });
+    </script>
+</body>
+
+</html>

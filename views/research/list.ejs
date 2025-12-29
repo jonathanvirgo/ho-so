@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../layout/head') %>
+    <title>Danh sách nghiên cứu - Patients</title>
+</head>
+<body>
+
+     <!-- Page Wrapper -->
+    <div id="wrapper">
+        <%- include('../layout/sidebar') %>
+
+         <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            <%- include('../layout/header') %>
+            <!-- Begin Page Content -->
+                <% if(errors.length > 0){%>
+                    <div class="container">
+                        <div class="box mt-3">
+                            <%for(let item of errors){%>
+                                <div><%-JSON.stringify(item)%></div>
+                            <%}%>
+                        </div>
+                    </div>
+                <% }else{ %>
+                    <div class="container-fluid">
+                        <!-- DataTales Example -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">Danh sách nghiên cứu</h6>
+                                <a title="Thêm mới nghiên cứu" class="btn btn-success btn-circle btn-add-patient" data-bs-toggle="modal" href="#modal-add-research">
+                                    <i class="fas fa-plus"></i>
+                                </a>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>Tên</th>
+                                                <th>Ghi chú</th>
+                                                <th>Thao tác</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+            <%- include('../layout/footer') %>
+        </div>
+        
+    </div>
+    <div class="modal fade" id="modal-add-research" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+          <div class="modal-content">
+            <button class="modal-btn-close btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            <h3 class="modal-title fs-6 text-uppercase text-center mb-3">Thêm nghiên cứu</h3>
+            <div class="row flex-wrap g-3">
+                <div class="col-12 col-sm-6">
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Tên nghiên cứu</h6>
+                        </div>
+                        <div class="card-body">
+                            <input type="text" class="form-control" id="rs_name" placeholder="Tên nghiên cứu">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Ghi chú</h6>
+                        </div>
+                        <div class="card-body">
+                            <input type="text" class="form-control" id="note" placeholder="Ghi chú">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-2 justify-content-center mt-2">
+              <div class="col-6 col-md-auto">
+                <button class="btn btn-cancel box-btn w-100 text-uppercase" type="button"  data-bs-dismiss="modal">Huỷ</button>
+              </div>
+              <div class="col-6 col-md-auto">
+                <button class="btn btn-primary box-btn w-100 text-uppercase" type="button" onclick="addResearch()">Lưu</button>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modal-export-config" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+          <div class="modal-content">
+            <button class="modal-btn-close btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            <h3 class="modal-title fs-6 text-uppercase text-center mb-3">Chọn thông số xuất Excel</h3>
+            <div class="row">
+                <div class="col-12">
+                    <div class="mb-3 d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-success" onclick="selectAllFields()">Chọn tất cả</button>
+                        <button type="button" class="btn btn-sm btn-warning" onclick="unselectAllFields()">Bỏ chọn tất cả</button>
+                        <button type="button" class="btn btn-sm btn-info" onclick="selectBasicFields()">Chọn cơ bản</button>
+                    </div>
+                </div>
+            </div>
+            <div id="export-fields-container">
+                <!-- Nội dung sẽ được tạo động bằng JavaScript -->
+            </div>
+            
+            <div class="row g-2 justify-content-center mt-2">
+              <div class="col-6 col-md-auto">
+                <button class="btn btn-cancel box-btn w-100 text-uppercase" type="button"  data-bs-dismiss="modal">Huỷ</button>
+              </div>
+              <div class="col-6 col-md-auto">
+                <button class="btn btn-primary box-btn w-100 text-uppercase" type="button" onclick="confirmExportExcel()">Xuất Excel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+    
+    <!-- Load availableColumns.js trước -->
+    <script src="/js/column-config.js"></script>
+    
+    <script type="text/javascript">
+        var dataTable;
+        var listData = [];
+        var researchId;
+        var currentResearchId; // Để lưu research ID khi chọn fields
+
+        // Hàm tạo modal export config động
+        function renderExportConfigModal() {
+            if (!availableColumns || Object.keys(availableColumns).length === 0) {
+                console.error('Available columns not loaded yet');
+                return;
+            }
+
+            let html = '<div class="row">';
+            
+            // Tạo các cột cơ bản trước
+            html += '<div class="col-md-3">';
+            html += '<div class="card mb-3">';
+            html += '<div class="card-header py-2">';
+            html += '<h6 class="m-0 font-weight-bold text-primary">Thông tin cơ bản</h6>';
+            html += '</div>';
+            html += '<div class="card-body">';
+            html += '<div class="form-check">';
+            html += '<input class="form-check-input export-field" type="checkbox" value="fullname" id="field_fullname" checked>';
+            html += '<label class="form-check-label" for="field_fullname">Tên bệnh nhân</label>';
+            html += '</div>';
+            html += '<div class="form-check">';
+            html += '<input class="form-check-input export-field" type="checkbox" value="menu_name" id="field_menu_name" checked>';
+            html += '<label class="form-check-label" for="field_menu_name">Tên thực đơn</label>';
+            html += '</div>';
+            html += '</div>';
+            html += '</div>';
+            html += '</div>';
+
+            // Tạo các nhóm cột từ availableColumns
+            Object.keys(columnGroups).forEach(groupKey => {
+                const groupName = columnGroups[groupKey];
+                const groupColumns = Object.keys(availableColumns).filter(key => 
+                    availableColumns[key].group === groupKey
+                );
+
+                if (groupColumns.length > 0) {
+                    const colClass = groupKey === 'minerals' || groupKey === 'amino_acids' || groupKey === 'sugars' || 
+                                   groupKey === 'antioxidants' || groupKey === 'phytonutrients' || groupKey === 'metabolites' 
+                                   ? 'col-md-4' : 'col-md-3';
+                    
+                    html += '<div class="' + colClass + '">';
+                    html += '<div class="card mb-3">';
+                    html += '<div class="card-header py-2">';
+                    html += '<h6 class="m-0 font-weight-bold text-primary">' + groupName + '</h6>';
+                    html += '</div>';
+                    html += '<div class="card-body">';
+                    
+                    groupColumns.forEach(columnKey => {
+                        const column = availableColumns[columnKey];
+                        const isChecked = column.default ? 'checked' : '';
+                        html += '<div class="form-check">';
+                        html += '<input class="form-check-input export-field" type="checkbox" value="' + columnKey + '" id="field_' + columnKey + '" ' + isChecked + '>';
+                        html += '<label class="form-check-label" for="field_' + columnKey + '">' + column.label + ' - ' + columnKey + '</label>';
+                        html += '</div>';
+                    });
+                    
+                    html += '</div>';
+                    html += '</div>';
+                    html += '</div>';
+                }
+            });
+
+            html += '</div>';
+            
+            $('#export-fields-container').html(html);
+        }
+
+        $(document).ready(function () {
+            
+            dataTable = $('#dataTable').DataTable({
+                dom: '<"top d-flex flex-wrap gap-2 justify-content-between align-items-center mb-2"pf>rt<"bottom d-flex flex-wrap gap-2 justify-content-between align-items-center mt-2"il><"clear">',
+                serverSide: true,
+                processing: true,
+                responsive: true,
+                paging: true,
+                pageLength: 25,
+                lengthMenu: [25, 50, 75, 100],
+                ajax: {
+                    url: '/research/list',
+                    method: 'POST',
+                    dataType: "json",
+                    beforeSend: function() {
+                        loading.show();
+                    },
+                    complete: function() {  // Thêm complete để ẩn loading khi xong
+                        loading.hide();
+                    },
+                    dataSrc: function(response){
+                        if (response.data) {
+                            listData = response.data; // Assign data to listData
+                            return response.data;  // Trả về mảng dữ liệu
+                        } else {
+                            listData = []; // Assign empty array if no data
+                            return [];  // Trả về mảng rỗng nếu không có dữ liệu
+                        }
+                    },
+                    data: function(n){
+                        if (!n) {
+                            n = {};
+                        }
+                    }
+                },
+                scrollX: true,
+                rowId: function(row) {
+                    return 'research-' + row.id; // Thêm "row-" vào trước giá trị id
+                },
+                columns: [
+                    {   data: 'name',
+                        orderable: true, // Cho phép sort
+                        searchable: true, // Cho phép search
+                        render: function(data, type, row) {
+                            return `<a href='/research/detail/${row.id}'>${data}</a>`;
+                        },
+                        className: 'min-width-110'
+                    },
+                    {   data: 'note',
+                        orderable: true, // Cho phép sort
+                        searchable: true, // Cho phép search
+                        className: 'min-width-110'
+                    },
+                    {
+                        data: null,
+                        orderable: false, // Không cho phép sort cột actions
+                        searchable: false, // Không search trong cột actions
+                        render: function (data, type, row) {
+                            return `
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-primary btn-sm btn-circle" data-id="${row.id}" onclick="exportExcel(${row.id})" title="Xuất Excel"><i class="fas fa-download"></i></button>
+                                    <button class="btn btn-info btn-sm btn-circle" data-id="${row.id}" onclick="openEditResearch(${row.id})" title="Sửa"><i class="fas fa-pen-square"></i></button>
+                                    <button class="btn btn-danger btn-sm btn-circle" data-id="${row.id}" onclick="deleteResearch(${row.id}, '${row.name}')" title="Xóa"><i class="fas fa-trash"></i></button>
+                                </div>
+                            `;
+                        },
+                    },
+                ],
+                // Cấu hình order mặc định DESC
+                order: [], // Để trống để server xử lý order
+                // Cấu hình searching
+                searching: true, // Bật tính năng search
+                // Cấu hình ordering
+                ordering: true, // Bật tính năng sort
+                layout:{
+                    topStart: 'paging',
+                    topEnd: 'search',
+                    bottomStart: ['paging', 'info'],
+                    bottomEnd:  'pageLength'
+                }
+            });
+        });
+
+        function deleteResearch(id, name){
+            confirmDialog('Xác nhận', 'Bạn có muốn xóa nghiên cứu ' + name).then(responseData =>{
+                if(responseData.isConfirmed && id){
+                    $.ajax({
+                        type: 'POST',
+                        url: '/research/active',
+                        data: {id: id, active: 0},
+                        beforeSend: function () {
+                            loading.show();
+                        },
+                        success: function (result) {
+                            loading.hide();
+                            if (result.success) {
+                                toarstMessage('Xóa nghiên cứu thành công');
+                                document.getElementById('research-' + id).remove();
+                            } else {
+                                toarstError(result.message);
+                            }
+                        },
+                        error: function (jqXHR, exception) {
+                            loading.hide();
+                            ajax_call_error(jqXHR, exception);
+                        }
+                    });
+                }
+            })
+        }
+
+        function addResearch(){
+            let url = `/research/create`;
+            
+            let errors = [];
+            let param = {
+                name: $('#rs_name').val(),
+                note: $('#note').val()
+            };
+            if(researchId){
+                param['id'] = researchId;
+                url = `/research/update`;
+            } 
+            if(errors.length > 0){
+                return;
+            } else {
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: param,
+                    beforeSend: function () {
+                        loading.show();
+                    },
+                    success: function (result) {
+                        loading.hide();
+                        if (result.success) {
+                            toarstMessage('Lưu thành công');
+                            $('#modal-add-research').modal('hide');
+                            $("#dataTable").DataTable().ajax.reload();
+                        } else {
+                            toarstError(result.message);
+                        }
+                    },
+                    error: function (jqXHR, exception, error) {
+                        loading.hide();
+                        ajax_call_error(jqXHR, exception);
+                    }
+                });
+            }
+        }
+
+        function openEditResearch(id){
+            researchId = id;
+            if(!listData || listData.length == 0){
+                return;
+            }
+            for(let item of listData){
+                if(item.id == id){
+                    $('#note').val(item.note);
+                    $('#rs_name').val(item.name);
+                    break;
+                }
+            }
+            $('#modal-add-research').modal('show');
+        }
+
+        function exportExcel(researchId){
+            if (!researchId) {
+                toarstError('Không tìm thấy ID nghiên cứu!');
+                return;
+            }
+            
+            currentResearchId = researchId;
+            
+            // Render modal với dữ liệu mới nhất
+            renderExportConfigModal();
+            
+            // Hiển thị modal chọn fields
+            $('#modal-export-config').modal('show');
+        }
+        
+        function selectAllFields() {
+            $('.export-field').prop('checked', true);
+        }
+        
+        function unselectAllFields() {
+            $('.export-field').prop('checked', false);
+        }
+        
+        function selectBasicFields() {
+            $('.export-field').prop('checked', false);
+            
+            // Chọn các trường cơ bản từ availableColumns
+            const basicFields = ['fullname', 'menu_name'];
+            Object.keys(availableColumns).forEach(key => {
+                if (availableColumns[key].default) {
+                    basicFields.push(key);
+                }
+            });
+            
+            basicFields.forEach(field => {
+                $('#field_' + field).prop('checked', true);
+            });
+        }
+        
+        function confirmExportExcel() {
+            // Kiểm tra currentResearchId
+            if (!currentResearchId) {
+                toarstError('Không tìm thấy ID nghiên cứu! Vui lòng thử lại.');
+                return;
+            }
+
+            // Lấy danh sách các fields được chọn
+            const selectedFields = [];
+            $('.export-field:checked').each(function() {
+                selectedFields.push($(this).val());
+            });
+
+            if (selectedFields.length === 0) {
+                toarstError('Vui lòng chọn ít nhất 1 thông số để xuất!');
+                return;
+            }
+
+            // Tìm tên nghiên cứu
+            let researchName = 'Nghiên cứu';
+            if (listData && listData.length > 0) {
+                for(let item of listData){
+                    if(item.id == currentResearchId){
+                        researchName = item.name;
+                        break;
+                    }
+                }
+            }
+            
+            $('#modal-export-config').modal('hide');
+            
+            confirmDialog('Xác nhận', `Xuất Excel cho nghiên cứu "${researchName}" với ${selectedFields.length} thông số?`).then(responseData =>{
+                if(responseData.isConfirmed){
+                    // Gửi request với danh sách fields
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/research/export-excel/${currentResearchId}`;
+                    form.target = '_blank';
+                    
+                    const fieldsInput = document.createElement('input');
+                    fieldsInput.type = 'hidden';
+                    fieldsInput.name = 'selectedFields';
+                    fieldsInput.value = JSON.stringify(selectedFields);
+                    
+                    form.appendChild(fieldsInput);
+                    document.body.appendChild(form);
+                    form.submit();
+                    document.body.removeChild(form);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

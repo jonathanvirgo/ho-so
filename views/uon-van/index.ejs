@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../layout/head') %>
+    <title>Bệnh nhân uốn ván - Patients</title>
+</head>
+
+<body>
+
+    <!-- Page Wrapper -->
+   <div id="wrapper">
+       <%- include('../layout/sidebar') %>
+
+        <!-- Content Wrapper -->
+       <div id="content-wrapper" class="d-flex flex-column">
+            <!-- Main Content -->
+            <div id="content">
+                <%- include('../layout/header') %>
+                <%if(errors.length > 0){%>
+                    <div class="container">
+                        <div class="box mt-3">
+                            <%for(let item of errors){%>
+                            <div><%-JSON.stringify(item)%></div>
+                            <%}%>
+                        </div>
+                    </div>
+                <%}else{%>
+                    <!-- Begin Page Content -->
+                    <div class="container-fluid">
+                        <%- include('../layout/thong-tin-co-ban.ejs')%>
+                        <input type="hidden" id="type" value="<%=type%>">
+                        <input type="hidden" id="patient_id" value="<%=patient.id%>">
+                        <div class="d-flex mt-3 gap-4">
+                            <div class="flex-fill card shadow" name="form-data">
+                                <%- include('./module/menu.ejs')%>
+                                <div class="card-body p-0">
+                                    <div class="d-lg-flex d-block gap-3">
+                                        <div class="card shadow card-list-date">
+                                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                                <h6 class="m-0 font-weight-bold text-primary">Ngày</h6>
+                                                <div class="<%=times.length == 4 ? 'd-none' : ''%>">
+                                                    <div class="btn btn-success btn-circle" id="datepicker">
+                                                        <i class="fas fa-plus"></i>
+                                                        <input class="form-control position-absolute" type="text" placeholder="Ngày nhập viện" 
+                                                                        value="" data-input="data-input" autoComplete="off"
+                                                                        aria-label="Ngày sinh"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card-body p-0 d-flex flex-column" id="list-date">
+                                                <% if(times.length > 0){%>
+                                                    <% for(let time of times){ %>
+                                                        <div class="py-2 ws-nowrap card <%= time.id == timeActiveId ? 'border-left-info text-info shadow' : ''%>">
+                                                            <div class="px-2 cursor-poiter" id="time_<%=time.id%>" onclick="getDataTime(<%=time.id%>)"><%= moment(time.time).format('h:mm D/M/YYYY')%></div>
+                                                            <div class="position-absolute right-1 cursor-poiter text-danger" onclick="deleteTime(<%=time.id%>)"><i class="fas fa-trash"></i></div>
+                                                            <div class="position-absolute right-4 cursor-poiter text-info px-2" onclick="editTime(<%=time.id%>)"><i class="fas fa-pencil-alt"></i></div>
+                                                        </div>
+                                                    <% } %>
+                                                <% } %>
+                                            </div>
+                                        </div>
+                                        <div class="flex-fill form-data card shadow" >
+                                            <div class="row flex-wrap g-3 card-body">
+                                                <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                                    <div class="card shadow">
+                                                        <div class="card-header py-3">
+                                                            <h6 class="m-0 font-weight-bold text-primary">Cân nặng(Kg)</h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <input type="text" class="form-control" id="cn" placeholder="Cân nặng" value="<%=detailTetanus.cn%>" oninput="formatInputFloat(event)">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                                    <div class="card shadow">
+                                                        <div class="card-header py-3">
+                                                            <h6 class="m-0 font-weight-bold text-primary">Chiều cao</h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <input type="text" class="form-control" id="cc" placeholder="Chiều cao" value="<%=detailTetanus.cc%>" oninput="formatInputFloat(event)">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                                    <div class="card shadow">
+                                                        <div class="card-header py-3">
+                                                            <h6 class="m-0 font-weight-bold text-primary">Vòng bắp chân(cm)</h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <input type="text" class="form-control" id="vong_bap_chan" placeholder="Vòng bắp chân" value="<%=detailTetanus.vong_bap_chan%>" oninput="formatInputFloat(event)">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                                    <div class="card shadow">
+                                                        <div class="card-header py-3">
+                                                            <h6 class="m-0 font-weight-bold text-primary">Albumin</h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <input type="text" class="form-control" id="albumin" placeholder="Albumin" value="<%=detailTetanus.albumin%>" oninput="formatInputFloat(event)">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                                    <div class="card shadow">
+                                                        <div class="card-header py-3">
+                                                            <h6 class="m-0 font-weight-bold text-primary">Hemoglobin</h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <input type="text" class="form-control" id="hemoglobin" placeholder="Hemoglobin" value="<%=detailTetanus.hemoglobin%>" oninput="formatInputFloat(event)">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-3 col-lg-4 col-sm-6 col-12 d-none">
+                                                    <div class="card shadow">
+                                                        <div class="card-header py-3">
+                                                            <h6 class="m-0 font-weight-bold text-primary">PreAlbumin</h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <input type="text" class="form-control" id="pre_albumin" placeholder="PreAlbumin" value="<%=detailTetanus.pre_albumin%>" oninput="formatInputFloat(event)">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                                    <div class="card shadow">
+                                                        <div class="card-header py-3">
+                                                            <h6 class="m-0 font-weight-bold text-primary">Protein Máu</h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <input type="text" class="form-control" id="protein" placeholder="Protein Máu" value="<%=detailTetanus.protein%>" oninput="formatInputFloat(event)">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                                    <div class="card shadow">
+                                                        <div class="card-header py-3">
+                                                            <h6 class="m-0 font-weight-bold text-primary">Phospho Máu</h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <input type="text" class="form-control" id="phospho" placeholder="Phospho Máu" value="<%=detailTetanus.phospho%>" oninput="formatInputFloat(event)">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                                    <div class="card shadow">
+                                                        <div class="card-header py-3">
+                                                            <h6 class="m-0 font-weight-bold text-primary">Glucose Máu</h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <input type="text" class="form-control" id="glucose" placeholder="Glucose Máu" value="<%=detailTetanus.glucose%>" oninput="formatInputFloat(event)">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                                    <div class="card shadow">
+                                                        <div class="card-header py-3">
+                                                            <h6 class="m-0 font-weight-bold text-primary">Magie Máu</h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <input type="text" class="form-control" id="magie" placeholder="Magie Máu" value="<%=detailTetanus.magie%>" oninput="formatInputFloat(event)">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                                    <div class="card shadow">
+                                                        <div class="card-header py-3">
+                                                            <h6 class="m-0 font-weight-bold text-primary">Kali</h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <input type="text" class="form-control" id="kali" placeholder="Kali" value="<%=detailTetanus.kali%>" oninput="formatInputFloat(event)">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                                    <div class="card shadow">
+                                                        <div class="card-header py-3">
+                                                            <h6 class="m-0 font-weight-bold text-primary">Ck</h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <input type="text" class="form-control" id="ck" placeholder="Ck" value="<%=detailTetanus.ck%>" oninput="formatInputFloat(event)">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                                    <div class="card shadow">
+                                                        <div class="card-header py-3">
+                                                            <h6 class="m-0 font-weight-bold text-primary">Ure</h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <input type="text" class="form-control" id="ure" placeholder="Ure" value="<%=detailTetanus.ure%>" oninput="formatInputFloat(event)">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                                    <div class="card shadow">
+                                                        <div class="card-header py-3">
+                                                            <h6 class="m-0 font-weight-bold text-primary">Bilirubin TP</h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <input type="text" class="form-control" id="bilirubin" placeholder="Bilirubin TP" value="<%=detailTetanus.bilirubin%>" oninput="formatInputFloat(event)">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                                    <div class="card shadow">
+                                                        <div class="card-header py-3">
+                                                            <h6 class="m-0 font-weight-bold text-primary">Creatinin</h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <input type="text" class="form-control" id="creatinin" placeholder="Creatinin" value="<%=detailTetanus.creatinin%>" oninput="formatInputFloat(event)">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                                    <div class="card shadow">
+                                                        <div class="card-header py-3">
+                                                            <h6 class="m-0 font-weight-bold text-primary">Bệnh lý kèm theo</h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <input type="text" class="form-control" id="benh_ly" placeholder="Bệnh lý kèm theo" value="<%=detailTetanus.benh_ly%>">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-3 col-lg-4 col-sm-6 col-12" id="med1">
+                                                    <div class="card shadow">
+                                                        <div class="card-header py-3">
+                                                            <h6 class="m-0 font-weight-bold text-primary">Thuốc tăng nhu động ruột</h6>
+                                                        </div>
+                                                        <div class="card-body d-flex flex-column gap-3">
+                                                            <% for(let item of listMed){ %>
+                                                                <%if(item.type == 'tang-ndr'){%>
+                                                                    <% let med = tetanusMed.find(s => s.id == item.id);%>
+                                                                   
+                                                                    <div class="d-flex gap-3 align-items-center">
+                                                                        <div class="w-50"><%=item.name%></div>
+                                                                        <input type="text" class="form-control flex-fill" data-name="<%=item.name%>" data-id="<%=item.id%>" name="uon-van-med" placeholder="Hàm lượng" value="<%=med && med.ham_luong ? med.ham_luong : ''%>">
+                                                                    </div>
+                                                                <%}%>
+                                                            <% } %>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-3 col-lg-4 col-sm-6 col-12" id="med2">
+                                                    <div class="card shadow">
+                                                        <div class="card-header py-3">
+                                                            <h6 class="m-0 font-weight-bold text-primary">Thuốc an thần giãn cơ</h6>
+                                                        </div>
+                                                        <div class="card-body d-flex flex-column gap-3">
+                                                            <% for(let item of listMed){ %>
+                                                                <%if(item.type == 'an-than-gc'){%>
+                                                                    <% let med = tetanusMed.find(s => s.id == item.id) %>
+                                    
+                                                                    <div class="d-flex gap-3 align-items-center">
+                                                                        <div class="w-50"><%=item.name%></div>
+                                                                        <input type="text" class="form-control flex-fill" data-name="<%=item.name%>" data-id="<%=item.id%>" name="uon-van-med" placeholder="Hàm lượng" value="<%=med && med.ham_luong ? med.ham_luong : ''%>">
+                                                                    </div>
+                                                                <%}%>
+                                                            <% } %>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-3 col-lg-4 col-sm-6 col-12" id="med3">
+                                                    <div class="card shadow">
+                                                        <div class="card-header py-3">
+                                                            <h6 class="m-0 font-weight-bold text-primary">Thuốc nhuận tràng</h6>
+                                                        </div>
+                                                        <div class="card-body d-flex flex-column gap-3">
+                                                            <% for(let item of listMed){ %>
+                                                                <%if(item.type == 'nhuan-trang'){%>
+                                                                    <% let med = tetanusMed.find(s => s.id == item.id) %>
+                                                                    <div class="d-flex gap-3 align-items-center">
+                                                                        <div class="w-50"><%=item.name%></div>
+                                                                        <input type="text" class="form-control flex-fill" data-name="<%=item.name%>" data-id="<%=item.id%>" name="uon-van-med" placeholder="Hàm lượng" value="<%=med && med.ham_luong ? med.ham_luong : ''%>">
+                                                                    </div>
+                                                                <%}%>
+                                                            <% } %>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <% } %>
+            </div>
+           <%- include('../layout/footer') %>
+       </div>
+   </div>
+    <!-- <div class="modal fade" id="modal-add-sedative" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <button class="modal-btn-close btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            <h3 class="modal-title fs-6 text-uppercase text-center mb-3">Thêm thuốc an thần</h3>
+            <div class="row flex-wrap g-3 card-body">
+                <div class="col-12 col-sm-6">
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Tên thuốc</h6>
+                        </div>
+                        <div class="card-body">
+                            <input type="text" class="form-control" id="ten_thuoc" placeholder="Nhập tên thuốc">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Hàm lượng</h6>
+                        </div>
+                        <div class="card-body">
+                            <input type="text" class="form-control" id="ham_luong" placeholder="Hàm lượng">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-2 justify-content-center mt-2">
+            <div class="col-6 col-md-auto">
+                <button class="btn btn-cancel box-btn w-100 text-uppercase" data-bs-dismiss="modal" type="button">Huỷ</button>
+            </div>
+            <div class="col-6 col-md-auto">
+                <button class="btn btn-primary box-btn w-100 text-uppercase" type="button" onclick="addSedative()">Lưu</button>
+            </div>
+            </div>
+        </div>
+        </div>
+    </div> -->
+   <script src="/js/uon-van.js?v=<%= assetVersion %>"></script>
+   <script>
+        var tetanusId = '<%=detailTetanus.id%>';
+        var timeActive = '<%=timeActiveId%>';
+        var listTime = <%- JSON.stringify(times) %>;
+        var flatpickrInstance;
+        var isEditTime = false;
+        var idEditTime;
+   </script>
+</body>
+</html>

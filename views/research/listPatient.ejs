@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../layout/head') %>
+    <title>Danh sách hồ sơ nghiên cứu - Patients</title>
+</head>
+<body>
+
+     <!-- Page Wrapper -->
+    <div id="wrapper">
+        <%- include('../layout/sidebar') %>
+
+         <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            <%- include('../layout/header') %>
+            <!-- Begin Page Content -->
+                <% if(errors.length > 0){%>
+                    <div class="container">
+                        <div class="box mt-3">
+                            <%for(let item of errors){%>
+                                <div><%-JSON.stringify(item)%></div>
+                            <%}%>
+                        </div>
+                    </div>
+                <% }else{ %>
+                    <div class="container-fluid">
+                        <!-- DataTales Example -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">Danh sách bệnh nhân nghiên cứu</h6>
+                                <a title="Thêm mới bệnh nhân" class="btn btn-success btn-circle btn-add-patient" onclick="resetForm()">
+                                    <i class="fas fa-plus"></i>
+                                </a>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>Tên</th>
+                                                <th>Số điện thoại</th>
+                                                <th>Chẩn đoán</th>     
+                                                <th>Khoa</th>
+                                                <th>Thao tác</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+            <%- include('../layout/footer') %>
+        </div>
+        
+    </div>
+    <div class="modal fade" id="modal-add-patient" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl modal-90">
+          <div class="modal-content">
+            <button class="modal-btn-close btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            <h3 class="modal-title fs-6 text-uppercase text-center mb-3">Thêm người bệnh</h3>
+            <form id="form-add-patient">
+                <div class="row flex-wrap g-3">
+                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                        <div class="card shadow">
+                            <div class="card-header py-3 ">
+                                <h6 class="m-0 font-weight-bold text-primary">Họ tên <span class="text-danger">*</span></h6>
+                            </div>
+                            <div class="card-body">
+                                <input type="text" class="form-control" id="fullname" placeholder="Nhập Họ tên" onchange="checkInputEmpty(event, '', 0)">
+                                <label class="fs-6 text-danger ps-1 pt-1 d-none" id="fullname_error">Vui lòng nhập họ và tên</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                        <div class="card shadow">
+                            <div class="card-header py-3 ">
+                                <h6 class="m-0 font-weight-bold text-primary">Mã bệnh án</h6>
+                            </div>
+                            <div class="card-body">
+                                <input type="text" class="form-control" id="ma_benh_an" placeholder="Nhập Mã bệnh án" onchange="checkInputEmpty(event, '', 0)">
+                                <label class="fs-6 text-danger ps-1 pt-1 d-none" id="ma_benh_an_error">Vui lòng nhập mã bệnh án</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Ngày nhập viện</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="flatpickr flatpickr-input" data-plugin="flatpickr" id="ngay_nhap_vien"
+                                        data-options='{"mode":"single", "allowInput": true}'
+                                        aria-label="Ngày nhập viện">
+                                    <input class="form-control" type="text" autoComplete="off" placeholder="Ngày nhập viện" data-input="data-input" aria-label="Ngày nhập viện"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Phòng điều trị</h6>
+                            </div>
+                            <div class="card-body">
+                                <input type="text" class="form-control" id="phong_dieu_tri" placeholder="Nhập Phòng điều trị">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Số điện thoại</h6>
+                            </div>
+                            <div class="card-body">
+                                <input type="text" class="form-control" id="phone" onchange="checkPhoneInput(event, '', 0)" placeholder="Nhập Số điện thoại">
+                                <label class="fs-6 text-danger ps-1 pt-1 d-none" id="phone_error">Vui lòng nhập số điện thoại</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Ngày sinh</h6>
+                            </div>
+                            <div class="card-body d-flex gap-3">
+                                <div class="flatpickr flatpickr-input flex-fill" data-plugin="flatpickr" id="birthday"
+                                        data-options='{"mode":"single", "allowInput": true}'
+                                        aria-label="Ngày sinh">
+                                    <input class="form-control" type="text" autoComplete="off" placeholder="Ngày sinh" data-input="data-input" aria-label="Ngày sinh"/>
+                                </div>
+                                <div class="align-content-center" style="width: 5rem;" id="age_number"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Giới tính</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="gender" data-plugin="virtual-select" data-config='{"placeholder":"Giới tính"}' data-options='[{"label":"Nam","value":1},{"label":"Nữ","value":0},{"label":"Khác","value":2}]'></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                        <div class="card shadow">
+                            <div class="card-header py-3 text-primary">
+                                <h6 class="m-0 font-weight-bold text-primary">Dân tộc</h6>
+                            </div>
+                            <div class="card-body d-flex gap-2 align-items-center">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="radioDanToc" value="1" id="optionKinh">
+                                    <label class="form-check-label" for="optionKinh">
+                                      Kinh
+                                    </label>
+                                  </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="radioDanToc" value="2" id="optionKhac">
+                                    <label class="form-check-label" for="optionKhac">
+                                      Khác
+                                    </label>
+                                </div>
+                                <div>
+                                    <input class="form-control d-none" placeholder="Tên dân tộc" type="text" id="dan_toc_khac">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-4 col-sm-6 ">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Trình độ học vấn</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="" data-plugin="virtual-select" data-config='{"placeholder":"Chọn trình độ"}' id="trinh_do"
+                                    data-options='[{"label":"Dưới THPT","value":1},{"label":"THPT","value":2},{"label":"Trung cấp/cao đẳng","value":3},{"label":"Đại học/sau đại học","value":4}]'></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Nghề nghiệp</h6>
+                            </div>
+                            <div class="card-body d-flex gap-2">
+                                <div class="" id="nghe_nghiep" data-plugin="virtual-select" data-config='{"placeholder":"Chọn nghề nghiệp"}'
+                                    data-options='[{"label":"Công nhân","value":1},{"label":"Nông dân","value":2},{"label":"Tự do","value":3},{"label":"Viên chức","value":4},{"label":"Khác","value":5}]'></div>
+                                <input class="form-control d-none" placeholder="Nghề nghiệp khác" type="text" id="nghe_nghiep_khac">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Nơi ở hiện tại</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="" data-plugin="virtual-select" data-config='{"placeholder":"Chọn nơi ở"}' id="noi_o"
+                                    data-options='[{"label":"Nông thôn","value":1},{"label":"Thành phố/thị trấn/thị xã","value":2}]'></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Xếp loại hộ gia đình</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="" data-plugin="virtual-select" data-config='{"placeholder":"Chọn xếp loại"}' id="xep_loai_kt"
+                                    data-options='[{"label":"Nghèo","value":1},{"label":"Cận nghèo","value":2}, {"label":"Không xếp loại/Không biết","value":3}]'></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Quê quán</h6>
+                            </div>
+                            <div class="card-body">
+                                <input type="text" class="form-control" id="que_quan" placeholder="Quê quán">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Khoa điều trị</h6>
+                            </div>
+                            <div class="card-body">
+                                <input type="text" class="form-control" id="khoa" placeholder="Khoa">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Chẩn đoán</h6>
+                            </div>
+                            <div class="card-body">
+                                <textarea class="form-control" id="chuan_doan" placeholder="Chẩn đoán"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            
+            <div class="row g-2 justify-content-center mt-2">
+              <div class="col-6 col-md-auto">
+                <button class="btn btn-cancel box-btn w-100 text-uppercase" type="button"  data-bs-dismiss="modal">Huỷ</button>
+              </div>
+              <div class="col-6 col-md-auto">
+                <button class="btn btn-primary box-btn w-100 text-uppercase" type="button" onclick="addPatient()">Lưu</button>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        var dataTable;
+        var listData = [];
+        var patientId;
+        var researchId = <%=id%>;
+        // Lấy các radio button và div input
+        const optionKinh = document.getElementById("optionKinh");
+        const optionKhac = document.getElementById("optionKhac");
+        const danTocKhac = document.getElementById("dan_toc_khac");
+        const ngheNghiepKhac = document.getElementById("nghe_nghiep_khac");
+
+        // Sự kiện khi chọn radio button "Kinh"
+        optionKinh.addEventListener("change", function () {
+            if (this.checked) {
+                danTocKhac.classList.add("d-none"); // Ẩn input
+                danTocKhac.value = '';
+            }
+        });
+
+        // Sự kiện khi chọn radio button "Khác"
+        optionKhac.addEventListener("change", function () {
+            if (this.checked) {
+                danTocKhac.classList.remove("d-none"); // Hiện input
+            }
+        });
+
+        document.getElementById("nghe_nghiep").addEventListener("change", function (evt) {
+            if ($(this).val() == 5) {
+                ngheNghiepKhac.classList.remove("d-none"); // Hiện input
+            } else {
+                ngheNghiepKhac.classList.add("d-none"); // Ẩn input
+                ngheNghiepKhac.value = '';
+            }
+        });
+        function resetForm(){
+            patientId = null;
+            $('#form-add-patient').trigger('reset');
+            $('#modal-add-patient').modal('show');
+        }
+        $(document).ready(function () {
+            let birthdayEl = document.querySelector("#birthday");
+            if(birthdayEl){
+                const birthday = document.querySelector("#birthday")._flatpickr;
+                birthday.config.maxDate = 'today';
+                birthday.config.onClose.push(function (selectedDates, dateStr, instance) {
+                    const selectedDate = selectedDates[0]; // Lấy ngày đầu tiên
+                    const age = calculateAge(selectedDate);
+                    $('#age_number').text(age);
+                });
+            }
+            dataTable = $('#dataTable').DataTable({
+                dom: '<"top d-flex flex-wrap gap-2 justify-content-between align-items-center mb-2"pf>rt<"bottom d-flex flex-wrap gap-2 justify-content-between align-items-center mt-2"il><"clear">',
+                serverSide: true,
+                processing: true,
+                responsive: true,
+                paging: true,
+                pageLength: 25,
+                lengthMenu: [25, 50, 75, 100],
+                ajax: {
+                    url: '/research/patient/list',
+                    method: 'POST',
+                    dataType: "json",
+                    beforeSend: function() {
+                        loading.show();
+                    },
+                    complete: function() {  // Thêm complete để ẩn loading khi xong
+                        loading.hide();
+                    },
+                    dataSrc: function(response){
+                        if (response.data) {
+                            listData = response.data; // Assign data to listData
+                            return response.data;  // Trả về mảng dữ liệu
+                        } else {
+                            listData = []; // Assign empty array if no data
+                            return [];  // Trả về mảng rỗng nếu không có dữ liệu
+                        }
+                    },
+                    data: function(n){
+                        if (!n) {
+                            n = {};
+                        }
+                        n['id'] = researchId;
+                    }
+                },
+                scrollX: true,
+                rowId: function(row) {
+                    return 'patient-' + row.id; // Thêm "row-" vào trước giá trị id
+                },
+                columns: [
+                    {
+                        data: 'fullname',
+                        orderable: true,
+                        searchable: true,
+                        render: function(data, type, row) {
+                            return `<a href='/khau-phan-an/detail/${row.id}'>${data}</a>`;
+                        },
+                        className: 'min-width-110'
+                    },
+                    {
+                        type: 'html',
+                        data: 'phone',
+                        orderable: true,
+                        searchable: true,
+                        render: function(data, type, row) {
+                            return `<a ${row.active == 2 ? 'class="text-danger"' : ''} href="tel:${data}">${data}</a>`;
+                        }
+                    },
+                    {
+                        data: 'chuan_doan',
+                        className: 'min-width-200',
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: 'khoa',
+                        className: 'min-width-100',
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: null,
+                        orderable: false,
+                        searchable: false,
+                        render: function (data, type, row) {
+                            return `
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-info btn-sm btn-circle" data-id="${row.id}" onclick="openEditPatient(${row.id})" title="Sửa"><i class="fas fa-pen-square"></i></button>
+                                    <button class="btn btn-danger btn-sm btn-circle" data-id="${row.id}" onclick="deletePatient(${row.id}, '${row.name}')" title="Xóa"><i class="fas fa-trash"></i></button>
+                                </div>
+                            `;
+                        },
+                    },
+                ],
+                // Cấu hình order mặc định DESC
+                order: [], // Để trống để server xử lý order
+                // Cấu hình searching
+                searching: true, // Bật tính năng search
+                // Cấu hình ordering
+                ordering: true, // Bật tính năng sort
+                layout:{
+                    topStart: 'paging',
+                    topEnd: 'search',
+                    bottomStart: ['paging', 'info'],
+                    bottomEnd:  'pageLength'
+                }
+            });
+        });
+
+        function deletePatient(id, name){
+            confirmDialog('Xác nhận', 'Bạn có muốn xóa bệnh nhân ' + name).then(responseData =>{
+                if(responseData.isConfirmed && id){
+                    $.ajax({
+                        type: 'POST',
+                        url: '/research/patient/active',
+                        data: {id: id, active: 0},
+                        beforeSend: function () {
+                            loading.show();
+                        },
+                        success: function (result) {
+                            loading.hide();
+                            if (result.success) {
+                                toarstMessage('Xóa bệnh nhân thành công');
+                                document.getElementById('research-' + id).remove();
+                            } else {
+                                toarstError(result.message);
+                            }
+                        },
+                        error: function (jqXHR, exception) {
+                            loading.hide();
+                            ajax_call_error(jqXHR, exception);
+                        }
+                    });
+                }
+            })
+        }
+
+        function addPatient(){
+            let url = `/research/patient/create`;
+            
+            let errors = [];
+            let param = {
+                fullname: $('#fullname').val(),
+                ma_benh_an: $('#ma_benh_an').val(),
+                ngay_nhap_vien: $('#ngay_nhap_vien input').val(),
+                phong_dieu_tri: $('#phong_dieu_tri input').val(),
+                phone: $('#phone').val(),
+                birthday: $('#birthday').val(),
+                gender: $('#gender').val(),
+                dan_toc: $('#dan_toc').val(),
+                dan_toc_khac: $('#dan_toc_khac').val(),
+                trinh_do: $('#trinh_do').val(),
+                nghe_nghiep: $('#nghe_nghiep').val(),
+                nghe_nghiep_khac: $('#nghe_nghiep_khac').val(),
+                noi_o: $('#noi_o').val(),
+                xep_loai_kt: $('#xep_loai_kt').val(),
+                que_quan: $('#que_quan').val(),
+                khoa: $('#khoa').val(),
+                chuan_doan: $('#chuan_doan').val(),
+                id_research: researchId
+            };
+            if(patientId){
+                param['id'] = patientId;
+                url = `/research/patient/update`;
+            } 
+            if(errors.length > 0){
+                return;
+            } else {
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: param,
+                    beforeSend: function () {
+                        loading.show();
+                    },
+                    success: function (result) {
+                        loading.hide();
+                        if (result.success) {
+                            toarstMessage('Lưu thành công');
+                            patientId = null;
+                            $('#modal-add-patient').modal('hide');
+                            $("#dataTable").DataTable().ajax.reload();
+
+                        } else {
+                            toarstError(result.message);
+                        }
+                    },
+                    error: function (jqXHR, exception, error) {
+                        loading.hide();
+                        ajax_call_error(jqXHR, exception);
+                    }
+                });
+            }
+        }
+
+        function openEditPatient(id){
+            patientId = id;
+            if(!listData || listData.length == 0){
+                return;
+            }
+            for(let item of listData){
+                if(item.id == id){
+                    $('#fullname').val(item.fullname);
+                    $('#ma_benh_an').val(item.ma_benh_an);
+                    $('#ngay_nhap_vien').val(item.ngay_nhap_vien ? moment(item.ngay_nhap_vien).format('DD-MM-YYYY') : '');
+                    $('#phong_dieu_tri').val(item.phong_dieu_tri);
+                    $('#phone').val(item.phone);
+                    $('#birthday').val(item.birthday ? moment(item.birthday).format('DD-MM-YYYY') : '');
+                    $('#gender').val(item.gender);
+                    $('#dan_toc').val(item.dan_toc);
+                    $('#trinh_do').val(item.trinh_do);
+                    $('#nghe_nghiep').val(item.nghe_nghiep);
+                    $('#noi_o').val(item.noi_o);
+                    $('#xep_loai_kt').val(item.xep_loai_kt);
+                    $('#que_quan').val(item.que_quan);
+                    $('#khoa').val(item.khoa);
+                    $('#chuan_doan').val(item.chuan_doan);
+                    if(item.birthday){
+                        const age = calculateAge(item.birthday);
+                        $('#age_number').text(age);
+                    }
+                    break;
+                }
+            }
+            $('#modal-add-patient').modal('show');
+        }
+    </script>
+</body>
+</html>

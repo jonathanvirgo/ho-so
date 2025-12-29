@@ -1,0 +1,319 @@
+<%- include('../header') %>
+
+<div class="content-wrapper">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">Dữ liệu Khảo sát - <%= project.name %></h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="/projects">Dự án</a></li>
+                        <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/surveys">Khảo sát</a></li>
+                        <li class="breadcrumb-item active">Dữ liệu</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <!-- Thống kê -->
+            <div class="row">
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-info">
+                        <div class="inner">
+                            <h3><%= statistics.totalResponses || 0 %></h3>
+                            <p>Tổng phản hồi</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-success">
+                        <div class="inner">
+                            <h3><%= statistics.responsesByDate ? statistics.responsesByDate.length : 0 %></h3>
+                            <p>Ngày có phản hồi</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-warning">
+                        <div class="inner">
+                            <h3><%= statistics.firstResponse ? moment(statistics.firstResponse).format('DD/MM') : 'N/A' %></h3>
+                            <p>Phản hồi đầu tiên</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-danger">
+                        <div class="inner">
+                            <h3><%= statistics.lastResponse ? moment(statistics.lastResponse).format('DD/MM') : 'N/A' %></h3>
+                            <p>Phản hồi gần nhất</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bộ lọc và xuất Excel -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Bộ lọc và Xuất dữ liệu</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="filterForm" class="row">
+                                <div class="col-md-3">
+                                    <label>Email:</label>
+                                    <input type="text" class="form-control" id="filterEmail" placeholder="Tìm theo email">
+                                </div>
+                                <div class="col-md-3">
+                                    <label>Từ ngày:</label>
+                                    <input type="date" class="form-control" id="filterDateFrom">
+                                </div>
+                                <div class="col-md-3">
+                                    <label>Đến ngày:</label>
+                                    <input type="date" class="form-control" id="filterDateTo">
+                                </div>
+                                <div class="col-md-3">
+                                    <label>&nbsp;</label>
+                                    <div class="btn-group d-block">
+                                        <button type="button" class="btn btn-primary" id="applyFilter">
+                                            <i class="fas fa-filter"></i> Lọc
+                                        </button>
+                                        <button type="button" class="btn btn-success" id="exportExcel">
+                                            <i class="fas fa-file-excel"></i> Xuất Excel
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" id="clearFilter">
+                                            <i class="fas fa-times"></i> Xóa bộ lọc
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danh sách dữ liệu -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Danh sách Phản hồi</h3>
+                        </div>
+                        <div class="card-body">
+                            <table id="surveyDataTable" class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Email</th>
+                                        <th>IP Address</th>
+                                        <th>Thời gian</th>
+                                        <th>Dữ liệu</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Modal xem chi tiết -->
+<div class="modal fade" id="viewResponseModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Chi tiết Phản hồi</h4>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="responseDetailContent">
+                <!-- Content will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal chỉnh sửa -->
+<div class="modal fade" id="editResponseModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Chỉnh sửa Phản hồi</h4>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="editResponseContent">
+                <!-- Content will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="saveResponse">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    // Initialize DataTable
+    const table = $('#surveyDataTable').DataTable({
+        processing: true,
+        serverSide: false,
+        ajax: {
+            url: '/projects/<%= project.id %>/survey-data/list',
+            type: 'POST',
+            data: function(d) {
+                d.email = $('#filterEmail').val();
+                d.date_from = $('#filterDateFrom').val();
+                d.date_to = $('#filterDateTo').val();
+            }
+        },
+        columns: [
+            { data: 'id' },
+            { data: 'respondent_email' },
+            { data: 'respondent_ip' },
+            { data: 'submitted_at' },
+            { 
+                data: 'response_data',
+                render: function(data) {
+                    return data.length > 100 ? data.substring(0, 100) + '...' : data;
+                }
+            },
+            { 
+                data: 'actions',
+                orderable: false,
+                searchable: false
+            }
+        ],
+        order: [[0, 'desc']],
+        language: {
+            url: '/vendor/datatables/lang/Vietnamese.json'
+        },
+        layout:{
+            topStart: 'paging',
+            topEnd: 'search',
+            bottomStart: ['paging', 'info'],
+            bottomEnd:  'pageLength'
+        }
+    });
+
+    // Apply filter
+    $('#applyFilter').click(function() {
+        table.ajax.reload();
+    });
+
+    // Clear filter
+    $('#clearFilter').click(function() {
+        $('#filterForm')[0].reset();
+        table.ajax.reload();
+    });
+
+    // Export Excel
+    $('#exportExcel').click(function() {
+        const params = new URLSearchParams({
+            email: $('#filterEmail').val() || '',
+            date_from: $('#filterDateFrom').val() || '',
+            date_to: $('#filterDateTo').val() || ''
+        });
+        
+        window.location.href = `/projects/<%= project.id %>/survey/export?${params.toString()}`;
+    });
+
+    // View response detail
+    $(document).on('click', '.view-response', function() {
+        const responseId = $(this).data('id');
+        
+        $.get(`/projects/<%= project.id %>/survey-data/${responseId}`)
+            .done(function(response) {
+                if (response.success) {
+                    let html = '<div class="row">';
+                    html += '<div class="col-md-6"><strong>Email:</strong> ' + (response.data.response.respondent_email || 'N/A') + '</div>';
+                    html += '<div class="col-md-6"><strong>IP:</strong> ' + (response.data.response.respondent_ip || 'N/A') + '</div>';
+                    html += '<div class="col-md-6"><strong>Thời gian:</strong> ' + moment(response.data.response.submitted_at).format('DD/MM/YYYY HH:mm:ss') + '</div>';
+                    html += '<div class="col-md-6"><strong>ID:</strong> ' + response.data.response.id + '</div>';
+                    html += '</div><hr>';
+                    
+                    html += '<h5>Chi tiết phản hồi:</h5>';
+                    html += '<div class="table-responsive">';
+                    html += '<table class="table table-sm">';
+                    html += '<thead><tr><th>Trường</th><th>Giá trị</th></tr></thead><tbody>';
+                    
+                    response.data.details.forEach(function(detail) {
+                        let value = detail.field_value;
+                        if (detail.field_value_json) {
+                            try {
+                                const jsonValue = JSON.parse(detail.field_value_json);
+                                value = Array.isArray(jsonValue) ? jsonValue.join(', ') : jsonValue;
+                            } catch (e) {
+                                value = detail.field_value;
+                            }
+                        }
+                        html += '<tr><td><strong>' + detail.field_name + '</strong></td><td>' + value + '</td></tr>';
+                    });
+                    
+                    html += '</tbody></table></div>';
+                    
+                    $('#responseDetailContent').html(html);
+                    $('#viewResponseModal').modal('show');
+                } else {
+                    alert('Có lỗi xảy ra: ' + response.message);
+                }
+            })
+            .fail(function() {
+                alert('Có lỗi xảy ra khi tải chi tiết');
+            });
+    });
+
+    // Delete response
+    $(document).on('click', '.delete-response', function() {
+        const responseId = $(this).data('id');
+        
+        if (confirm('Bạn có chắc chắn muốn xóa phản hồi này?')) {
+            $.ajax({
+                url: `/projects/<%= project.id %>/survey-data/${responseId}`,
+                type: 'DELETE',
+                success: function(response) {
+                    if (response.success) {
+                        alert('Xóa thành công!');
+                        table.ajax.reload();
+                    } else {
+                        alert('Có lỗi xảy ra: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Có lỗi xảy ra khi xóa');
+                }
+            });
+        }
+    });
+});
+</script>
+
+<%- include('../footer') %>

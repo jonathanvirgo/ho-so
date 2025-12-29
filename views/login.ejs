@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="vi" data-bs-theme="dark">
+
+    <head>
+        <%- include('./layout/head') %>
+        <title>Đăng nhập</title>
+    </head>
+    <body class="bg-gradient-primary">
+        <div class="container">
+            <!-- Outer Row -->
+            <div class="row justify-content-center">
+
+                <div class="col-xl-10 col-lg-12 col-md-9">
+
+                    <div class="card o-hidden border-0 shadow-lg my-5">
+                        <div class="card-body p-0">
+                            <!-- Nested Row within Card Body -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="p-5">
+                                        <div class="text-center">
+                                            <h1 class="h4 text-gray-900 mb-4">Đăng nhập!</h1>
+                                        </div>
+                                        <form class="user">
+                                            <div class="form-group">
+                                                <input type="email" class="form-control form-control-user" onchange="checkEmailInput(event, '', 0)"
+                                                    id="exampleInputEmail" aria-describedby="emailHelp"
+                                                    placeholder="Enter Email Address...">
+                                                <label class="form-labels fs-6 text-danger ps-1 pt-1 d-none" id="exampleInputEmail_error">Vui lòng nhập Email</label>  
+                                            </div>
+                                            <div class="form-group">
+                                                <input type="password" class="form-control form-control-user" onchange="checkInputEmpty(event, '', 0)"
+                                                    id="exampleInputPassword" placeholder="Password">
+                                                <label class="form-labels fs-6 text-danger ps-1 pt-1 d-none" id="exampleInputPassword_error">Vui lòng nhập mật khẩu</label>  
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="custom-control custom-checkbox small">
+                                                    <input type="checkbox" class="custom-control-input" id="customCheck">
+                                                    <label class="custom-control-label" for="customCheck">Remember
+                                                        Me</label>
+                                                </div>
+                                            </div>
+                                            <a class="btn btn-primary btn-user btn-block" onclick="login()">
+                                                Login
+                                            </a>
+                                            <hr>
+                                            <!-- <a href="index.html" class="btn btn-google btn-user btn-block">
+                                                <i class="fab fa-google fa-fw"></i> Login with Google
+                                            </a>
+                                            <a href="index.html" class="btn btn-facebook btn-user btn-block">
+                                                <i class="fab fa-facebook-f fa-fw"></i> Login with Facebook
+                                            </a> -->
+                                        </form>
+                                        <hr>
+                                        <!-- <div class="text-center">
+                                            <a class="small" href="forgot-password.html">Forgot Password?</a>
+                                        </div> -->
+                                        <div class="d-flex justify-content-center align-items-center gap-2">
+                                            <div class="text-center">
+                                                <a class="small" href="/dang-ky">Đăng ký!</a>
+                                            </div>
+                                            <div class="text-center">
+                                                <a class="small" href="/dieu-khoan">Điều khoản & Quy định</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+        <div id="loading-page" class="d-none">
+            <div class="lds-ellipsis">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+          <!-- Bootstrap core JavaScript-->
+        <script src="/vendor/jquery/jquery.min.js"></script>
+        <script src="/js/bootstrap.bundle.min.js"></script>
+        <script src="/js/sweetalert2@11.js"></script>
+        <!-- Core plugin JavaScript-->
+        <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+        <script src="https://www.google.com/recaptcha/api.js?render=<%=reCAPTCHA_site_key%>"></script>
+        <!-- Custom scripts for all pages-->
+        <script src="/js/sb-admin-2.min.js"></script>
+        <script src="/js/main.js?v=<%= assetVersion %>  "></script>
+        <script>
+            const site_key = '<%=reCAPTCHA_site_key%>';
+            document.addEventListener('keyup', function (event) {
+                if (event.key === 'Enter') {
+                    // Xử lý code tại đây khi người dùng nhấn phím Enter
+                    login();
+                }
+            });
+            function login(){
+                loading.show();
+                let param = {
+                    email: document.getElementById('exampleInputEmail').value,
+                    password: document.getElementById('exampleInputPassword').value
+                }
+               
+                let errors = [];
+                if(!param.email){
+                    toggleErrorHtml('exampleInputEmail', false, 'Vui lòng nhập email', true);
+                    errors.push(1);
+                }
+
+                if(!param.password){
+                    toggleErrorHtml('exampleInputPassword', false, 'Vui lòng nhập password', true);
+                    errors.push(1);
+                }
+                if(errors.length > 0){
+                    loading.hide();
+                    return
+                }
+                grecaptcha.ready(function() {
+                    grecaptcha.execute(site_key, {action: 'login'}).then(async function(token) {
+                        loginSubmit({...param, token});
+                    });
+                });
+            }
+
+            function loginSubmit(param){
+                $.ajax({
+                    url: '/login',
+                    type: 'POST',
+                    data: param,
+                    beforeSend: function () {
+                        loading.show();
+                    },
+                    success: function (result) {
+                        loading.hide();
+                        if(result.success){
+                            toarstMessage('Đăng nhập thành công', 'Success');
+                            setTimeout(() => {
+                                window.location.href = '/';
+                            }, 1000);
+                        }else{
+                            toarstError(result.message, 'Lỗi');
+                        }
+                    },
+                    error: function(jqXHR, exception){
+                        loading.hide();
+                        ajax_call_error(jqXHR, exception);
+                    }
+                })
+            }
+        </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const error = urlParams.get('error');
+                
+                if (error === 'other_device') {
+                    confirmDialog('Thông báo', "Tài khoản của bạn đã được đăng nhập ở thiết bị khác! Vui lòng đăng nhập lại!");
+                }
+            });
+        </script>
+    </body>
+
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../layout/head') %>
+    <title>Bệnh nhân uốn ván - Patients</title>
+</head>
+
+<body>
+
+    <!-- Page Wrapper -->
+   <div id="wrapper">
+       <%- include('../layout/sidebar') %>
+
+        <!-- Content Wrapper -->
+       <div id="content-wrapper" class="d-flex flex-column">
+            <!-- Main Content -->
+            <div id="content">
+                <%- include('../layout/header') %>
+                <%if(errors.length > 0){%>
+                    <div class="container">
+                        <div class="box mt-3">
+                            <%for(let item of errors){%>
+                            <div><%-JSON.stringify(item)%></div>
+                            <%}%>
+                        </div>
+                    </div>
+                <%}else{%>
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+                    <%- include('../layout/thong-tin-co-ban.ejs')%>
+                    <input type="hidden" id="type" value="<%=type%>">
+                    <input type="hidden" id="patient_id" value="<%=patient.id%>">
+                    <div class="card shadow mt-3" name="form-data">
+                        <%- include('./module/menu.ejs')%>
+                        <div class="card-body p-0">
+                            <div class="d-lg-flex d-block gap-3">
+                                <div class="card shadow card-list-date">
+                                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                        <h6 class="m-0 font-weight-bold text-primary">Ngày</h6>
+                                        <div class="">
+                                            <div class="btn btn-success btn-circle" id="datepicker">
+                                                <i class="fas fa-plus"></i>
+                                                <input class="form-control position-absolute" type="text" placeholder="Ngày nhập viện" 
+                                                                value="" data-input="data-input" autoComplete="off"
+                                                                aria-label="Ngày sinh"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body p-0 d-flex flex-column" id="list-date">
+                                        <% if(times.length > 0){%>
+                                            <% for(let time of times){ %>
+                                                <div class="py-2 ws-nowrap card <%= time.id == timeActiveId ? 'border-left-info text-info shadow' : ''%>">
+                                                    <div class="px-2 cursor-poiter" id="time_<%=time.id%>" onclick="getDataTime(<%=time.id%>)"><%= moment(time.time).format('h:mm D/M/YYYY')%></div>
+                                                    <div class="position-absolute right-1 cursor-poiter text-danger" onclick="deleteTime(<%=time.id%>)"><i class="fas fa-trash"></i></div>
+                                                    <div class="position-absolute right-4 cursor-poiter text-info px-2" onclick="editTime(<%=time.id%>)"><i class="fas fa-pencil-alt"></i></div>
+                                                </div>
+                                            <% } %>
+                                        <% } %>
+                                    </div>
+                                </div>
+                                <div class="flex-fill form-data card shadow" >
+                                    <div class="row flex-wrap g-3 card-body">
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Thay đổi cân nặng trong 6 tháng qua</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div data-plugin="virtual-select" data-config='{"placeholder":"Thay đổi cân nặng trong 6 tháng"}' id="cn_6_thang" data-value="<%=detailTetanus.cn_6_thang%>"
+                                                        data-options='[{"label":"<5% giảm cân","value":1},{"label":"5-10%","value":2},{"label":">=10%","value":3}]'></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Thay đổi cân nặng trong 2 tuần qua</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div data-plugin="virtual-select" data-config='{"placeholder":"Thay đổi cân nặng trong 2 tuần qua"}' id="cn_2_tuan" data-value="<%=detailTetanus.cn_2_tuan%>"
+                                                        data-options='[{"label":"Tăng cân","value":1},{"label":"Cân nặng ổn định","value":2},{"label":"Giảm một chút nhưng không nhiều","value":3}]'></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Khẩu phần ăn hiện tại</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div data-plugin="virtual-select" data-config='{"placeholder":"Khẩu phần ăn hiện tại"}' id="khau_phan_an_ht" data-value="<%=detailTetanus.khau_phan_an_ht%>"
+                                                        data-options='[{"label":"Không thay đổi hoặc cải thiện","value":1},{"label":"Giảm một chút nhưng không nhiều","value":2},{"label":"Giảm nhiều(<50%)","value":3}]'></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Triệu chứng tiêu hóa (trên 2 tuần)</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div data-plugin="virtual-select" data-config='{"placeholder":"Triệu chứng tiêu hóa (trên 2 tuần)"}' id="tieu_chung_th" data-value="<%=detailTetanus.tieu_chung_th%>"
+                                                        data-options='[{"label":"Không có triệu chứng","value":1},{"label":"Một chút nhưng không nặng","value":2},{"label":"Nhiều hoặc nặng","value":3}]'></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Giảm chức năng</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div data-plugin="virtual-select" data-config='{"placeholder":"Giảm chức năng"}' id="giam_chuc_nang" data-value="<%=detailTetanus.giam_chuc_nang%>"
+                                                        data-options='[{"label":"Không","value":1},{"label":"Một chút nhưng không nặng","value":2},{"label":"Nhiều hoặc nặng(liệt giường)","value":3}]'></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Nhu cầu chuyển hóa</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div data-plugin="virtual-select" data-config='{"placeholder":"Nhu cầu chuyển hóa"}' id="nc_chuyen_hoa" data-value="<%=detailTetanus.nc_chuyen_hoa%>"
+                                                        data-options='[{"label":"Thấp(mổ phiên, các bệnh mạn tính ổn định, bại não, hội chứng đói nhanh, hóa trị liệu)","value":1},{"label":"Tăng(đại phẫu, nhiễm khuẩn, suy tạng, nhiễm trùng máu)","value":2},{"label":"Cao(bỏng nặng, gãy xương, phục hồi giai đoạn cuối)","value":3}]'></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Khám mất lớp mỡ dưới da</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div data-plugin="virtual-select" data-config='{"placeholder":"Khám mất lớp mỡ dưới da"}' id="mo_duoi_da" data-value="<%=detailTetanus.mo_duoi_da%>"
+                                                        data-options='[{"label":"Không","value":1},{"label":"Nhẹ đén vừa","value":2},{"label":"Nặng","value":3}]'></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Teo cơ(từ đầu đùi hoặc delta)</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div data-plugin="virtual-select" data-config='{"placeholder":"Teo cơ(từ đầu đùi hoặc delta)"}' id="teo_co" data-value="<%=detailTetanus.teo_co%>"
+                                                        data-options='[{"label":"Không","value":1},{"label":"Nhẹ đén vừa","value":2},{"label":"Nặng","value":3}]'></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Phù (mắt cá chận hoặc vùng xương cùng)</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div data-plugin="virtual-select" data-config='{"placeholder":"Phù (mắt cá chận hoặc vùng xương cùng)"}' id="phu" data-value="<%=detailTetanus.phu%>"
+                                                        data-options='[{"label":"Không","value":1},{"label":"Nhẹ đén vừa","value":2},{"label":"Nặng","value":3}]'></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Cổ chướng (khám hoặc hỏi tiền sử)</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div data-plugin="virtual-select" data-config='{"placeholder":"Cổ chướng (khám hoặc hỏi tiền sử)"}' id="co_chuong" data-value="<%=detailTetanus.co_chuong%>"
+                                                        data-options='[{"label":"Không","value":1},{"label":"Nhẹ đén vừa","value":2},{"label":"Nặng","value":3}]'></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Phân loại</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div data-plugin="virtual-select" data-config='{"placeholder":"Phân loại"}' id="phan_loai" data-value="<%=detailTetanus.phan_loai%>"
+                                                        data-options='[{"label":"Không có nguy cơ","value":1},{"label":"Nguy cơ mức độ nhẹ/vừa","value":2},{"label":"Nguy cơ cao","value":3}]'></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+            </div>
+           <%- include('../layout/footer') %>
+       </div>
+   </div>
+   <script src="/js/uon-van.js?v=<%= assetVersion %>"></script>
+   <script>
+        var tetanusId = '<%=detailTetanus.id%>';
+        var timeActive = '<%=timeActiveId%>';
+        var listTime = <%- JSON.stringify(times) %>;
+        var flatpickrInstance;
+        var isEditTime = false;
+        var idEditTime;
+   </script>
+</body>
+</html>

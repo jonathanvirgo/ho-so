@@ -1,0 +1,466 @@
+/* Column Selector Styles */
+#column_selector_container {
+    border: 1px solid #e3e6f0;
+    border-radius: 0.35rem;
+    background: #fff;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+}
+
+#column_selector_container .card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.125);
+}
+
+#column_selector_container .card-header h6 {
+    color: white;
+    margin: 0;
+}
+
+#column_selector_container .btn-outline-primary {
+    border-color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+#column_selector_container .btn-outline-primary:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: white;
+    color: white;
+}
+
+/* Column Checkboxes */
+.form-check-inline {
+    margin-right: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.form-check-input:checked {
+    background-color: #667eea;
+    border-color: #667eea;
+}
+
+.form-check-label {
+    font-size: 0.875rem;
+    cursor: pointer;
+}
+
+/* Sortable List */
+.sortable-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.list-group-item {
+    cursor: move;
+    transition: all 0.2s ease;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fc;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.list-group-item.ui-sortable-helper {
+    transform: rotate(5deg);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.list-group-item .fas.fa-grip-vertical {
+    cursor: grab;
+}
+
+.list-group-item .fas.fa-grip-vertical:active {
+    cursor: grabbing;
+}
+
+/* Action Buttons */
+.btn-sm {
+    font-size: 0.8rem;
+    padding: 0.375rem 0.75rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    border: none;
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, #5a6268 0%, #3d4043 100%);
+    transform: translateY(-1px);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border: none;
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #218838 0%, #1c7a7a 100%);
+    transform: translateY(-1px);
+}
+
+/* Table Enhancements */
+#tb_menu {
+    border-radius: 0.35rem;
+    overflow: hidden;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+}
+
+#tb_menu thead th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 1rem 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+}
+
+#tb_menu tbody tr {
+    transition: all 0.2s ease;
+}
+
+#tb_menu tbody tr:hover {
+    background-color: #f8f9fc;
+    transform: scale(1.005);
+}
+
+#tb_menu tbody td {
+    padding: 0.75rem;
+    vertical-align: middle;
+    border-color: #e3e6f0;
+}
+
+/* Total Row Styling */
+#total_row {
+    background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%) !important;
+    color: white !important;
+    font-weight: bold;
+}
+
+#total_row td {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    padding: 1rem 0.75rem !important;
+}
+
+/* Input Styling */
+.form-control {
+    border-radius: 0.25rem;
+    border: 1px solid #d1d3e2;
+    transition: all 0.2s ease;
+}
+
+.form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+/* Responsive */
+/* @media (max-width: 425px) {
+    #column_selector_content .row {
+        flex-direction: column;
+    }
+
+    #column_selector_content .col-md-6 {
+        margin-bottom: 1rem;
+    }
+
+    .form-check-inline {
+        display: block;
+        margin-right: 0;
+        margin-bottom: 0.5rem;
+    }
+
+    .sortable-list {
+        max-height: 200px;
+    }
+} */
+
+/* Mobile Responsive Table - Card Layout */
+@media (max-width: 425px) {
+    /* Hide table on mobile */
+    /* .table-responsive table.table,
+    .table-responsive table.table thead,
+    .table-responsive table.table tbody,
+    .table-responsive table.table th,
+    .table-responsive table.table td,
+    .table-responsive table.table tr {
+        display: block;
+    } */
+
+    /* Hide table header */
+    /* .table-responsive table.table thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    } */
+
+    /* Style each row as a card */
+    /* .table-responsive table.table tbody tr {
+        background: #fff;
+        border: 1px solid #e3e6f0;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        padding: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        position: relative;
+    }
+
+    .table-responsive table.table tbody tr:hover {
+        background: #f8f9fc;
+        transform: none;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    } */
+
+    /* Style each cell as a block within the card - Two line layout */
+    /* .table-responsive table.table tbody td {
+        border: none;
+        border-bottom: 1px solid #f1f1f1;
+        position: relative;
+        padding: 12px 0;
+        text-align: left;
+        display: block;
+        word-wrap: break-word;
+    }
+
+    .table-responsive table.table tbody td:last-child {
+        border-bottom: none;
+    } */
+
+    /* Add labels as block elements (separate lines) - Bold styling */
+    /* .table-responsive table.table tbody td:before {
+        content: attr(data-label);
+        display: block;
+        font-weight: 700;
+        color: #2c3e50;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin-bottom: 6px;
+        line-height: 1.2;
+        font-family: 'Nunito', sans-serif;
+    } */
+
+    /* Content styling - appears on next line */
+    /* .table-responsive table.table tbody td {
+        font-size: 0.95rem;
+        color: #3a3b45;
+        line-height: 1.4;
+    } */
+
+    /* Special styling for action buttons - Two line layout */
+    /* .table-responsive table.table tbody td:first-child {
+        text-align: left;
+        padding: 12px 0;
+        border-bottom: 1px solid #e3e6f0;
+        margin-bottom: 5px;
+    } */
+
+    /* Adjust button spacing in mobile - Two line layout */
+    /* .table-responsive table.table tbody td .d-flex.gap-2 {
+        justify-content: flex-start;
+        gap: 8px;
+        margin-top: 2px;
+    } */
+
+    /* DataTable specific mobile adjustments */
+    /* .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter {
+        margin-bottom: 10px;
+    }
+
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+        margin-top: 10px;
+        text-align: center;
+    } */
+
+    /* Pagination adjustments */
+    /* .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 6px 10px;
+        margin: 0 2px;
+    } */
+
+    /* Special handling for links in mobile cards */
+    /* .table-responsive table.table tbody td a {
+        color: #4e73df;
+        text-decoration: none;
+    }
+
+    .table-responsive table.table tbody td a:hover {
+        color: #2e59d9;
+        text-decoration: underline;
+    } */
+
+    /* Status indicators in mobile */
+    /* .table-responsive table.table tbody td .text-danger {
+        color: #e74a3b !important;
+        font-weight: 600;
+    }
+
+    .table-responsive table.table tbody td .text-success {
+        color: #1cc88a !important;
+        font-weight: 600;
+    } */
+
+    /* Button improvements for mobile */
+    /* .table-responsive table.table tbody td .btn-circle {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .table-responsive table.table tbody td .btn-sm {
+        font-size: 0.8rem;
+    } */
+
+    /* Card header styling */
+    /* .table-responsive table.table tbody tr::before {
+        content: "";
+        display: block;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        margin-bottom: 10px;
+        border-radius: 2px;
+    } */
+
+    /* Improve spacing between cards */
+    /* .table-responsive table.table tbody tr:last-child {
+        margin-bottom: 0;
+    } */
+
+    /* Handle long text in mobile cards */
+    /* .table-responsive table.table tbody td {
+        word-wrap: break-word;
+        word-break: break-word;
+    } */
+
+    /* Custom data labels for specific columns */
+    /* .table-responsive table.table tbody td[data-label="Họ Tên"]:before,
+    .table-responsive table.table tbody td[data-label="Họ tên"]:before {
+        content: "Họ tên";
+    }
+
+    .table-responsive table.table tbody td[data-label="Số điện thoại"]:before {
+        content: "Điện thoại";
+    }
+
+    .table-responsive table.table tbody td[data-label="Số Phòng"]:before {
+        content: "Phòng";
+    }
+
+    .table-responsive table.table tbody td[data-label="Chẩn đoán"]:before {
+        content: "Chẩn đoán";
+    }
+
+    .table-responsive table.table tbody td[data-label="Ngày hội chẩn"]:before {
+        content: "Ngày hội chẩn";
+    }
+
+    .table-responsive table.table tbody td[data-label="Điều tra viên"]:before {
+        content: "Điều tra viên";
+    } */
+}
+
+/* Grid mode toggle (force card layout regardless of screen size) */
+.table-responsive.grid-mode table.table,
+.table-responsive.grid-mode table.table thead,
+.table-responsive.grid-mode table.table tbody,
+.table-responsive.grid-mode table.table th,
+.table-responsive.grid-mode table.table td,
+.table-responsive.grid-mode table.table tr {
+    display: block;
+}
+
+.table-responsive.grid-mode table.table thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+}
+
+.table-responsive.grid-mode table.table tbody tr {
+    background: #fff;
+    border: 1px solid #e3e6f0;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+.table-responsive.grid-mode table.table tbody td {
+    border: none;
+    border-bottom: 1px solid #f1f1f1;
+    position: relative;
+    padding: 12px 0;
+    text-align: left;
+    display: block;
+    word-wrap: break-word;
+}
+
+.table-responsive.grid-mode table.table tbody td:last-child { border-bottom: none; }
+.table-responsive.grid-mode table.table tbody td:before {
+    content: attr(data-label);
+    display: block;
+    font-weight: 700;
+    color: #2c3e50;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+    line-height: 1.2;
+    font-family: 'Nunito', sans-serif;
+}
+
+.table-responsive.grid-mode table.table tbody tr::before {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    margin-bottom: 10px;
+    border-radius: 2px;
+} 
+
+/* Animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#column_selector_content {
+    animation: fadeInUp 0.3s ease;
+}
+
+/* Group Headers */
+.text-secondary {
+    color: #6c757d !important;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.75rem !important;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e9ecef;
+} 

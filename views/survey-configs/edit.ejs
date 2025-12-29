@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../layout/head') %>
+    <title>Chỉnh sửa Khảo sát Mới - <%= project.name %></title>
+    
+    <!-- Custom styles for survey system -->
+    <link href="/css/survey-system.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+         <!-- Sidebar -->
+        <%- include('../layout/sidebar') %>
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            <!-- Main Content -->
+              <!-- Main Content -->
+            <div id="content">
+                <%- include('../layout/header') %>
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+                    <div class="content-wrapper">
+                        <div class="content-header">
+                            <div class="container-fluid">
+                                <div class="row mb-2">
+                                    <div class="col-sm-6">
+                                        <h1 class="m-0">Chỉnh sửa Khảo sát - <%= project.name %></h1>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <ol class="breadcrumb float-sm-right">
+                                            <li class="breadcrumb-item"><a href="/projects">Dự án</a></li>
+                                            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/surveys">Khảo sát</a></li>
+                                            <li class="breadcrumb-item active">Chỉnh sửa</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <section class="content">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h3 class="card-title">Thông tin Khảo sát</h3>
+                                                <div class="card-tools">
+                                                    <a href="/projects/<%= project.id %>/surveys" class="btn btn-secondary btn-sm">
+                                                        <i class="fas fa-arrow-left"></i> Quay lại
+                                                    </a>
+                                                    <a href="/survey-configs/<%= surveyConfig.id %>/fields" class="btn btn-info btn-sm">
+                                                        <i class="fas fa-cogs"></i> Cấu hình Trường
+                                                    </a>
+                                                    <a href="/survey-configs/<%= surveyConfig.id %>/responses" class="btn btn-success btn-sm">
+                                                        <i class="fas fa-chart-bar"></i> Xem Dữ liệu
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                <form id="editSurveyForm">
+                                                    <input type="hidden" name="id" value="<%= surveyConfig.id %>">
+                                                    
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label for="survey-name">Tên khảo sát <span class="text-danger">*</span></label>
+                                                                <input type="text" class="form-control" id="survey-name" name="name" 
+                                                                    value="<%= surveyConfig.name %>" required>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label for="survey-slug">URL Slug</label>
+                                                                <input type="text" class="form-control" id="survey-slug" name="survey_url_slug" 
+                                                                    value="<%= surveyConfig.survey_url_slug %>" 
+                                                                    placeholder="vd: khao-sat-san-pham">
+                                                                <small class="form-text text-muted">
+                                                                    URL công khai: /survey/<span id="slug-preview"><%= surveyConfig.survey_url_slug %></span>
+                                                                </small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-group">
+                                                        <label for="survey-description">Mô tả khảo sát</label>
+                                                        <textarea class="form-control" id="survey-description" name="description" rows="3"><%= surveyConfig.description || '' %></textarea>
+                                                    </div>
+
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <div class="custom-control custom-checkbox">
+                                                                    <input type="checkbox" class="custom-control-input" id="allow-multiple" 
+                                                                        name="allow_multiple_responses" <%= surveyConfig.allow_multiple_responses ? 'checked' : '' %>>
+                                                                    <label class="custom-control-label" for="allow-multiple">
+                                                                        Cho phép trả lời nhiều lần
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <div class="custom-control custom-checkbox">
+                                                                    <input type="checkbox" class="custom-control-input" id="require-email" 
+                                                                        name="require_email" <%= surveyConfig.require_email ? 'checked' : '' %>>
+                                                                    <label class="custom-control-label" for="require-email">
+                                                                        Bắt buộc nhập email
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-group">
+                                                        <label for="success-message">Thông báo thành công</label>
+                                                        <textarea class="form-control" id="success-message" name="success_message" rows="2"><%= surveyConfig.success_message || 'Cảm ơn bạn đã tham gia khảo sát!' %></textarea>
+                                                    </div>
+
+                                                    <div class="form-group">
+                                                        <button type="submit" class="btn btn-primary">
+                                                            <i class="fas fa-save"></i> Cập nhật Khảo sát
+                                                        </button>
+                                                        <a href="/projects/<%= project.id %>/surveys" class="btn btn-secondary">
+                                                            <i class="fas fa-times"></i> Hủy
+                                                        </a>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Thông tin bổ sung -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h3 class="card-title">Thông tin Khảo sát</h3>
+                                            </div>
+                                            <div class="card-body">
+                                                <table class="table table-sm">
+                                                    <tr>
+                                                        <td><strong>ID:</strong></td>
+                                                        <td><%= surveyConfig.id %></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><strong>Trạng thái:</strong></td>
+                                                        <td>
+                                                            <% if (surveyConfig.active == 1) { %>
+                                                                <span class="badge badge-success">Hoạt động</span>
+                                                            <% } else { %>
+                                                                <span class="badge badge-warning">Tạm dừng</span>
+                                                            <% } %>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><strong>Ngày tạo:</strong></td>
+                                                        <td><%= moment(surveyConfig.created_at).format('DD/MM/YYYY HH:mm') %></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><strong>Cập nhật cuối:</strong></td>
+                                                        <td><%= surveyConfig.updated_at ? moment(surveyConfig.updated_at).format('DD/MM/YYYY HH:mm') : 'Chưa cập nhật' %></td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h3 class="card-title">Thao tác nhanh</h3>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-6">
+                                                        <a href="/survey-configs/<%= surveyConfig.id %>/fields" class="btn btn-info btn-block">
+                                                            <i class="fas fa-cogs"></i><br>
+                                                            Cấu hình Trường
+                                                        </a>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <a href="/survey-configs/<%= surveyConfig.id %>/responses" class="btn btn-success btn-block">
+                                                            <i class="fas fa-chart-bar"></i><br>
+                                                            Xem Dữ liệu
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                                <div class="row mt-2">
+                                                    <div class="col-12">
+                                                        <% if (surveyConfig.survey_url_slug) { %>
+                                                            <a href="/survey/<%= surveyConfig.survey_url_slug %>" target="_blank" class="btn btn-warning btn-block">
+                                                                <i class="fas fa-external-link-alt"></i> Xem Form Công khai
+                                                            </a>
+                                                        <% } else { %>
+                                                            <button class="btn btn-secondary btn-block" disabled>
+                                                                <i class="fas fa-exclamation-triangle"></i> Chưa có URL Slug
+                                                            </button>
+                                                        <% } %>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <%- include('../layout/footer') %>
+        </div>  
+    </div>
+     <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Survey System JS -->
+    <script src="/js/survey-system.js?v=<%= assetVersion %>"></script>
+    <script>
+        $(document).ready(function() {
+            // Auto-generate slug from name
+            $('#survey-name').on('input', function() {
+                const name = $(this).val();
+                const slug = name.toLowerCase()
+                    .replace(/[^a-z0-9\s-]/g, '')
+                    .replace(/\s+/g, '-')
+                    .replace(/-+/g, '-')
+                    .trim('-');
+                
+                if (!$('#survey-slug').val()) {
+                    $('#survey-slug').val(slug);
+                    $('#slug-preview').text(slug);
+                }
+            });
+
+            // Update slug preview
+            $('#survey-slug').on('input', function() {
+                $('#slug-preview').text($(this).val());
+            });
+
+            // Handle form submission
+            $('#editSurveyForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = $(this).serialize();
+                
+                $.ajax({
+                    url: '/survey-configs/update',
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        if (response.success) {
+                            alert('Cập nhật khảo sát thành công!');
+                            // Có thể redirect hoặc reload page
+                        } else {
+                            alert('Lỗi: ' + response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('Có lỗi xảy ra khi cập nhật khảo sát!');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

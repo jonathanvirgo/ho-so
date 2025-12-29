@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../layout/head') %>
+    <title>Bệnh nhân viêm gan - Patients</title>
+</head>
+
+<body>
+
+    <!-- Page Wrapper -->
+   <div id="wrapper">
+       <%- include('../layout/sidebar') %>
+
+        <!-- Content Wrapper -->
+       <div id="content-wrapper" class="d-flex flex-column">
+            <!-- Main Content -->
+            <div id="content">
+                <%- include('../layout/header') %>
+                <%if(errors.length > 0){%>
+                    <div class="container">
+                        <div class="box mt-3">
+                            <%for(let item of errors){%>
+                            <div><%-JSON.stringify(item)%></div>
+                            <%}%>
+                        </div>
+                    </div>
+                <%}else{%>
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+                    <%- include('../layout/thong-tin-co-ban.ejs')%>
+                    <input type="hidden" id="type" value="<%=type%>">
+                    <input type="hidden" id="patient_id" value="<%=patient.id%>">
+                    <div class="card shadow mt-3" name="form-data">
+                        <%- include('./module/menu.ejs')%>
+                        <div class="card-body p-0">
+                            <div class="d-lg-flex d-block gap-3">
+                                <div class="card shadow card-list-date">
+                                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                        <h6 class="m-0 font-weight-bold text-primary">Ngày</h6>
+                                        <div class="">
+                                            <div class="btn btn-success btn-circle" id="datepicker">
+                                                <i class="fas fa-plus"></i>
+                                                <input class="form-control position-absolute" type="text" placeholder="Ngày nhập viện" 
+                                                                value="" data-input="data-input" autoComplete="off"
+                                                                aria-label="Ngày sinh"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body p-0 d-flex flex-column" id="list-date">
+                                        <% if(times.length > 0){%>
+                                            <% for(let time of times){ %>
+                                                <div class="py-2 ws-nowrap card <%= time.id == timeActiveId ? 'border-left-info text-info shadow' : ''%>">
+                                                    <div class="px-2 cursor-poiter" id="time_<%=time.id%>" onclick="getDataTime(<%=time.id%>)"><%= moment(time.time).format('h:mm D/M/YYYY')%></div>
+                                                    <div class="position-absolute right-4 cursor-poiter text-info px-2" onclick="editTime(<%=time.id%>)"><i class="fas fa-pencil-alt"></i></div>
+                                                </div>
+                                            <% } %>
+                                        <% } %>
+                                    </div>
+                                </div>
+                                <div class="flex-fill form-data card shadow" >
+                                    <div class="row flex-wrap g-3 card-body">
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12" data-field="cn">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Cân nặng(Kg)</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <input type="text" class="form-control" id="cn" placeholder="Cân nặng" value="<%=detailHepatitis.cn%>" oninput="formatInputFloat(event)">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12" data-field="cc">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Chiều cao(cm)</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <input type="text" class="form-control" id="cc" placeholder="Chiều cao" value="<%=detailHepatitis.cc%>" oninput="formatInputFloat(event)">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12" data-field="vong_bap_chan">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Chu vi vòng bắp chân(cm)</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <input type="text" class="form-control" id="vong_bap_chan" placeholder="Vòng bắp chân" value="<%=detailHepatitis.vong_bap_chan%>" oninput="formatInputFloat(event)">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12" data-field="glucose">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Glucose</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <input type="text" class="form-control" id="glucose" placeholder="Glucose" value="<%=detailHepatitis.glucose%>" oninput="formatInputFloat(event)">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- <div class="col-xl-3 col-lg-4 col-sm-6 col-12" data-field="triglycerid">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Triglycerid</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <input type="text" class="form-control" id="triglycerid" placeholder="Triglycerid" value="<%= detailHepatitis.triglycerid || '' %>" oninput="formatInputFloat(event)">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12" data-field="cholesterol">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Cholesterol</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <input type="text" class="form-control" id="cholesterol" placeholder="Cholesterol" value="<%= detailHepatitis.cholesterol || '' %>" oninput="formatInputFloat(event)">
+                                                </div>
+                                            </div>
+                                        </div> -->
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12" data-field="ure">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Ure</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <input type="text" class="form-control" id="ure" placeholder="Ure" value="<%=detailHepatitis.ure%>" oninput="formatInputFloat(event)">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12" data-field="creatinin">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Creatinin</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <input type="text" class="form-control" id="creatinin" placeholder="Creatinin" value="<%=detailHepatitis.creatinin%>" oninput="formatInputFloat(event)">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12" data-field="got">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">GOT</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <input type="text" class="form-control" id="got" placeholder="GOT" value="<%=detailHepatitis.got%>" oninput="formatInputFloat(event)">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12" data-field="gpt">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">GPT</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <input type="text" class="form-control" id="gpt" placeholder="GPT" value="<%=detailHepatitis.gpt%>" oninput="formatInputFloat(event)">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12" data-field="ggt">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">GGT</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <input type="text" class="form-control" id="ggt" placeholder="GGT" value="<%=detailHepatitis.ggt%>" oninput="formatInputFloat(event)">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12" data-field="hong_cau">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Hồng cầu</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <input type="text" class="form-control" id="hong_cau" placeholder="Hồng cầu" value="<%=detailHepatitis.hong_cau%>" oninput="formatInputFloat(event)">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12" data-field="hemoglobin">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Hemoglobin</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <input type="text" class="form-control" id="hemoglobin" placeholder="Hemoglobin" value="<%=detailHepatitis.hemoglobin%>" oninput="formatInputFloat(event)">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12" data-field="pre_albumin">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">PreAlbumin</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <input type="text" class="form-control" id="pre_albumin" placeholder="Pre Albumin" value="<%=detailHepatitis.pre_albumin%>" oninput="formatInputFloat(event)">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12" data-field="albumin">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Albumin</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <input type="text" class="form-control" id="albumin" placeholder="Albumin" value="<%=detailHepatitis.albumin%>" oninput="formatInputFloat(event)">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12" data-field="protein_tp">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Protein TP</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <input type="text" class="form-control" id="protein_tp" placeholder="Protein TP" value="<%=detailHepatitis.protein_tp%>" oninput="formatInputFloat(event)">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12" data-field="sat_huyet_thanh">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Sắt huyết thanh</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <input type="text" class="form-control" id="sat_huyet_thanh" placeholder="Sắt huyết thanh" value="<%=detailHepatitis.sat_huyet_thanh%>" oninput="formatInputFloat(event)">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-4 col-sm-6 col-12" data-field="ferritin">
+                                            <div class="card shadow">
+                                                <div class="card-header py-3">
+                                                    <h6 class="m-0 font-weight-bold text-primary">Ferritin</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <input type="text" class="form-control" id="ferritin" placeholder="Ferritin" value="<%=detailHepatitis.ferritin%>" oninput="formatInputFloat(event)">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+            </div>
+           <%- include('../layout/footer') %>
+       </div>
+   </div>
+    <script>
+        var hepatitisId = '<%=detailHepatitis.id%>';
+        var timeActive = '<%=timeActiveId%>';
+        var listTime = <%- JSON.stringify(times) %>;
+        var flatpickrInstance;
+        var isEditTime = false;
+        var idEditTime;
+   </script>
+   <script src="/js/viem-gan.js?v=<%= assetVersion %>"></script>
+</body>
+</html>

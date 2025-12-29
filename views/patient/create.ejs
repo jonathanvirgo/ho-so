@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../layout/head') %>
+        <title>Thêm bệnh nhân - Patients</title>
+        <style>
+            .relation-row {
+                background-color: #f8f9fc;
+                transition: all 0.3s ease;
+            }
+
+            .relation-row:hover {
+                background-color: #eaecf4;
+                box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            }
+        </style>
+</head>
+
+<body>
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+        <%- include('../layout/sidebar') %>
+
+            <!-- Content Wrapper -->
+            <div id="content-wrapper" class="d-flex flex-column">
+                <!-- Main Content -->
+                <div id="content">
+                    <%- include('../layout/header') %>
+                        <!-- Begin Page Content -->
+                        <% if(errors.length> 0){%>
+                            <div class="container">
+                                <div class="box mt-3">
+                                    <%for(let item of errors){%>
+                                        <div><%-JSON.stringify(item)%></div>
+                                        <%}%>
+                                </div>
+                            </div>
+                            <% }else{ %>
+                                <input type="hidden" id="path" value="<%=path%>">
+                                <div class="container-fluid">
+                                    <div class="card shadow">
+                                        <div
+                                            class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                            <h6 class="m-0 font-weight-bold text-primary">Thông tin cơ bản</h6>
+                                            <div class="">
+                                                <a onclick="createPatient('<%=detailPatient.id%>')"
+                                                    class="btn btn-primary btn-circle" title="Lưu">
+                                                    <i class="fas fa-sd-card"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row mt-3 flex-wrap g-3 form-data">
+                                                <div class="col-xl-3 col-lg-4 col-sm-6">
+                                                    <div class="card shadow">
+                                                        <div class="card-header py-3 ">
+                                                            <h6 class="m-0 font-weight-bold text-primary">Họ tên <span
+                                                                    class="text-danger">*</span></h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <input type="text" class="form-control" id="fullname"
+                                                                placeholder="Nhập Họ tên"
+                                                                value="<%=detailPatient.fullname%>"
+                                                                onchange="checkInputEmpty(event, '', 0)">
+                                                            <label class="fs-6 text-danger ps-1 pt-1 d-none"
+                                                                id="fullname_error">Vui lòng nhập họ và tên</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-3 col-lg-4 col-sm-6">
+                                                    <div class="card shadow">
+                                                        <div class="card-header py-3 ">
+                                                            <h6 class="m-0 font-weight-bold text-primary">Mã bệnh án
+                                                                <%if(path =='viem-gan-mt1' ){%>
+                                                                    <span class="text-danger">*</span>
+                                                                <%}%>
+                                                            </h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <input type="text" class="form-control" id="ma_benh_an"
+                                                                placeholder="Nhập Mã bệnh án"
+                                                                value="<%=detailPatient.ma_benh_an%>"
+                                                                onchange="checkInputEmpty(event, '', 0)">
+                                                            <label class="fs-6 text-danger ps-1 pt-1 d-none"
+                                                                id="ma_benh_an_error">Vui lòng nhập mã bệnh án</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="col-xl-3 col-lg-4 col-sm-6 <%=path == 'viem-gan-mt1' ? 'd-none' : '' %>">
+                                                    <div class="card shadow">
+                                                        <div class="card-header py-3">
+                                                            <h6 class="m-0 font-weight-bold text-primary">Ngày nhập viện
+                                                            </h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <div class="flatpickr flatpickr-input"
+                                                                data-plugin="flatpickr" id="ngay_nhap_vien"
+                                                                data-options='{"mode":"single", "allowInput": true}'
+                                                                aria-label="Ngày nhập viện">
+                                                                <input class="form-control" type="text"
+                                                                    placeholder="Ngày nhập viện" autoComplete="off"
+                                                                    value="<%=detailPatient.ngay_nhap_vien ? moment(detailPatient.ngay_nhap_vien).format('DD-MM-YYYY') : ''%>"
+                                                                    data-input="data-input"
+                                                                    aria-label="Ngày nhập viện" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="col-xl-3 col-lg-4 col-sm-6 <%=path !== 'hoi-chan' ? 'd-none' : '' %>">
+                                                    <div class="card shadow">
+                                                        <div class="card-header py-3">
+                                                            <h6 class="m-0 font-weight-bold text-primary">Ngày hội chẩn
+                                                            </h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <div class="flatpickr flatpickr-input"
+                                                                data-plugin="flatpickr" id="ngay_hoi_chan"
+                                                                data-options='{"mode":"single", "allowInput": true}'
+                                                                aria-label="Ngày hội chẩn">
+                                                                <input class="form-control" type="text"
+                                                                    placeholder="Ngày hội chẩn" autoComplete="off"
+                                                                    value="<%=detailPatient.ngay_hoi_chan ? moment(detailPatient.ngay_hoi_chan).format('DD-MM-YYYY') : ''%>"
+                                                                    data-input="data-input"
+                                                                    aria-label="Ngày hội chẩn" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="col-xl-3 col-lg-4 col-sm-6 <%=path !== 'viem-gan-mt1' ? 'd-none' : '' %>">
+                                                    <div class="card shadow">
+                                                        <div class="card-header py-3">
+                                                            <h6 class="m-0 font-weight-bold text-primary">Ngày điều tra 
+                                                                <%if(path =='viem-gan-mt1' ){%> <span class="text-danger">*</span> <%}%>
+                                                            </h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <div class="flatpickr flatpickr-input"
+                                                                data-plugin="flatpickr" id="ngay_dieu_tra"
+                                                                data-options='{"mode":"single", "allowInput": true}'
+                                                                aria-label="Ngày điều tra">
+                                                                <input class="form-control" type="text"
+                                                                    placeholder="Ngày điều tra" autoComplete="off"
+                                                                    value="<%=detailPatient.ngay_dieu_tra ? moment(detailPatient.ngay_dieu_tra).format('DD-MM-YYYY') : ''%>"
+                                                                    data-input="data-input"
+                                                                    aria-label="Ngày điều tra" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-3 col-lg-4 col-sm-6">
+                                                    <div class="card shadow">
+                                                        <div class="card-header py-3">
+                                                            <h6 class="m-0 font-weight-bold text-primary">Phòng điều trị
+                                                            </h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <input type="text" class="form-control" id="phong_dieu_tri"
+                                                                placeholder="Nhập Phòng điều trị"
+                                                                value="<%=detailPatient.phong_dieu_tri%>">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <% if(['hoi-chan', 'viem-gan-mt1' ].includes(path)){ %>
+                                                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                                                        <div class="card shadow">
+                                                            <div class="card-header py-3">
+                                                                <h6 class="m-0 font-weight-bold text-primary">Số điện
+                                                                    thoại</h6>
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <input type="text" class="form-control" id="phone"
+                                                                    placeholder="Nhập Số điện thoại"
+                                                                    value="<%=detailPatient.phone%>">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <% }else{ %>
+                                                        <div class="col-xl-3 col-lg-4 col-sm-6">
+                                                            <div class="card shadow">
+                                                                <div class="card-header py-3">
+                                                                    <h6 class="m-0 font-weight-bold text-primary">Số
+                                                                        điện thoại <span class="text-danger">*</span>
+                                                                    </h6>
+                                                                </div>
+                                                                <div class="card-body">
+                                                                    <input type="text" class="form-control" id="phone"
+                                                                        onchange="checkPhoneInput(event, '', 0)"
+                                                                        placeholder="Nhập Số điện thoại"
+                                                                        value="<%=detailPatient.phone%>">
+                                                                    <label class="fs-6 text-danger ps-1 pt-1 d-none"
+                                                                        id="phone_error">Vui lòng nhập số điện
+                                                                        thoại</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <% } %>
+                                                            <div class="col-sm-6">
+                                                                <div class="card shadow">
+                                                                    <div
+                                                                        class="card-header py-3 d-flex justify-content-between align-items-center">
+                                                                        <h6 class="m-0 font-weight-bold text-primary">
+                                                                            Mối quan hệ</h6>
+                                                                        <div>
+                                                                            <button type="button"
+                                                                                class="btn btn-sm btn-success"
+                                                                                onclick="addRelationRow()">
+                                                                                <i class="fas fa-plus"></i> Thêm
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="card-body">
+                                                                        <div id="relations_container">
+                                                                            <!-- Relation rows will be added here -->
+                                                                        </div>
+                                                                        <input type="hidden" id="moi_quan_he" value="">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-xl-3 col-lg-4 col-sm-6">
+                                                                <div class="card shadow">
+                                                                    <div class="card-header py-3">
+                                                                        <h6 class="m-0 font-weight-bold text-primary">
+                                                                            Ngày sinh</h6>
+                                                                    </div>
+                                                                    <div class="card-body d-flex gap-3">
+                                                                        <div class="flatpickr flatpickr-input flex-fill"
+                                                                            data-plugin="flatpickr" id="birthday"
+                                                                            data-options='{"mode":"single", "allowInput": true}'
+                                                                            aria-label="Ngày sinh">
+                                                                            <input class="form-control" type="text"
+                                                                                placeholder="Ngày sinh"
+                                                                                autoComplete="off"
+                                                                                value="<%=detailPatient.birthday ? moment(detailPatient.birthday).format('DD-MM-YYYY') : ''%>"
+                                                                                data-input="data-input"
+                                                                                aria-label="Ngày sinh" />
+                                                                        </div>
+                                                                        <div class="align-content-center"
+                                                                            style="width: 5rem;" id="age_number"></div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-xl-3 col-lg-4 col-sm-6">
+                                                                <div class="card shadow">
+                                                                    <div class="card-header py-3">
+                                                                        <h6 class="m-0 font-weight-bold text-primary">
+                                                                            Giới tính</h6>
+                                                                    </div>
+                                                                    <div class="card-body">
+                                                                        <div id="gender" data-plugin="virtual-select"
+                                                                            data-config='{"placeholder":"Giới tính"}'
+                                                                            data-value="<%=detailPatient.gender%>"
+                                                                            data-options='[{"label":"Nam","value":1},{"label":"Nữ","value":0},{"label":"Khác","value":2}]'>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-xl-3 col-lg-4 col-sm-6">
+                                                                <div class="card shadow">
+                                                                    <div class="card-header py-3 text-primary">
+                                                                        <h6 class="m-0 font-weight-bold text-primary">
+                                                                            Dân tộc</h6>
+                                                                    </div>
+                                                                    <div
+                                                                        class="card-body d-flex gap-2 align-items-center">
+                                                                        <div class="form-check">
+                                                                            <input class="form-check-input" type="radio"
+                                                                                name="radioDanToc" value="1"
+                                                                                id="optionKinh"
+                                                                                <%=detailPatient.dan_toc==='1'
+                                                                                ? 'checked' : '' %> >
+                                                                            <label class="form-check-label"
+                                                                                for="optionKinh">
+                                                                                Kinh
+                                                                            </label>
+                                                                        </div>
+                                                                        <div class="form-check">
+                                                                            <input class="form-check-input" type="radio"
+                                                                                name="radioDanToc" value="2"
+                                                                                id="optionKhac"
+                                                                                <%=detailPatient.dan_toc==='2'
+                                                                                ? 'checked' : '' %>>
+                                                                            <label class="form-check-label"
+                                                                                for="optionKhac">
+                                                                                Khác
+                                                                            </label>
+                                                                        </div>
+                                                                        <div>
+                                                                            <input class="form-control d-none"
+                                                                                placeholder="Tên dân tộc" type="text"
+                                                                                id="dan_toc_khac"
+                                                                                value="<%= detailPatient.dan_toc_khac %>">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div
+                                                                class="col-xl-3 col-lg-4 col-sm-6 col-12 <%=path == 'standard' ? 'd-none' : '' %>">
+                                                                <div class="card shadow">
+                                                                    <div class="card-header py-3">
+                                                                        <h6 class="m-0 font-weight-bold text-primary">
+                                                                            Điều tra viên</h6>
+                                                                    </div>
+                                                                    <div class="card-body">
+                                                                        <input type="text" class="form-control"
+                                                                            id="dieu_tra_vien"
+                                                                            placeholder="Điều tra viên"
+                                                                            value="<%=detailPatient.dieu_tra_vien%>">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div
+                                                                class="col-xl-3 col-lg-4 col-sm-6 <%=['hoi-chan', 'standard'].includes(path) ? 'd-none' : '' %> ">
+                                                                <div class="card shadow">
+                                                                    <div class="card-header py-3">
+                                                                        <h6 class="m-0 font-weight-bold text-primary">
+                                                                            Trình độ học vấn</h6>
+                                                                    </div>
+                                                                    <div class="card-body">
+                                                                        <div class="" data-plugin="virtual-select"
+                                                                            data-value="<%=detailPatient.trinh_do%>"
+                                                                            data-config='{"placeholder":"Chọn trình độ"}'
+                                                                            id="trinh_do"
+                                                                            data-options='[{"label":"Không đi học","value":1},{"label":"Tiểu học","value":2},{"label":"THCS","value":3},{"label":"THPT","value":4},{"label":"Đại học/sau đại học","value":5}]'>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div
+                                                                class="col-xl-3 col-lg-4 col-sm-6 <%=['hoi-chan', 'standard'].includes(path) ? 'd-none' : '' %> ">
+                                                                <div class="card shadow">
+                                                                    <div class="card-header py-3">
+                                                                        <h6 class="m-0 font-weight-bold text-primary">
+                                                                            Nghề nghiệp</h6>
+                                                                    </div>
+                                                                    <div class="card-body d-flex gap-2">
+                                                                        <div class="" id="nghe_nghiep"
+                                                                            data-plugin="virtual-select"
+                                                                            data-value="<%=detailPatient.nghe_nghiep%>"
+                                                                            data-config='{"placeholder":"Chọn nghề nghiệp"}'
+                                                                            data-options='[{"label":"Cán bộ viên chức","value":1},{"label":"Nông dân","value":2},{"label":"Nghỉ hưu","value":3},{"label":"Nội trợ","value":4},{"label":"Khác","value":5}]'>
+                                                                        </div>
+                                                                        <input class="form-control d-none"
+                                                                            placeholder="Nghề nghiệp khác" type="text"
+                                                                            id="nghe_nghiep_khac">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div
+                                                                class="col-xl-3 col-lg-4 col-sm-6 <%=['hoi-chan', 'standard'].includes(path) ? 'd-none' : '' %> ">
+                                                                <div class="card shadow">
+                                                                    <div class="card-header py-3">
+                                                                        <h6 class="m-0 font-weight-bold text-primary">
+                                                                            Nơi ở hiện tại</h6>
+                                                                    </div>
+                                                                    <div class="card-body">
+                                                                        <div class="" data-plugin="virtual-select"
+                                                                            data-value="<%=detailPatient.noi_o%>"
+                                                                            data-config='{"placeholder":"Chọn nơi ở"}'
+                                                                            id="noi_o"
+                                                                            data-options='[{"label":"Nông thôn","value":1},{"label":"Thị trấn/thị xã","value":2}, {"label":"Thành phố","value":3}]'>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div
+                                                                class="col-xl-3 col-lg-4 col-sm-6 <%=['viem-gan-mt1', 'hoi-chan', 'standard'].includes(path) ? 'd-none' : '' %> ">
+                                                                <div class="card shadow">
+                                                                    <div class="card-header py-3">
+                                                                        <h6 class="m-0 font-weight-bold text-primary">
+                                                                            Xếp loại hộ gia đình</h6>
+                                                                    </div>
+                                                                    <div class="card-body">
+                                                                        <div class="" data-plugin="virtual-select"
+                                                                            data-value="<%=detailPatient.xep_loai_kt%>"
+                                                                            data-config='{"placeholder":"Chọn xếp loại"}'
+                                                                            id="xep_loai_kt"
+                                                                            data-options='[{"label":"Nghèo","value":1},{"label":"Cận nghèo","value":2}, {"label":"Không xếp loại/Không biết","value":3}]'>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <% if(path=='hoi-chan' ){ %>
+                                                                <div
+                                                                    class="col-sm-6 <%=path == 'viem-gan-mt1' ? 'd-none' : '' %>">
+                                                                    <div class="card shadow">
+                                                                        <div class="card-header py-3">
+                                                                            <h6
+                                                                                class="m-0 font-weight-bold text-primary">
+                                                                                Tiền sử bệnh</h6>
+                                                                        </div>
+                                                                        <div class="card-body">
+                                                                            <textarea class="form-control"
+                                                                                id="tien_su_benh"
+                                                                                placeholder="Tiền sử bệnh"><%=detailPatient.tien_su_benh%></textarea>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-xl-3 col-lg-4 col-sm-6">
+                                                                    <div class="card shadow">
+                                                                        <div class="card-header py-3">
+                                                                            <h6
+                                                                                class="m-0 font-weight-bold text-primary">
+                                                                                Cân nặng</h6>
+                                                                        </div>
+                                                                        <div class="card-body">
+                                                                            <input type="text" class="form-control"
+                                                                                id="can_nang"
+                                                                                oninput="formatInputFloat(event)"
+                                                                                placeholder="Nhập cân nặng"
+                                                                                value="<%=detailPatient.cn%>">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-xl-3 col-lg-4 col-sm-6">
+                                                                    <div class="card shadow">
+                                                                        <div class="card-header py-3">
+                                                                            <h6
+                                                                                class="m-0 font-weight-bold text-primary">
+                                                                                Chiều cao</h6>
+                                                                        </div>
+                                                                        <div class="card-body">
+                                                                            <input type="text" class="form-control"
+                                                                                id="chieu_cao"
+                                                                                oninput="formatInputFloat(event)"
+                                                                                placeholder="Nhập chiều cao"
+                                                                                value="<%=detailPatient.cc%>">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col-xl-3 col-lg-4 col-sm-6">
+                                                                    <div class="card shadow">
+                                                                        <div class="card-header py-3">
+                                                                            <h6
+                                                                                class="m-0 font-weight-bold text-primary">
+                                                                                BMI</h6>
+                                                                        </div>
+                                                                        <div class="card-body">
+                                                                            <div class="form-control" id="bmi"></div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-xl-3 col-lg-4 col-sm-6">
+                                                                    <div class="card shadow">
+                                                                        <div class="card-header py-3">
+                                                                            <h6
+                                                                                class="m-0 font-weight-bold text-primary">
+                                                                                Cân nặng lý tưởng</h6>
+                                                                        </div>
+                                                                        <div class="card-body">
+                                                                            <input type="text" class="form-control"
+                                                                                id="ideal_weight"
+                                                                                placeholder="Cân nặng lý tưởng">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <% } %>
+                                                                    <div
+                                                                        class="col-xl-3 col-lg-4 col-sm-6 <%=path == 'viem-gan-mt1' ? 'd-none' : '' %>">
+                                                                        <div class="card shadow">
+                                                                            <div class="card-header py-3">
+                                                                                <h6
+                                                                                    class="m-0 font-weight-bold text-primary">
+                                                                                    Quê quán</h6>
+                                                                            </div>
+                                                                            <div class="card-body">
+                                                                                <textarea class="form-control"
+                                                                                    id="que_quan"
+                                                                                    placeholder="Quê quán"><%=detailPatient.que_quan%></textarea>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div
+                                                                        class="col-xl-3 col-lg-4 col-sm-6 <%=['viem-gan-mt1', 'standard'].includes(path) ? 'd-none' : '' %>">
+                                                                        <div class="card shadow">
+                                                                            <div class="card-header py-3">
+                                                                                <h6
+                                                                                    class="m-0 font-weight-bold text-primary">
+                                                                                    Khoa điều trị</h6>
+                                                                            </div>
+                                                                            <div class="card-body">
+                                                                                <input type="text" class="form-control"
+                                                                                    id="khoa"
+                                                                                    placeholder="Khoa điều trị"
+                                                                                    value="<%=detailPatient.khoa%>">
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div
+                                                                        class="col-sm-6 <%=path == 'viem-gan-mt1' ? 'd-none' : '' %>">
+                                                                        <div class="card shadow">
+                                                                            <div class="card-header py-3">
+                                                                                <h6
+                                                                                    class="m-0 font-weight-bold text-primary">
+                                                                                    Chẩn đoán</h6>
+                                                                            </div>
+                                                                            <div class="card-body">
+                                                                                <textarea class="form-control"
+                                                                                    id="chuan_doan"
+                                                                                    placeholder="Chẩn đoán"><%=detailPatient.chuan_doan%></textarea>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <% if(path=='viem-gan' ){ %>
+                                        <div class="card shadow mt-4">
+                                            <div
+                                                class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                                <h6 class="m-0 font-weight-bold text-primary">Tiền sử bệnh gan mật</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row mt-3 flex-wrap g-3 form-data">
+                                                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                                                        <div class="card shadow">
+                                                            <div class="card-header py-3 ">
+                                                                <h6 class="m-0 font-weight-bold text-primary">Số lần
+                                                                    điều trị VGC</h6>
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <input type="text" class="form-control" id="so_lan_vgc"
+                                                                    placeholder="Số lần điều trị VGC"
+                                                                    value="<%=detailPatient.so_lan_vgc%>">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                                                        <div class="card shadow">
+                                                            <div class="card-header py-3 ">
+                                                                <h6 class="m-0 font-weight-bold text-primary">Thời gian
+                                                                    mắc viêm gan mạn</h6>
+                                                            </div>
+                                                            <div class="card-body d-flex gap-3 align-items-center">
+                                                                <input type="text" class="form-control"
+                                                                    id="thoi_gian_vgm"
+                                                                    placeholder="Nhập Thời gian mắc viêm gan mạn"
+                                                                    value="<%=detailPatient.thoi_gian_vgm%>">
+                                                                <span>(năm)</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                                                        <div class="card shadow">
+                                                            <div class="card-header py-3 ">
+                                                                <h6 class="m-0 font-weight-bold text-primary">Thời gian
+                                                                    mắc viêm gan do rượu</h6>
+                                                            </div>
+                                                            <div class="card-body d-flex gap-3 align-items-center">
+                                                                <input type="text" class="form-control"
+                                                                    id="thoi_gian_vg_ruou"
+                                                                    placeholder="Nhập Thời gian mắc viêm gan do rượu"
+                                                                    value="<%=detailPatient.thoi_gian_vg_ruou%>">
+                                                                <span>(năm)</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                                                        <div class="card shadow">
+                                                            <div class="card-header py-3 ">
+                                                                <h6 class="m-0 font-weight-bold text-primary">Thời gian
+                                                                    mắc viêm gan do virus</h6>
+                                                            </div>
+                                                            <div class="card-body d-flex gap-3 align-items-center">
+                                                                <input type="text" class="form-control"
+                                                                    id="thoi_gian_vg_virus"
+                                                                    placeholder="Nhập Thời gian mắc viêm gan do virus"
+                                                                    value="<%=detailPatient.thoi_gian_vg_virus%>">
+                                                                <span>(năm)</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                                                        <div class="card shadow">
+                                                            <div class="card-header py-3 ">
+                                                                <h6 class="m-0 font-weight-bold text-primary">Bệnh gan
+                                                                    mật khác</h6>
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <input type="text" class="form-control"
+                                                                    id="benh_gan_mat_khac"
+                                                                    placeholder="Nhập Bệnh gan mật khác"
+                                                                    value="<%=detailPatient.benh_gan_mat_khac%>">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                                                        <div class="card shadow">
+                                                            <div class="card-header py-3 ">
+                                                                <h6 class="m-0 font-weight-bold text-primary">BGM khác
+                                                                    (thời gian mắc)</h6>
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <input type="text" class="form-control"
+                                                                    id="thoi_gian_gm_khac"
+                                                                    placeholder="Nhập Bệnh gan mật khác"
+                                                                    value="<%=detailPatient.thoi_gian_gm_khac%>">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                                                        <div class="card shadow">
+                                                            <div class="card-header py-3 ">
+                                                                <h6 class="m-0 font-weight-bold text-primary">Tiền sử
+                                                                    bệnh lý khác</h6>
+                                                            </div>
+                                                            <div class="card-body d-flex gap-3">
+                                                                <input type="text" class="form-control flex-fill"
+                                                                    id="ts_benh_khac_1"
+                                                                    placeholder="Nhập Tiền sử bệnh lý khác"
+                                                                    value="<%=detailPatient.ts_benh_khac_1%>">
+                                                                <input type="text" class="form-control w-25"
+                                                                    id="ts_benh_1_so_nam" placeholder="Số năm mắc"
+                                                                    value="<%=detailPatient.ts_benh_1_so_nam%>">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                                                        <div class="card shadow">
+                                                            <div class="card-header py-3 ">
+                                                                <h6 class="m-0 font-weight-bold text-primary">Tiền sử
+                                                                    bệnh lý khác</h6>
+                                                            </div>
+                                                            <div class="card-body d-flex gap-3">
+                                                                <input type="text" class="form-control flex-fill"
+                                                                    id="ts_benh_khac_2"
+                                                                    placeholder="Nhập Tiền sử bệnh lý khác"
+                                                                    value="<%=detailPatient.ts_benh_khac_2%>">
+                                                                <input type="text" class="form-control w-25"
+                                                                    id="ts_benh_2_so_nam" placeholder="Số năm mắc"
+                                                                    value="<%=detailPatient.ts_benh_2_so_nam%>">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                                                        <div class="card shadow">
+                                                            <div class="card-header py-3 ">
+                                                                <h6 class="m-0 font-weight-bold text-primary">Tiền sử
+                                                                    bệnh lý khác</h6>
+                                                            </div>
+                                                            <div class="card-body d-flex gap-3">
+                                                                <input type="text" class="form-control flex-fill"
+                                                                    id="ts_benh_khac_3"
+                                                                    placeholder="Nhập Tiền sử bệnh lý khác"
+                                                                    value="<%=detailPatient.ts_benh_khac_3%>">
+                                                                <input type="text" class="form-control w-25"
+                                                                    id="ts_benh_3_so_nam" placeholder="Số năm mắc"
+                                                                    value="<%=detailPatient.ts_benh_3_so_nam%>">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                                                        <div class="card shadow">
+                                                            <div class="card-header py-3 ">
+                                                                <h6 class="m-0 font-weight-bold text-primary">Tiền sử
+                                                                    bệnh lý khác</h6>
+                                                            </div>
+                                                            <div class="card-body d-flex gap-3">
+                                                                <input type="text" class="form-control flex-fill"
+                                                                    id="ts_benh_khac_4"
+                                                                    placeholder="Nhập Tiền sử bệnh lý khác"
+                                                                    value="<%=detailPatient.ts_benh_khac_4%>">
+                                                                <input type="text" class="form-control w-25"
+                                                                    id="ts_benh_4_so_nam" placeholder="Số năm mắc"
+                                                                    value="<%=detailPatient.ts_benh_4_so_nam%>">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                                                        <div class="card shadow">
+                                                            <div class="card-header py-3 ">
+                                                                <h6 class="m-0 font-weight-bold text-primary">Tiền sử
+                                                                    bệnh lý khác</h6>
+                                                            </div>
+                                                            <div class="card-body d-flex gap-3">
+                                                                <input type="text" class="form-control flex-fill"
+                                                                    id="ts_benh_khac_5"
+                                                                    placeholder="Nhập Tiền sử bệnh lý khác"
+                                                                    value="<%=detailPatient.ts_benh_khac_5%>">
+                                                                <input type="text" class="form-control w-25"
+                                                                    id="ts_benh_5_so_nam" placeholder="Số năm mắc"
+                                                                    value="<%=detailPatient.ts_benh_5_so_nam%>">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <% } %>
+                                </div>
+                                <% } %>
+                                    <!-- /.container-fluid -->
+                </div>
+                <%- include('../layout/footer') %>
+            </div>
+    </div>
+    <script>
+        let path = document.getElementById('path').value;
+        let relationsArray = [];
+
+        // Initialize relations from existing data
+        function initRelations() {
+            try {
+                const existingData = <%-JSON.stringify(detailPatient.moi_quan_he || '') %>;
+                console.log('existingData', existingData);
+                console.log('condition', existingData && existingData.trim() !== '')
+                if (existingData && existingData.trim() !== '') {
+                    // Try to parse as JSON array
+                    relationsArray = JSON.parse(existingData);
+                    console.log('relationsArray', relationsArray);
+                    if (!Array.isArray(relationsArray)) {
+                        relationsArray = [];
+                    }
+                } else {
+                    relationsArray = [];
+                }
+            } catch (e) {
+                console.log('Error parsing existing data:', e);
+                // If not JSON, treat as old format (plain text)
+                relationsArray = [];
+            }
+
+            // Render existing relations or add one empty row
+            if (relationsArray.length > 0) {
+                relationsArray.forEach((rel, index) => {
+                    addRelationRow(rel, index);
+                });
+            } else {
+                addRelationRow();
+            }
+        }
+
+        // Add a new relation row
+        function addRelationRow(data = null, index = null) {
+            const container = document.getElementById('relations_container');
+            const rowIndex = index !== null ? index : container.children.length;
+
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'relation-row mb-3 p-3 border rounded';
+            rowDiv.dataset.index = rowIndex;
+
+            rowDiv.innerHTML = `
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control relation-phone" placeholder="Số điện thoại"
+                            value="${data ? data.phone || '' : ''}">
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control relation-name" placeholder="Họ tên"
+                            value="${data ? data.name || '' : ''}">
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" class="form-control relation-relate" placeholder="Quan hệ"
+                            value="${data ? data.relate || '' : ''}">
+                    </div>
+                    <div class="col-md-1">
+                        <button type="button" class="btn btn-sm btn-danger w-100 p-2" onclick="removeRelationRow(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(rowDiv);
+        }
+
+        // Remove a relation row
+        function removeRelationRow(button) {
+            const row = button.closest('.relation-row');
+            row.remove();
+        }
+
+        // Save all relations to array and hidden input
+        function saveRelations() {
+            const container = document.getElementById('relations_container');
+            const rows = container.querySelectorAll('.relation-row');
+
+            relationsArray = [];
+            rows.forEach(row => {
+                const phone = row.querySelector('.relation-phone').value.trim();
+                const name = row.querySelector('.relation-name').value.trim();
+                const relate = row.querySelector('.relation-relate').value.trim();
+
+                // Only add if at least one field is filled
+                if (phone || name || relate) {
+                    relationsArray.push({
+                        phone: phone,
+                        name: name,
+                        relate: relate
+                    });
+                }
+            });
+            document.getElementById('moi_quan_he').value = JSON.stringify(relationsArray);
+            return relationsArray;
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            initRelations();
+        });
+
+        // $('[name="gr"]:radio:checked').val();
+        function createPatient(id) {
+            let url = '/patient/add';
+            if (id && id.length > 0) url = '/patient/update';
+
+            let errors = [];
+            const relationsArray = saveRelations();
+            let param = {
+                id: id,
+                path: path,
+                fullname: $('#fullname').val(),
+                ma_benh_an: $('#ma_benh_an').val(),
+                ngay_nhap_vien: $('#ngay_nhap_vien input').val(),
+                phong_dieu_tri: $('#phong_dieu_tri').val(),
+                phone: $('#phone').val(),
+                gender: $('#gender').val(),
+                birthday: $('#birthday input').val(),
+                dan_toc: $('[name="radioDanToc"]:radio:checked').val(),
+                dan_toc_khac: $('#dan_toc_khac').val(),
+                trinh_do: $('#trinh_do').val(),
+                nghe_nghiep: $('#nghe_nghiep').val(),
+                nghe_nghiep_khac: $('#nghe_nghiep_khac').val(),
+                noi_o: $('#noi_o').val(),
+                xep_loai_kt: $('#xep_loai_kt').val(),
+
+                chuan_doan: $('#chuan_doan').val(),
+                khoa: $('#khoa').val(),
+                que_quan: $('#que_quan').val(),
+                dieu_tra_vien: $('#dieu_tra_vien').val(),
+                moi_quan_he: JSON.stringify(relationsArray)
+            }
+
+            if (path == 'viem-gan') {
+                param['so_lan_vgc'] = $('#so_lan_vgc').val(),
+                    param['thoi_gian_vgm'] = $('#thoi_gian_vgm').val(),
+                    param['thoi_gian_vg_ruou'] = $('#thoi_gian_vg_ruou').val(),
+                    param['thoi_gian_vg_virus'] = $('#thoi_gian_vg_virus').val(),
+                    param['benh_gan_mat_khac'] = $('#benh_gan_mat_khac').val(),
+                    param['thoi_gian_gm_khac'] = $('#thoi_gian_gm_khac').val(),
+                    param['ts_benh_khac_1'] = $('#ts_benh_khac_1').val(),
+                    param['ts_benh_1_so_nam'] = $('#ts_benh_1_so_nam').val(),
+                    param['ts_benh_khac_2'] = $('#ts_benh_khac_2').val(),
+                    param['ts_benh_2_so_nam'] = $('#ts_benh_2_so_nam').val(),
+                    param['ts_benh_khac_3'] = $('#ts_benh_khac_3').val(),
+                    param['ts_benh_3_so_nam'] = $('#ts_benh_3_so_nam').val(),
+                    param['ts_benh_khac_4'] = $('#ts_benh_khac_4').val(),
+                    param['ts_benh_4_so_nam'] = $('#ts_benh_4_so_nam').val(),
+                    param['ts_benh_khac_5'] = $('#ts_benh_khac_5').val(),
+                    param['ts_benh_5_so_nam'] = $('#ts_benh_5_so_nam').val()
+            }
+            // Bổ sung cho path == 'hoi-chan'
+            if (path == 'hoi-chan') {
+                param['ngay_hoi_chan'] = $('#ngay_hoi_chan input').val();
+                param['tien_su_benh'] = $('#tien_su_benh').val();
+                param['cn'] = $('#can_nang').val();
+                param['cc'] = $('#chieu_cao').val();
+            }
+
+            if (path == 'viem-gan-mt1') {
+                param['ngay_dieu_tra'] = $('#ngay_dieu_tra input').val();
+                if (!param.ma_benh_an) {
+                    toggleErrorHtml('ma_benh_an', false, 'Vui lòng nhập mã bệnh án', true);
+                    errors.push(1);
+                }
+            }
+            if (!param.fullname) {
+                toggleErrorHtml('fullname', false, 'Vui lòng nhập họ và tên', true);
+                errors.push(1);
+            }
+            if (path != 'hoi-chan' && path != 'viem-gan-mt1') {
+                if (!param.phone || (param.phone && !isVietnamesePhoneNumberValid(param.phone.trim()))) {
+                    toggleErrorHtml('phone', false, !param.phone ? 'Vui lòng nhập số điện thoại' : 'Số điện thoại sai định dạng', true);
+                    errors.push(1);
+                }
+            }
+
+            if (errors.length > 0) {
+                return;
+            } else {
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: param,
+                    beforeSend: function () {
+                        loading.show();
+                    },
+                    success: function (result) {
+                        loading.hide();
+                        if (result.success) {
+                            toarstMessage('Lưu thành công');
+                            setTimeout(() => {
+                                window.location.href = '/' + path
+                            }, 2000)
+                        } else {
+                            toarstError(result.message);
+                        }
+                    },
+                    error: function (jqXHR, exception) {
+                        loading.hide();
+                        ajax_call_error(jqXHR, exception);
+                    }
+                });
+            }
+        }
+
+        // Lấy các radio button và div input
+        const optionKinh = document.getElementById("optionKinh");
+        const optionKhac = document.getElementById("optionKhac");
+        const danTocKhac = document.getElementById("dan_toc_khac");
+        const ngheNghiepKhac = document.getElementById("nghe_nghiep_khac");
+
+        // Sự kiện khi chọn radio button "Kinh"
+        optionKinh.addEventListener("change", function () {
+            if (this.checked) {
+                danTocKhac.classList.add("d-none"); // Ẩn input
+                danTocKhac.value = '';
+            }
+        });
+
+        // Sự kiện khi chọn radio button "Khác"
+        optionKhac.addEventListener("change", function () {
+            if (this.checked) {
+                danTocKhac.classList.remove("d-none"); // Hiện input
+            }
+        });
+
+        document.getElementById("nghe_nghiep").addEventListener("change", function (evt) {
+            if ($(this).val() == 5) {
+                ngheNghiepKhac.classList.remove("d-none"); // Hiện input
+            } else {
+                ngheNghiepKhac.classList.add("d-none"); // Ẩn input
+                ngheNghiepKhac.value = '';
+            }
+        });
+
+        readyDom(() => {
+            let birthdayEl = document.querySelector("#birthday");
+            if (birthdayEl) {
+                const birthday = document.querySelector("#birthday")._flatpickr;
+                birthday.config.maxDate = 'today';
+                birthday.config.onClose.push(function (selectedDates, dateStr, instance) {
+                    const selectedDate = selectedDates[0]; // Lấy ngày đầu tiên
+                    const age = calculateAge(selectedDate);
+                    $('#age_number').text(age);
+                });
+                $('#age_number').text(calculateAge('<%=detailPatient.birthday%>'));
+            }
+            // Tính BMI khi thay đổi cân nặng hoặc chiều cao (chỉ khi path == 'hoi-chan')
+            if (path == 'hoi-chan') {
+                function updateBMI() {
+                    let cn = parseFloat($('#can_nang').val());
+                    let cc = parseFloat($('#chieu_cao').val());
+                    let bmi = '';
+                    if (cn > 0 && cc > 0) {
+                        bmi = (cn / Math.pow(cc / 100, 2)).toFixed(1);
+                    }
+                    $('#bmi').text(bmi);
+                }
+                $('#can_nang').on('input', updateBMI);
+                $('#chieu_cao').on('input', function () {
+                    updateBMI();
+                    updateIdealWeight();
+                });
+                // Gọi khi load nếu có sẵn dữ liệu
+                updateBMI();
+                updateIdealWeight(); // Initial calculation for ideal weight
+            }
+
+            // Tính cân nặng lý tưởng khi thay đổi chiều cao (chỉ khi path == 'hoi-chan')
+            if (path == 'hoi-chan') {
+                // Initial call when the page loads
+                updateIdealWeight();
+            }
+        })
+
+        function updateIdealWeight() {
+            let cc = parseFloat($('#chieu_cao').val()); // Chiều cao in cm
+            let idealWeight = '';
+            if (cc > 0) {
+                let cc_m = cc / 100; // Convert cm to meters
+                idealWeight = (cc_m * cc_m * 22).toFixed(1);
+            }
+            $('#ideal_weight').val(idealWeight);
+        }
+    </script>
+</body>
+
+</html>

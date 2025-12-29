@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <%- include('../layout/head') %>
+    <title><%= isEdit ? 'Chỉnh sửa' : 'Tạo mới' %> Thực đơn - Menu Build</title>
+    <link href="/css/menu-build.css?v=<%= assetVersion %>" rel="stylesheet" />
+</head>
+
+<body>
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+        <%- include('../layout/sidebar') %>
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            <!-- Main Content -->
+            <div id="content">
+                <%- include('../layout/header') %>
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+                    <% if(errors.length > 0) { %>
+                        <div class="alert alert-danger">
+                            <% for(let error of errors) { %>
+                                <div><%= error %></div>
+                            <% } %>
+                        </div>
+                    <% } %>
+
+                    <!-- Page Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">
+                            <i class="fas fa-utensils"></i> <%= isEdit ? 'Chỉnh sửa' : 'Tạo mới' %> Thực đơn
+                        </h1>
+                        <a href="/menu-build" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Quay lại
+                        </a>
+                    </div>
+
+                    <!-- Form Card -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Thông tin thực đơn</h6>
+                        </div>
+                        <div class="card-body">
+                            <form id="menuBuildForm">
+                                <input type="hidden" id="menuId" name="id" value="<%= menuBuild ? menuBuild.id : '' %>">
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="menuName">Tên thực đơn <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="menuName" name="name" 
+                                                   value="<%= menuBuild ? menuBuild.name : '' %>" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="status">Trạng thái</label>
+                                            <select class="form-control" id="status" name="status">
+                                                <option value="draft" <%= menuBuild && menuBuild.status === 'draft' ? 'selected' : '' %>>Nháp</option>
+                                                <option value="active" <%= menuBuild && menuBuild.status === 'active' ? 'selected' : '' %>>Đang dùng</option>
+                                                <option value="archived" <%= menuBuild && menuBuild.status === 'archived' ? 'selected' : '' %>>Lưu trữ</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="description">Mô tả</label>
+                                    <textarea class="form-control" id="description" name="description" rows="2"><%= menuBuild ? (menuBuild.description || '') : '' %></textarea>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="viewType">Loại hiển thị <span class="text-danger">*</span></label>
+                                            <select class="form-control" id="viewType" name="view_type" required>
+                                                <option value="month" <%= !menuBuild || menuBuild.view_type === 'month' ? 'selected' : '' %>>Cả tháng (4 tuần)</option>
+                                                <option value="week" <%= menuBuild && menuBuild.view_type === 'week' ? 'selected' : '' %>>Theo tuần</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4" id="weekSelectDiv" style="display: none;">
+                                        <div class="form-group">
+                                            <label for="selectedWeek">Chọn tuần</label>
+                                            <select class="form-control" id="selectedWeek" name="selected_week">
+                                                <option value="1" <%= menuBuild && menuBuild.selected_week === 1 ? 'selected' : '' %>>Tuần 1</option>
+                                                <option value="2" <%= menuBuild && menuBuild.selected_week === 2 ? 'selected' : '' %>>Tuần 2</option>
+                                                <option value="3" <%= menuBuild && menuBuild.selected_week === 3 ? 'selected' : '' %>>Tuần 3</option>
+                                                <option value="4" <%= menuBuild && menuBuild.selected_week === 4 ? 'selected' : '' %>>Tuần 4</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="startDate">Ngày bắt đầu</label>
+                                            <input type="date" class="form-control" id="startDate" name="start_date" 
+                                                   value="<%= menuBuild && menuBuild.start_date ? menuBuild.start_date.toISOString().split('T')[0] : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="endDate">Ngày kết thúc</label>
+                                            <input type="date" class="form-control" id="endDate" name="end_date" 
+                                                   value="<%= menuBuild && menuBuild.end_date ? menuBuild.end_date.toISOString().split('T')[0] : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="note">Ghi chú</label>
+                                    <textarea class="form-control" id="note" name="note" rows="2"><%= menuBuild ? (menuBuild.note || '') : '' %></textarea>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Category Toggle Card -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Chọn loại món hiển thị</h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="categoryToggles" class="d-flex flex-wrap gap-2">
+                                <!-- Will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Meal Time Toggle Card -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Chọn giờ ăn hiển thị</h6>
+                            <small class="text-muted">Mặc định: Bữa trưa (11h30-12h). Chọn thêm giờ ăn khác nếu cần.</small>
+                        </div>
+                        <div class="card-body">
+                            <div id="mealTimeToggles" class="d-flex flex-wrap gap-2">
+                                <!-- Will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Menu Grid Card -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <h6 class="m-0 font-weight-bold text-primary">Xây dựng thực đơn</h6>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-success" id="saveMenuBtn">
+                                    <i class="fas fa-save"></i> Lưu thực đơn
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div id="menuGrid">
+                                <!-- Will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.container-fluid -->
+            </div>
+            <!-- End of Main Content -->
+
+            <%- include('../layout/footer') %>
+        </div>
+        <!-- End of Content Wrapper -->
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Modal: Chỉnh sửa chi tiết món ăn -->
+    <div class="modal fade" id="dayDetailModal" tabindex="-1" role="dialog" aria-labelledby="dayDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="dayDetailModalLabel">Chỉnh sửa chi tiết món ăn</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Món ăn</th>
+                                    <th>Thực phẩm</th>
+                                    <th>Số lượng</th>
+                                    <th>Đơn vị</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detailTableBody">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" onclick="saveDayDetail()">
+                        <i class="fas fa-save"></i> Lưu chi tiết
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/vendor/exceljs/polyfill.js"></script>
+    <script src="/vendor/exceljs/exceljs.min.js"></script>
+    <script src="/js/column-config.js"></script>
+    <script src="/js/menu-build-v2.js?v=<%= assetVersion %>"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Initialize menu build with data from server
+            const menuTimes = <%- JSON.stringify(menuTimes || []) %>;
+            const details = <%- typeof menuDetails !== 'undefined' ? JSON.stringify(menuDetails) : '[]' %>;
+
+            // Get visible meal times from menuBuild or default to [5] (Trưa)
+            let visibleMealTimes = [5]; // Default: Bữa trưa
+            <% if (menuBuild && menuBuild.visible_meal_times) { %>
+                visibleMealTimes = <%- JSON.stringify(menuBuild.visible_meal_times) %>;
+            <% } %>
+
+            initMenuBuild(menuTimes, details, visibleMealTimes);
+        });
+    </script>
+</body>
+</html>

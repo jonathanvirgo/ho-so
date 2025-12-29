@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <%- include('../layout/head') %>
+    <title>Nhập kho - <%= warehouse ? warehouse.name : 'Kho' %></title>
+    <link href="/vendor/virtual-select/virtual-select.min.css" rel="stylesheet">
+    <link href="/vendor/flatpickr/flatpickr.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="wrapper">
+        <%- include('../layout/sidebar') %>
+        <div id="content-wrapper" class="d-flex flex-column">
+            <%- include('../layout/header') %>
+            <div class="container-fluid">
+                <% if(errors.length > 0){%>
+                    <div class="alert alert-danger">
+                        <%for(let item of errors){%>
+                            <div><%-item%></div>
+                        <%}%>
+                    </div>
+                <% } else { %>
+
+                <!-- Header -->
+                <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                    <h1 class="h3 mb-0 text-gray-800">
+                        <i class="fas fa-arrow-down text-primary"></i> Phiếu nhập kho: <%= warehouse.name %>
+                    </h1>
+                    <a href="/inventory/stock/<%= warehouse.id %>" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-arrow-left"></i> Quay lại
+                    </a>
+                </div>
+
+                <!-- Receipt Form -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-file-alt"></i> Thông tin phiếu nhập
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <form id="receiptForm">
+                            <input type="hidden" id="warehouseId" value="<%= warehouse.id %>">
+                            
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Mã phiếu nhập <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="receiptCode" value="<%= receiptCode %>" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Ngày nhập <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="receiptDate" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Nhà cung cấp</label>
+                                        <input type="text" class="form-control" id="supplier" placeholder="Tên nhà cung cấp">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>Ghi chú</label>
+                                        <textarea class="form-control" id="note" rows="2" placeholder="Ghi chú thêm..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Receipt Items -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-list"></i> Chi tiết nhập kho
+                        </h6>
+                        <button type="button" class="btn btn-success btn-sm" onclick="addRow()">
+                            <i class="fas fa-plus"></i> Thêm dòng
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm" id="itemsTable">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th width="3%">STT</th>
+                                        <th width="25%">Thực phẩm <span class="text-danger">*</span></th>
+                                        <th width="10%">Số lượng <span class="text-danger">*</span></th>
+                                        <th width="8%">ĐVT</th>
+                                        <th width="12%">Đơn giá (VNĐ/kg)</th>
+                                        <th width="12%">Thành tiền</th>
+                                        <th width="12%">Hạn sử dụng</th>
+                                        <th width="10%">Mã lô</th>
+                                        <th width="8%">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="itemsBody">
+                                    <!-- Rows will be added here -->
+                                </tbody>
+                                <tfoot class="thead-light">
+                                    <tr>
+                                        <th colspan="5" class="text-right">TỔNG CỘNG:</th>
+                                        <th id="totalAmount" class="text-right font-weight-bold">0 VNĐ</th>
+                                        <th colspan="3"></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                        <div class="mt-3 text-right">
+                            <button type="button" class="btn btn-secondary" onclick="window.history.back()">
+                                <i class="fas fa-times"></i> Hủy
+                            </button>
+                            <button type="button" class="btn btn-primary" onclick="saveReceipt()">
+                                <i class="fas fa-save"></i> Lưu phiếu nhập
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <% } %>
+            </div>
+            <%- include('../layout/footer') %>
+        </div>
+    </div>
+
+    <script src="/vendor/virtual-select/virtual-select.min.js"></script>
+    <script src="/vendor/flatpickr/flatpickr.js"></script>
+    <script src="/vendor/flatpickr/flatpickr.vn.js"></script>
+    <script>
+        let rowCounter = 0;
+        let foodsData = [];
+
+        $(document).ready(function() {
+            // Init date picker
+            flatpickr("#receiptDate", {
+                locale: "vn",
+                dateFormat: "Y-m-d",
+                defaultDate: new Date()
+            });
+
+            // Load foods
+            loadFoods();
+
+            // Add first row
+            addRow();
+        });
+
+        async function loadFoods() {
+            try {
+                const response = await fetch('/api/foods-for-select');
+                const result = await response.json();
+                if (result.success) {
+                    foodsData = result.data;
+                }
+            } catch (error) {
+                console.error('Error loading foods:', error);
+            }
+        }
+
+        function addRow() {
+            rowCounter++;
+            const row = `
+                <tr id="row_${rowCounter}">
+                    <td class="text-center">${rowCounter}</td>
+                    <td>
+                        <select id="food_${rowCounter}" class="food-select" onchange="onFoodChange(${rowCounter})"></select>
+                    </td>
+                    <td>
+                        <input type="number" class="form-control form-control-sm quantity" id="quantity_${rowCounter}" 
+                               min="0" step="0.01" value="0" oninput="calculateRow(${rowCounter})">
+                    </td>
+                    <td>
+                        <input type="text" class="form-control form-control-sm" id="unit_${rowCounter}" value="kg" readonly>
+                    </td>
+                    <td>
+                        <input type="number" class="form-control form-control-sm unit-price" id="unitPrice_${rowCounter}" 
+                               min="0" step="100" value="0" oninput="calculateRow(${rowCounter})">
+                    </td>
+                    <td>
+                        <input type="text" class="form-control form-control-sm text-right" id="totalPrice_${rowCounter}" readonly>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control form-control-sm expiry-date" id="expiryDate_${rowCounter}">
+                    </td>
+                    <td>
+                        <input type="text" class="form-control form-control-sm" id="batchCode_${rowCounter}" placeholder="Mã lô">
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(${rowCounter})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+            $('#itemsBody').append(row);
+
+            // Init VirtualSelect for food
+            VirtualSelect.init({
+                ele: `#food_${rowCounter}`,
+                options: foodsData.map(f => ({ label: f.name, value: f.id })),
+                search: true,
+                placeholder: 'Chọn thực phẩm...'
+            });
+
+            // Init date picker for expiry
+            flatpickr(`#expiryDate_${rowCounter}`, {
+                locale: "vn",
+                dateFormat: "Y-m-d"
+            });
+        }
+
+        function onFoodChange(rowId) {
+            const foodId = $(`#food_${rowId}`).val();
+            const food = foodsData.find(f => f.id == foodId);
+            if (food && food.price) {
+                $(`#unitPrice_${rowId}`).val(food.price);
+                calculateRow(rowId);
+            }
+        }
+
+        function calculateRow(rowId) {
+            const quantity = parseFloat($(`#quantity_${rowId}`).val()) || 0;
+            const unitPrice = parseFloat($(`#unitPrice_${rowId}`).val()) || 0;
+            const total = quantity * unitPrice;
+            $(`#totalPrice_${rowId}`).val(total.toLocaleString('vi-VN') + ' VNĐ');
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            let total = 0;
+            $('.quantity').each(function(index) {
+                const rowId = $(this).attr('id').split('_')[1];
+                const quantity = parseFloat($(this).val()) || 0;
+                const unitPrice = parseFloat($(`#unitPrice_${rowId}`).val()) || 0;
+                total += quantity * unitPrice;
+            });
+            $('#totalAmount').text(total.toLocaleString('vi-VN') + ' VNĐ');
+        }
+
+        function removeRow(rowId) {
+            $(`#row_${rowId}`).remove();
+            calculateTotal();
+            // Re-number rows
+            $('#itemsBody tr').each(function(index) {
+                $(this).find('td:first').text(index + 1);
+            });
+        }
+
+        async function saveReceipt() {
+            const warehouseId = $('#warehouseId').val();
+            const receiptCode = $('#receiptCode').val();
+            const receiptDate = $('#receiptDate').val();
+            const supplier = $('#supplier').val();
+            const note = $('#note').val();
+
+            if (!receiptDate) {
+                Swal.fire('Lỗi', 'Vui lòng chọn ngày nhập', 'error');
+                return;
+            }
+
+            // Collect items
+            const items = [];
+            $('#itemsBody tr').each(function() {
+                const rowId = $(this).attr('id').split('_')[1];
+                const foodId = $(`#food_${rowId}`).val();
+                const quantity = parseFloat($(`#quantity_${rowId}`).val()) || 0;
+                const unitPrice = parseFloat($(`#unitPrice_${rowId}`).val()) || 0;
+                const expiryDate = $(`#expiryDate_${rowId}`).val();
+                const batchCode = $(`#batchCode_${rowId}`).val();
+
+                if (foodId && quantity > 0) {
+                    items.push({
+                        food_id: foodId,
+                        quantity: quantity,
+                        unit: 'kg',
+                        unit_price: unitPrice,
+                        expiry_date: expiryDate || null,
+                        batch_code: batchCode || null
+                    });
+                }
+            });
+
+            if (items.length === 0) {
+                Swal.fire('Lỗi', 'Vui lòng thêm ít nhất 1 thực phẩm', 'error');
+                return;
+            }
+
+            const data = {
+                warehouse_id: warehouseId,
+                receipt_code: receiptCode,
+                receipt_date: receiptDate,
+                supplier: supplier,
+                note: note,
+                items: items
+            };
+
+            try {
+                const response = await fetch('/inventory/receipt/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công',
+                        text: 'Nhập kho thành công'
+                    }).then(() => {
+                        window.location.href = `/inventory/stock/${warehouseId}`;
+                    });
+                } else {
+                    Swal.fire('Lỗi', result.message, 'error');
+                }
+            } catch (error) {
+                Swal.fire('Lỗi', 'Có lỗi xảy ra: ' + error.message, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
+

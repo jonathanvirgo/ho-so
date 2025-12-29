@@ -1,0 +1,237 @@
+
+:root{
+  --bs-dropdown-min-width: auto;
+}
+.btn-cancel {
+  --bs-btn-color: #828282;
+  --bs-btn-bg: #eff2f8;
+  --bs-btn-border-color: #eff2f8;
+  --bs-btn-hover-color: #828282;
+  --bs-btn-hover-bg: #d3dae7;
+  --bs-btn-hover-border-color: #d3dae7;
+  --bs-btn-focus-shadow-rgb: 223,225,230;
+  --bs-btn-active-color: #828282;
+  --bs-btn-active-bg: #bec4d0;
+  --bs-btn-active-border-color: #bec4d0;
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0,0,0,.125);
+  --bs-btn-disabled-color: #000;
+  --bs-btn-disabled-bg: #eff2f8;
+  --bs-btn-disabled-border-color: #eff2f8
+}
+
+.btn-cancel{
+  background-color: var(--bs-btn-bg);
+}
+.flatpickr-calendar {
+  width: 312px;
+}
+.right-0{
+  right: 0;
+}
+.right-1{
+  right: 0.25rem;
+}
+.right-2{
+  right: 0.5rem;
+}
+.right-3{
+  right: 1rem;
+}
+.right-4{
+  right: 1.55rem;
+}
+.nav-menu-main{
+  /* border-bottom: 1px solid var(--gray); */
+  /* background-color: #e3f2fd; */
+  color: #4f4f4f;
+}
+
+.nav-menu-main .nav-link.active, .nav-menu-main .show>.nav-link {
+  font-weight: 700;
+  color: var(--purple);
+  border-bottom-color: currentcolor;
+}
+
+.nav-menu-main .nav-link {
+  border-bottom: 1px solid transparent;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+
+.modal-btn-close {
+  background-size: 30%;
+  height: 2.5rem;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 2.5rem;
+}
+.vscomp-ele {
+  max-width: none;
+}
+
+.ws-nowrap{
+  white-space: nowrap;
+}
+
+.card-list-date{
+  min-width: 12.625rem;
+}
+
+.card-list-date .card{
+  border-radius: 0;
+}
+
+.card-list-date .card:hover{
+color: var(--info);
+}
+
+.form-data .card{
+min-height: 8.261875rem;
+}
+
+.cursor-poiter{
+  cursor: pointer;
+}
+
+.modal-90{
+  max-width: none;
+}
+
+[class*="iconsvg"] {
+  fill: currentColor;
+  display: inline-block;
+  height: 1em;
+  width: 1em;
+}
+.modal-content {
+  background-color: #fff;
+  border: none;
+  padding: var(--modal-padding-y) var(--modal-padding-x);
+}
+ #datepicker input{
+  visibility: hidden;
+ }
+
+ .min-width-100 {
+  min-width: 100px;
+}
+
+ .min-width-110 {
+  min-width: 110px;
+}
+
+.min-width-150 {
+  min-width: 150px;
+}
+
+.min-width-200 {
+  min-width: 200px;
+}
+
+.ws-break-space{
+  word-break: break-word;
+  white-space: break-spaces;
+}
+/* Add more classes as needed, e.g., min-width-250, min-width-300, etc. */
+
+#loading-page::before {
+    content: '';
+    display: block;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: rgb(0 0 0 / 32%);
+    top: 0;
+    left: 0;
+    z-index: 10;
+}
+
+#loading-page {
+    position: fixed;
+    z-index: 9999;
+    top: 45%;
+    left: calc(50% - 50px);
+    display: none;
+}
+
+.lds-ellipsis {
+    display: inline-block;
+    position: relative;
+    width: 100px;
+    height: 80px;
+}
+
+.lds-ellipsis div {
+    position: absolute;
+    top: 33px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #401234;
+    animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+
+.lds-ellipsis div:nth-child(1) {
+    left: 8px;
+    animation: lds-ellipsis1 0.8s infinite;
+}
+
+.lds-ellipsis div:nth-child(2) {
+    left: 8px;
+    animation: lds-ellipsis2 0.8s infinite;
+}
+
+.lds-ellipsis div:nth-child(3) {
+    left: 28px;
+    animation: lds-ellipsis2 0.8s infinite;
+}
+
+.lds-ellipsis div:nth-child(4) {
+    left: 48px;
+    animation: lds-ellipsis2 0.8s infinite;
+}
+
+.lds-ellipsis div:nth-child(5) {
+    left: 68px;
+    animation: lds-ellipsis3 0.8s infinite;
+}
+
+@keyframes lds-ellipsis1 {
+    0% {
+        transform: scale(0);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes lds-ellipsis3 {
+    0% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(0);
+    }
+}
+
+@keyframes lds-ellipsis2 {
+    0% {
+        transform: translate(0, 0);
+    }
+    100% {
+        transform: translate(20px, 0);
+    }
+}
+
+@media screen and (max-width: 425px) {
+  .container-fluid {
+    padding: 0.25rem;
+  }
+  .card-body{
+    padding: 0.25rem;
+  }
+  .dt-layout-full{
+    padding: 0.25rem;
+  }
+}
