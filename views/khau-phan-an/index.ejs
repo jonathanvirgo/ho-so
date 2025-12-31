@@ -348,10 +348,10 @@
     <script src="/js/menuExample.js?v=<%= assetVersion %>"></script>
 
     <script>
-        var listMenuTime = <% -JSON.stringify(menuTime) %>;
-        var menuExamine = <% -JSON.stringify(menuExamine) %>;
+        var listMenuTime = <%-JSON.stringify(menuTime) %>;
+        var menuExamine = <%-JSON.stringify(menuExamine) %>;
         checkMenuExamine();
-        var menuExample = <% -JSON.stringify(menuExample) %>;
+        var menuExample = <%-JSON.stringify(menuExample) %>;
         var currentPatientId = '<%= patient_id %>';
 
         generateFoodName("food_name");

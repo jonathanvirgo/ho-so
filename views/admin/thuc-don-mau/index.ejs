@@ -302,8 +302,8 @@
 
     <script>
         // Khai báo global variables    
-        window.listMenuTime = <% - JSON.stringify(menuTime) %>;
-        window.menuExamine = <% - JSON.stringify(menuExamine) %>;
+        window.listMenuTime = <%- JSON.stringify(menuTime) %>;
+        window.menuExamine = <%- JSON.stringify(menuExamine) %>;
         window.menuExamine.forEach(m => {
             if (m.detail && m.detail.length > 0) {
                 m.detail.forEach(mt => {
