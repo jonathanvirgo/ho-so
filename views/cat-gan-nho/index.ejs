@@ -1,260 +1,293 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <%- include('../layout/head') %>
-    <title>Bệnh nhân uốn ván - Patients</title>
+        <title>Bệnh nhân uốn ván - Patients</title>
 </head>
 
 <body>
     <!-- Page Wrapper -->
-   <div id="wrapper">
-       <%- include('../layout/sidebar') %>
+    <div id="wrapper">
+        <%- include('../layout/sidebar') %>
 
-        <!-- Content Wrapper -->
-       <div id="content-wrapper" class="d-flex flex-column">
-            <!-- Main Content -->
-            <div id="content">
-                <%- include('../layout/header') %>
-                <%if(errors.length > 0){%>
-                    <div class="container">
-                        <div class="box mt-3">
-                            <%for(let item of errors){%>
-                            <div><%-JSON.stringify(item)%></div>
-                            <%}%>
-                        </div>
-                    </div>
-                <%}else{%>
-                <!-- Begin Page Content -->
-                <div class="container-fluid">
-                    <%- include('../layout/thong-tin-co-ban.ejs')%>
+            <!-- Content Wrapper -->
+            <div id="content-wrapper" class="d-flex flex-column">
+                <!-- Main Content -->
+                <div id="content">
+                    <%- include('../layout/header') %>
+                        <%if(errors.length> 0){%>
+                            <div class="container">
+                                <div class="box mt-3">
+                                    <%for(let item of errors){%>
+                                        <div><%-JSON.stringify(item)%></div>
+                                        <%}%>
+                                </div>
+                            </div>
+                            <%}else{%>
+                                <!-- Begin Page Content -->
+                                <div class="container-fluid">
+                                    <%- include('../layout/thong-tin-co-ban.ejs')%>
 
-                    <div class="d-flex mt-3 gap-4">
-                        <div class="flex-fill form-data card shadow" name="form-data">
-                            <%- include('./module/menu.ejs')%>
+                                        <div class="d-flex mt-3 gap-4">
+                                            <div class="flex-fill form-data card shadow" name="form-data">
+                                                <%- include('./module/menu.ejs')%>
+                                                    <div class="card-body">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-bordered" id="dataTable"
+                                                                width="100%" cellspacing="0">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>Ngày</th>
+                                                                        <th>Nuôi dưỡng <br> đường tiêu hóa</th>
+                                                                        <th>Nuôi dưỡng <br> đường tĩnh mạch</th>
+                                                                        <th>Ghi chú</th>
+                                                                        <th>Xét nghiệm</th>
+                                                                        <th>Ý kiến bác sĩ</th>
+                                                                        <th>Thao tác</th>
+                                                                    </tr>
+                                                                </thead>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                            </div>
+                                        </div>
+
+                                </div>
+                                <% } %>
+                </div>
+                <%- include('../layout/footer') %>
+            </div>
+    </div>
+
+    <div class="modal fade" id="modal-add-broading" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl modal-90">
+            <div class="modal-content">
+                <button class="modal-btn-close btn-close" type="button" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+                <h3 class="modal-title fs-6 text-uppercase text-center mb-3">Thêm khẩu phần ăn</h3>
+                <div class="row flex-wrap g-3">
+                    <div class="col-12 col-sm-6">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Ngày</h6>
+                            </div>
                             <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                                        <thead>
-                                            <tr>
-                                                <th>Ngày</th>
-                                                <th>Nuôi dưỡng <br> đường tiêu hóa</th>
-                                                <th>Nuôi dưỡng <br> đường tĩnh mạch</th>
-                                                <th>Ghi chú</th>
-                                                <th>Xét nghiệm</th>
-                                                <th>Ý kiến bác sĩ</th>
-                                                <th>Thao tác</th>
-                                            </tr>
-                                        </thead>
-                                    </table>
+                                <div class="flatpickr flatpickr-input" data-plugin="flatpickr" id="ngay"
+                                    data-options='{"mode":"single", "allowInput": true}'>
+                                    <input class="form-control" type="text" placeholder="Ngày" id="ngay_input"
+                                        autocomplete="off" data-input="data-input" />
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                </div>
-                <% } %>
-            </div>
-           <%- include('../layout/footer') %>
-       </div>
-   </div>
-
-   <div class="modal fade" id="modal-add-broading" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl modal-90">
-      <div class="modal-content">
-        <button class="modal-btn-close btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
-        <h3 class="modal-title fs-6 text-uppercase text-center mb-3">Thêm khẩu phần ăn</h3>
-        <div class="row flex-wrap g-3">
-            <div class="col-12 col-sm-6">
-                <div class="card shadow">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Ngày</h6>
+                    <div class="col-12 col-sm-6">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Nuôi dưỡng đường tiêu hóa</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="ocr-upload-section mb-2">
+                                    <label class="ocr-upload-btn btn btn-outline-secondary btn-sm"
+                                        for="ocr_nd_duong_th">
+                                        <i class="fas fa-camera"></i> Scan ảnh
+                                    </label>
+                                    <input type="file" id="ocr_nd_duong_th" class="d-none" accept="image/*"
+                                        data-target="nd_duong_th" onchange="handleOCRUpload(this)">
+                                    <span class="ocr-status ms-2" id="ocr_status_nd_duong_th"></span>
+                                </div>
+                                <textarea id="nd_duong_th" class="form-control" rows="3"
+                                    placeholder="Nuôi dưỡng đường tiêu hóa"></textarea>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div class="flatpickr flatpickr-input" data-plugin="flatpickr" id="ngay"
-                                data-options='{"mode":"single", "allowInput": true}'>
-                            <input class="form-control" type="text" placeholder="Ngày" id="ngay_input" autocomplete="off"
-                                data-input="data-input"/>
+                    <div class="col-12 col-sm-6">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Nuôi dưỡng tĩnh mạch</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="ocr-upload-section mb-2">
+                                    <label class="ocr-upload-btn btn btn-outline-secondary btn-sm"
+                                        for="ocr_nd_tinh_mac">
+                                        <i class="fas fa-camera"></i> Scan ảnh
+                                    </label>
+                                    <input type="file" id="ocr_nd_tinh_mac" class="d-none" accept="image/*"
+                                        data-target="nd_tinh_mac" onchange="handleOCRUpload(this)">
+                                    <span class="ocr-status ms-2" id="ocr_status_nd_tinh_mac"></span>
+                                </div>
+                                <textarea id="nd_tinh_mac" class="form-control" rows="3"
+                                    placeholder="Nuôi dưỡng tĩnh mạch"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Ghi chú</h6>
+                            </div>
+                            <div class="card-body">
+                                <textarea id="note" class="form-control" rows="2" placeholder="Ghi chú"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Xét nghiệm</h6>
+                            </div>
+                            <div class="card-body">
+                                <textarea id="xet_nghiem" class="form-control" rows="3"
+                                    placeholder="Xét nghiệm"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <div class="card shadow">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Ý kiến bác sĩ</h6>
+                            </div>
+                            <div class="card-body">
+                                <textarea id="y_kien_bs" class="form-control" rows="3"
+                                    placeholder="Ý kiến bác sĩ"></textarea>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-12 col-sm-6">
-                <div class="card shadow">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Nuôi dưỡng đường tiêu hóa</h6>
+                <div class="row g-2 justify-content-center mt-2">
+                    <div class="col-6 col-md-auto">
+                        <button class="btn btn-cancel box-btn w-100 text-uppercase" type="button"
+                            data-bs-dismiss="modal">Huỷ</button>
                     </div>
-                    <div class="card-body">
-                        <textarea id="nd_duong_th" class="form-control" rows="2" placeholder="Nuôi dưỡng đường tiêu hóa"></textarea>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6">
-                <div class="card shadow">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Nuôi dưỡng tĩnh mạch</h6>
-                    </div>
-                    <div class="card-body">
-                        <textarea id="nd_tinh_mac" class="form-control" rows="2" placeholder="Nuôi dưỡng tĩnh mạch"></textarea>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6">
-                <div class="card shadow">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Ghi chú</h6>
-                    </div>
-                    <div class="card-body">
-                        <textarea id="note" class="form-control" rows="2" placeholder="Ghi chú"></textarea>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6">
-                <div class="card shadow">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Xét nghiệm</h6>
-                    </div>
-                    <div class="card-body">
-                        <textarea id="xet_nghiem" class="form-control" rows="3" placeholder="Xét nghiệm"></textarea>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6">
-                <div class="card shadow">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Ý kiến bác sĩ</h6>
-                    </div>
-                    <div class="card-body">
-                        <textarea id="y_kien_bs" class="form-control" rows="3" placeholder="Ý kiến bác sĩ"></textarea>
+                    <div class="col-6 col-md-auto">
+                        <button class="btn btn-primary box-btn w-100 text-uppercase" type="button"
+                            onclick="addBroading(<%=patient.id%>,'<%=type%>')">Lưu</button>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="row g-2 justify-content-center mt-2">
-          <div class="col-6 col-md-auto">
-            <button class="btn btn-cancel box-btn w-100 text-uppercase" type="button"  data-bs-dismiss="modal">Huỷ</button>
-          </div>
-          <div class="col-6 col-md-auto">
-            <button class="btn btn-primary box-btn w-100 text-uppercase" type="button" onclick="addBroading(<%=patient.id%>,'<%=type%>')">Lưu</button>
-          </div>
-        </div>
-      </div>
-    </div>
     </div>
     <script src="/js/hoi-chan.js?v=<%= assetVersion %>"></script>
-   <script type="text/javascript">
-    let tetanusId;
-    var dataTable;
-    var listBroading = [];
-    const id = '<%=patient.id%>';
-    const type = '<%=type%>';
-    var boardingId, ngay_fp;
-    $(document).ready(function () {
-        dataTable = $('#dataTable').DataTable({
-            dom: '<"top d-flex flex-wrap gap-2 justify-content-between align-items-center mb-2"pf>rt<"bottom d-flex flex-wrap gap-2 justify-content-between align-items-center mt-2"il><"clear">',
-            serverSide: true,
-            processing: true,
-            responsive: true,
-            pageLength: 25,
-            lengthMenu: [25, 50, 75, 100],
-            paging: true,
-            scrollX: true,
-            ajax: {
-                url: `/hoi-chan-list/${id}/${type}`,
-                method: 'POST',
-                dataType: "json",
-                beforeSend: function() {
-                    loading.show();
+    <script type="text/javascript">
+        let tetanusId;
+        var dataTable;
+        var listBroading = [];
+        const id = '<%=patient.id%>';
+        const type = '<%=type%>';
+        var boardingId, ngay_fp;
+        $(document).ready(function () {
+            dataTable = $('#dataTable').DataTable({
+                dom: '<"top d-flex flex-wrap gap-2 justify-content-between align-items-center mb-2"pf>rt<"bottom d-flex flex-wrap gap-2 justify-content-between align-items-center mt-2"il><"clear">',
+                serverSide: true,
+                processing: true,
+                responsive: true,
+                pageLength: 25,
+                lengthMenu: [25, 50, 75, 100],
+                paging: true,
+                scrollX: true,
+                ajax: {
+                    url: `/hoi-chan-list/${id}/${type}`,
+                    method: 'POST',
+                    dataType: "json",
+                    beforeSend: function () {
+                        loading.show();
+                    },
+                    complete: function () {  // Thêm complete để ẩn loading khi xong
+                        loading.hide();
+                    },
+                    dataSrc: function (response) {
+                        if (response.data) {
+                            return response.data;  // Trả về mảng dữ liệu
+                        } else {
+                            return [];  // Trả về mảng rỗng nếu không có dữ liệu
+                        }
+                    },
                 },
-                complete: function() {  // Thêm complete để ẩn loading khi xong
-                    loading.hide();
+                initComplete: function (settings, json) {
+                    // Dữ liệu sau khi DataTable tải xong
+                    listBroading = json.data;
                 },
-                dataSrc: function(response){
-                    if (response.data) {
-                        return response.data;  // Trả về mảng dữ liệu
-                    } else {
-                        return [];  // Trả về mảng rỗng nếu không có dữ liệu
-                    }
+                rowId: function (row) {
+                    return type + '-' + row.id; // Thêm "row-" vào trước giá trị id
                 },
-            },
-            initComplete: function (settings, json) {
-                // Dữ liệu sau khi DataTable tải xong
-                listBroading = json.data;
-            },
-            rowId: function(row) {
-                return type + '-' + row.id; // Thêm "row-" vào trước giá trị id
-            },
-            columns: [
-                {
+                columns: [
+                    {
                         data: 'time',
                         orderable: true,
                         searchable: true, // Cột ngày tháng
-                    render: function(data, type, row) {
-                        // Kiểm tra nếu có Moment.js
-                        return moment(data).format('D/M/YYYY'); // Định dạng ngày giờ
-                    }
-                },
-                {
+                        render: function (data, type, row) {
+                            // Kiểm tra nếu có Moment.js
+                            return moment(data).format('D/M/YYYY'); // Định dạng ngày giờ
+                        }
+                    },
+                    {
                         data: 'nd_duong_th',
                         orderable: false,
-                        searchable: false, 
-                        className: 'min-width-200 ws-break-space' },
-                {
+                        searchable: false,
+                        className: 'min-width-200 ws-break-space'
+                    },
+                    {
                         data: 'nd_tinh_mac',
                         orderable: false,
-                        searchable: false, 
-                        className: 'min-width-200 ws-break-space' },
-                // {
-                        // data: 'ngay_nhap_vien' ,
-                        // orderable: true,
-                        // searchable: true},
-                {
+                        searchable: false,
+                        className: 'min-width-200 ws-break-space'
+                    },
+                    // {
+                    // data: 'ngay_nhap_vien' ,
+                    // orderable: true,
+                    // searchable: true},
+                    {
                         data: 'note',
                         orderable: false,
-                        searchable: false, 
-                        className: 'min-width-200 ws-break-space' },
-                {
+                        searchable: false,
+                        className: 'min-width-200 ws-break-space'
+                    },
+                    {
                         data: 'xet_nghiem',
                         orderable: false,
-                        searchable: false, 
-                        className: 'min-width-200 ws-break-space' },
-                {
+                        searchable: false,
+                        className: 'min-width-200 ws-break-space'
+                    },
+                    {
                         data: 'y_kien_bs',
                         orderable: false,
-                        searchable: false, 
-                        className: 'min-width-200 w-50 ws-break-space' },
-                {
+                        searchable: false,
+                        className: 'min-width-200 w-50 ws-break-space'
+                    },
+                    {
                         data: null,
                         orderable: false,
                         searchable: false,
-                    render: function (data, type, row) {
-                        return `
+                        render: function (data, type, row) {
+                            return `
                             <div class="d-flex gap-2">
                                 <button class="btn btn-info btn-sm btn-circle" data-id="${row.id}" onclick="openModalEditBoarding(${row.id}, '<%=type%>')"><i class="fas fa-pen-square"></i></button>
                                 <button class="btn btn-danger btn-sm btn-circle" data-id="${row.id}" onclick="deleteBoarding(${row.id}, '<%=type%>','${row.time}')"><i class="fas fa-trash"></i></button>
                             </div>
                         `;
+                        },
                     },
-                },
-            ],
-            columnDefs: [
-                {
-                    targets: '_all',
-                    createdCell: function (td, cellData, rowData, row, col) {
-                        $(td).css('vertical-align', 'middle');
+                ],
+                columnDefs: [
+                    {
+                        targets: '_all',
+                        createdCell: function (td, cellData, rowData, row, col) {
+                            $(td).css('vertical-align', 'middle');
+                        }
                     }
+                ],
+                order: [],
+                layout: {
+                    topStart: 'paging',
+                    topEnd: 'search',
+                    bottomStart: ['paging', 'info'],
+                    bottomEnd: 'pageLength'
                 }
-            ],
-            order: [],
-            layout:{
-                topStart: 'paging',
-                topEnd: 'search',
-                bottomStart: ['paging', 'info'],
-                bottomEnd:  'pageLength'
-            }
-        });
+            });
 
-        createLinkList('/hoi-chan');
-    });
-</script>
+            createLinkList('/hoi-chan');
+        });
+    </script>
 </body>
+
 </html>

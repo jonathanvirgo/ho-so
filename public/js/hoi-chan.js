@@ -163,3 +163,94 @@ function isDateInList(dateToCheck, dateList, format = 'YYYY-MM-DD HH:mm') {
         return moment(currentDate).isSame(targetDate);
     });
 }
+
+// =====================================================
+// OCR Upload Functions
+// =====================================================
+
+/**
+ * Xử lý upload ảnh và OCR
+ * @param {HTMLInputElement} inputElement - File input element
+ */
+async function handleOCRUpload(inputElement) {
+    const file = inputElement.files[0];
+    if (!file) return;
+
+    const targetId = inputElement.dataset.target;
+    const statusEl = document.getElementById(`ocr_status_${targetId}`);
+    const textareaEl = document.getElementById(targetId);
+
+    // Validate file
+    if (!file.type.startsWith('image/')) {
+        toarstError('Vui lòng chọn file ảnh!');
+        return;
+    }
+
+    // Show loading status
+    statusEl.innerHTML = '<span class="spinner-border spinner-border-sm text-primary"></span> Đang xử lý OCR...';
+    statusEl.className = 'ocr-status ms-2 text-primary';
+
+    try {
+        const result = await processOCR(file);
+
+        if (result.success && result.data?.text) {
+            let ocrText = result.data.text;
+
+            // Xử lý ký tự \\n literal thành newline thực sự (nếu còn sót từ API)
+            ocrText = ocrText.replace(/\\n/g, '\n');
+
+            // Append text to textarea (không ghi đè nội dung cũ)
+            const currentValue = textareaEl.value.trim();
+            textareaEl.value = currentValue
+                ? currentValue + '\n' + ocrText
+                : ocrText;
+
+            // Show success
+            statusEl.innerHTML = '<i class="fas fa-check-circle text-success"></i> Thành công!';
+            statusEl.className = 'ocr-status ms-2 text-success';
+
+            // Auto-resize textarea
+            textareaEl.style.height = 'auto';
+            textareaEl.style.height = Math.min(textareaEl.scrollHeight, 200) + 'px';
+
+            toarstMessage('OCR thành công!');
+        } else {
+            throw new Error(result.message || 'Không thể đọc được nội dung từ ảnh');
+        }
+    } catch (error) {
+        console.error('OCR Error:', error);
+        statusEl.innerHTML = '<i class="fas fa-times-circle text-danger"></i> Thất bại';
+        statusEl.className = 'ocr-status ms-2 text-danger';
+        toarstError(error.message || 'Có lỗi xảy ra khi xử lý OCR');
+    }
+
+    // Reset input để có thể chọn lại cùng file
+    inputElement.value = '';
+
+    // Clear status after 3s
+    setTimeout(() => {
+        statusEl.innerHTML = '';
+    }, 3000);
+}
+
+/**
+ * Gọi API OCR qua backend proxy
+ * @param {File} file - File ảnh cần OCR
+ * @returns {Promise<Object>} - Kết quả OCR
+ */
+async function processOCR(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch('/api/ocr/process', {
+        method: 'POST',
+        body: formData
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+}
