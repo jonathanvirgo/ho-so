@@ -38,9 +38,9 @@ app.use(favicon(path.join(__dirname, 'public', '/images', 'favicon.ico')));
 // JWT Middleware - Kiểm tra và decode token
 const authenticateToken = async (req, res, next) => {
   // Lấy token từ cookie hoặc header
-  const token = req.cookies.token || 
-                (req.headers.authorization && req.headers.authorization.split(' ')[1]);
-  
+  const token = req.cookies.token ||
+    (req.headers.authorization && req.headers.authorization.split(' ')[1]);
+
   if (!token) {
     req.user = null;
     return next();
@@ -49,34 +49,34 @@ const authenticateToken = async (req, res, next) => {
   try {
     const jwtService = require('./services/jwtService');
     const decoded = jwtService.verifyToken(token);
-    
+
     if (!decoded) {
       req.user = null;
       res.clearCookie('token');
       return next();
     }
-    
+
     // Kiểm tra token có hợp lệ trong database không (sử dụng bảng user_sessions)
     const validationResult = await jwtService.validateTokenInDatabase(decoded.id, decoded.tokenId);
-    
+
     if (!validationResult.valid) {
       req.user = null;
       res.clearCookie('token');
       return next();
     }
-    
+
     const user = validationResult.user;
-    
+
     // Lấy đầy đủ thông tin user bao gồm role từ userService
     const userService = require('./services/userService');
     const fullUserInfo = await userService.getUserDetails(user.id);
-    
+
     if (!fullUserInfo) {
       req.user = null;
       res.clearCookie('token');
       return next();
     }
-    
+
     // Gán thông tin user đầy đủ vào request
     req.user = {
       id: fullUserInfo.id,
@@ -88,7 +88,7 @@ const authenticateToken = async (req, res, next) => {
       tokenId: decoded.tokenId,
       campaign_id: fullUserInfo.campaign_id
     };
-    
+
     // Làm mới token nếu sắp hết hạn (optional)
     const newToken = jwtService.refreshTokenIfNeeded(decoded);
     if (newToken) {
@@ -105,7 +105,7 @@ const authenticateToken = async (req, res, next) => {
     // Xóa cookie không hợp lệ
     res.clearCookie('token');
   }
-  
+
   next();
 };
 
@@ -133,15 +133,15 @@ app.locals.clearJWTCookie = (res) => {
 
 app.use('/', indexRouter);
 app.use('/admin', adminRouter);
-// app.use('/api', apiRouter);
+app.use('/api', apiRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
