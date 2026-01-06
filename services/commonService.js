@@ -175,6 +175,19 @@ let mainService = {
 
         return { sql: newSql, params: newParams };
     },
+    /**
+     * Build LIMIT clause compatible with both MySQL and PostgreSQL
+     * @param {number} offset - Start position (skip)
+     * @param {number} count - Number of records (take)
+     * @returns {string} - LIMIT clause string
+     */
+    buildLimitClause: function (offset, count) {
+        if (db.getDbType() === 'postgres') {
+            return ` LIMIT ${count} OFFSET ${offset}`;
+        } else {
+            return ` LIMIT ${offset}, ${count}`;
+        }
+    },
     addRecordTable: function (param, table, isCreated_at = false) {
         return new Promise((resolve, reject) => {
             if (db.getDbType() === 'postgres') {
@@ -258,79 +271,116 @@ let mainService = {
     },
     addMutilRecordTable: function (paramArr, table, isCreated_at = false) {
         return new Promise((resolve, reject) => {
-            db.get().getConnection(function (err, connection) {
-                if (err) {
-                    resolve({
-                        success: false,
-                        message: err.sqlMessage
-                    });
+            if (db.getDbType() === 'postgres') {
+                // PostgreSQL version
+                if (!paramArr || paramArr.length === 0) {
+                    return resolve({ success: true, message: "No records to insert", data: { affectedRows: 0 } });
                 }
-                // INSERT INTO display_ads_book(id,package_id,package_name,format,dimension,platform,demo,buying_method,safe_save,gr1,gr2,gr3,gr4,est_traffic,listGroup,option) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-                let sqlInsert = 'INSERT INTO ' + table + '(';
-                let sqlInsert2 = ') VALUES ';
-                if (isCreated_at) {
-                    sqlInsert2 = ',created_at) VALUES ';
-                }
-                let sqlVal = '';
-                let paramSql = [];
 
-                if (paramArr.length > 0) {
-                    for (let [index, param] of paramArr.entries()) {
-                        if (index == 0) {
-                            let j = 0;
-                            for (var i in param) {
-                                if (j == 0) {
-                                    sqlInsert += i;
-                                    sqlVal += '(?';
-                                    j = 1;
-                                } else {
-                                    sqlInsert += ',' + i;
-                                    sqlVal += ',?';
-                                }
-                                paramSql.push(param[i]);
-                            }
-                            if (isCreated_at) {
-                                sqlInsert += ',created_at) VALUES ';
-                                sqlVal += ',CURRENT_TIMESTAMP)';
-                            } else {
-                                sqlVal += ')';
-                                sqlInsert += ') VALUES ';
-                            }
-                        } else {
-                            let j = 0;
-                            for (var i in param) {
-                                if (j == 0) {
-                                    sqlVal += ',(?';
-                                    j = 1;
-                                } else {
-                                    sqlVal += ',?';
-                                }
-                                paramSql.push(param[i]);
-                            }
-                            if (isCreated_at) {
-                                sqlVal += ',CURRENT_TIMESTAMP)';
-                            } else {
-                                sqlVal += ')';
-                            }
-                        }
+                const columns = Object.keys(paramArr[0]);
+                const colNames = columns.map(c => `"${c}"`).join(', ');
+
+                let paramSql = [];
+                let valueRows = [];
+                let paramIndex = 1;
+
+                for (const param of paramArr) {
+                    const placeholders = columns.map(() => `$${paramIndex++}`);
+                    if (isCreated_at) {
+                        placeholders.push('CURRENT_TIMESTAMP');
                     }
+                    valueRows.push(`(${placeholders.join(', ')})`);
+                    columns.forEach(col => paramSql.push(param[col]));
                 }
-                let sqlQuery = sqlInsert + sqlVal;
-                let query = connection.query(sqlQuery, paramSql, function (error, results, fields) {
-                    connection.release();
-                    if (error) {
-                        resolve({
-                            success: false,
-                            message: error.sqlMessage
-                        });
+
+                const createdAtCol = isCreated_at ? ', "created_at"' : '';
+                const sql = `INSERT INTO "${table}" (${colNames}${createdAtCol}) VALUES ${valueRows.join(', ')} RETURNING id`;
+
+                db.get().query(sql, paramSql, (err, res) => {
+                    if (err) {
+                        return resolve({ success: false, message: err.message });
                     }
                     resolve({
                         success: true,
                         message: "Successful",
-                        data: results
+                        data: { affectedRows: res.rowCount, insertedIds: res.rows.map(r => r.id) }
                     });
                 });
-            });
+            } else {
+                // MySQL version
+                db.get().getConnection(function (err, connection) {
+                    if (err) {
+                        resolve({
+                            success: false,
+                            message: err.sqlMessage
+                        });
+                    }
+                    let sqlInsert = 'INSERT INTO ' + table + '(';
+                    let sqlInsert2 = ') VALUES ';
+                    if (isCreated_at) {
+                        sqlInsert2 = ',created_at) VALUES ';
+                    }
+                    let sqlVal = '';
+                    let paramSql = [];
+
+                    if (paramArr.length > 0) {
+                        for (let [index, param] of paramArr.entries()) {
+                            if (index == 0) {
+                                let j = 0;
+                                for (var i in param) {
+                                    if (j == 0) {
+                                        sqlInsert += i;
+                                        sqlVal += '(?';
+                                        j = 1;
+                                    } else {
+                                        sqlInsert += ',' + i;
+                                        sqlVal += ',?';
+                                    }
+                                    paramSql.push(param[i]);
+                                }
+                                if (isCreated_at) {
+                                    sqlInsert += ',created_at) VALUES ';
+                                    sqlVal += ',CURRENT_TIMESTAMP)';
+                                } else {
+                                    sqlVal += ')';
+                                    sqlInsert += ') VALUES ';
+                                }
+                            } else {
+                                let j = 0;
+                                for (var i in param) {
+                                    if (j == 0) {
+                                        sqlVal += ',(?';
+                                        j = 1;
+                                    } else {
+                                        sqlVal += ',?';
+                                    }
+                                    paramSql.push(param[i]);
+                                }
+                                if (isCreated_at) {
+                                    sqlVal += ',CURRENT_TIMESTAMP)';
+                                } else {
+                                    sqlVal += ')';
+                                }
+                            }
+                        }
+                    }
+                    let sqlQuery = sqlInsert + sqlVal;
+                    let query = connection.query(sqlQuery, paramSql, function (error, results, fields) {
+                        connection.release();
+                        if (error) {
+                            resolve({
+                                success: false,
+                                message: error.sqlMessage
+                            });
+                        }
+                        resolve({
+                            success: true,
+                            message: "Successful",
+                            data: results
+                        });
+                    });
+                });
+            }
         })
     },
     deleteRecordTable: function (conditionEqual, conditionUnEqual, table) {
@@ -988,7 +1038,7 @@ let mainService = {
             sql += " AND fullname LIKE ?";
             paraSQL.push("%" + parameter.search_value + "%");
         }
-        sql += " ORDER BY id DESC LIMIT " + parameter.skip + "," + parameter.take;
+        sql += " ORDER BY id DESC" + mainService.buildLimitClause(parameter.skip, parameter.take);
         return mainService.getListTable(sql, paraSQL)
     },
     countAllBoarding: function (parameter) {
@@ -1023,7 +1073,7 @@ let mainService = {
             sql += " AND bat_thuong LIKE ?";
             paraSQL.push("%" + parameter.search_value + "%");
         }
-        sql += " ORDER BY id DESC LIMIT " + parameter.skip + "," + parameter.take;
+        sql += " ORDER BY id DESC" + mainService.buildLimitClause(parameter.skip, parameter.take);
         return mainService.getListTable(sql, paraSQL)
     },
     // Helper function để kiểm tra quyền sở hữu dữ liệu
@@ -1108,7 +1158,7 @@ let mainService = {
             sql += " AND bat_thuong LIKE ?";
             paraSQL.push("%" + parameter.search_value + "%");
         }
-        sql += " ORDER BY id DESC LIMIT " + parameter.skip + "," + parameter.take;
+        sql += " ORDER BY id DESC" + mainService.buildLimitClause(parameter.skip, parameter.take);
         return mainService.getListTable(sql, paraSQL)
     },
 
@@ -1360,7 +1410,7 @@ let mainService = {
             // Phân trang
             const start = Math.max(0, parameter.start || 0); // Đảm bảo không âm
             const length = Math.min(Math.max(1, parameter.length || 10), 1000); // Giới hạn tối đa
-            sqlData += ` LIMIT ${start}, ${length}`;
+            sqlData += mainService.buildLimitClause(start, length);
 
             console.log('sqlData', sqlData);
             // Thực thi truy vấn
