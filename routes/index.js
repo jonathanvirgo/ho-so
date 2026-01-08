@@ -24,6 +24,13 @@ const importFoodController = require('../controllers/importFoodController');
 const menuBuild = require('../controllers/menuBuildController');
 const inventoryController = require('../controllers/inventoryController');
 
+// Multer for photo uploads
+const multer = require('multer');
+const photoUpload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+});
+
 // Import route modules
 // const authRoutes = require('./auth.routes');
 // const deviceRoutes = require('./device.routes');
@@ -319,6 +326,20 @@ router.get("/patient/detail/:path/:id",
 router.get("/patient/export/:path",
     commonService.isAuthenticated,
     patient.exportToExcel);
+
+// ==================== PATIENT PHOTO ROUTES ====================
+router.get("/patient/:id/photos",
+    commonService.isAuthenticated,
+    patient.getPhotos);
+
+router.post("/patient/:id/upload-photo",
+    commonService.isAuthenticatedPost,
+    photoUpload.single('photo'),
+    patient.uploadPhoto);
+
+router.delete("/patient/:id/photo/:photoId",
+    commonService.isAuthenticatedPost,
+    patient.deletePhoto);
 
 // Viêm gan - with security middleware
 router.get('/viem-gan/:patient_id/:type',
