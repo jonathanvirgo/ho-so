@@ -1,10 +1,11 @@
-var moment          = require('moment'),
-    commonService   = require('../services/commonService'),
+var moment = require('moment'),
+    commonService = require('../services/commonService'),
     securityService = require('../services/securityService');
 const dataTableService = require('../services/dataTableService');
+const cloudinaryService = require('../services/cloudinaryService');
 
 let patient = {
-    getlist: function(req, res, next){
+    getlist: function (req, res, next) {
         try {
             let path = req.path.slice(1);
             let errors = [];
@@ -20,10 +21,10 @@ let patient = {
             return res.render("error");
         }
     },
-    list: function(req, res, next){
+    list: function (req, res, next) {
         try {
             let type;
-            switch(req.body.path){
+            switch (req.body.path) {
                 case 'viem-gan': type = 3; break;
                 case 'uon-van': type = 4; break;
                 case 'hoi-chan': type = 5; break;
@@ -33,7 +34,7 @@ let patient = {
             }
 
             let checkRole = commonService.checkRoleUser(req.body.path, req.user);
-            if(checkRole.length > 0){
+            if (checkRole.length > 0) {
                 return res.json({
                     draw: req.body.draw || 1,
                     recordsTotal: 0,
@@ -72,7 +73,7 @@ let patient = {
             // Cấu hình DataTable
             const config = {
                 table: 'patients',
-                columns: ['id', 'fullname', 'phone', 'ma_benh_an', 'phong_dieu_tri', 'khoa', 'chuan_doan', 'ngay_hoi_chan', 'khan_cap', 'dieu_tra_vien', 'active', 'bien_ban','ngay_dieu_tra'],
+                columns: ['id', 'fullname', 'phone', 'ma_benh_an', 'phong_dieu_tri', 'khoa', 'chuan_doan', 'ngay_hoi_chan', 'khan_cap', 'dieu_tra_vien', 'active', 'bien_ban', 'ngay_dieu_tra'],
                 primaryKey: 'id',
                 active: 0,
                 activeOperator: '!=',
@@ -88,7 +89,7 @@ let patient = {
             // Function xử lý dữ liệu trước khi trả về
             const preprocessData = async (data) => {
                 return data.map(patient => {
-                    if(patient.khan_cap == 1) {
+                    if (patient.khan_cap == 1) {
                         // Thêm biểu tượng cờ trước tên bệnh nhân
                         patient.fullname = '🚩 ' + patient.fullname;
                     }
@@ -116,7 +117,7 @@ let patient = {
         //         "recordsFiltered": 0,
         //         "recordsTotal": 0
         //     };
-    
+
         //     let type;
         //     switch(req.body.path){
         //         case 'viem-gan': type = 3; break;
@@ -150,7 +151,7 @@ let patient = {
         //             errors.push(responseData.message);
         //         }
         //     }));
-    
+
         //     arrPromise.push(commonService.getAllPatients(parameter).then(responseData =>{
         //         if(responseData.success){
         //             if(responseData.data && responseData.data.length > 0) resultMessage.data = responseData.data;
@@ -176,11 +177,11 @@ let patient = {
         //     });
         // }
     },
-    getCreate: function(req, res, next){
+    getCreate: function (req, res, next) {
         try {
             let errors = commonService.checkRoleUser(req.params.path, req.user);
             return res.render("patient/create", {
-                user: req.user, 
+                user: req.user,
                 path: req.params.path,
                 detailPatient: {},
                 moment: moment,
@@ -191,41 +192,41 @@ let patient = {
             return res.render("error");
         }
     },
-    getEdit: function(req, res){
+    getEdit: function (req, res) {
         try {
             let arrPromise = [];
             let errors = commonService.checkRoleUser(req.params.path, req.user);
-            let detailPatient = {}; 
+            let detailPatient = {};
             let patientDt = {};
             let ortherDt = {};
             const id = req.params.id;
-            arrPromise.push(commonService.getAllDataTable('patients', securityService.applyRoleBasedFiltering(req.user, {id: id, active: { op: '!=', value: 0 }})).then(responseData =>{
-                if(responseData.success){
-                    if(responseData.data && responseData.data.length > 0){
+            arrPromise.push(commonService.getAllDataTable('patients', securityService.applyRoleBasedFiltering(req.user, { id: id, active: { op: '!=', value: 0 } })).then(responseData => {
+                if (responseData.success) {
+                    if (responseData.data && responseData.data.length > 0) {
                         patientDt = responseData.data[0];
                     }
-                }else{
+                } else {
                     errors.push(responseData.message);
                 }
             }));
-            if(req.params.path == 'viem-gan'){
-                arrPromise.push(commonService.getAllDataTable('viem_gam_ttcb', securityService.applyRoleBasedFiltering(req.user, {patient_id: id})).then(responseData =>{
-                    if(responseData.success){
-                        if(responseData.data && responseData.data.length > 0){
+            if (req.params.path == 'viem-gan') {
+                arrPromise.push(commonService.getAllDataTable('viem_gam_ttcb', securityService.applyRoleBasedFiltering(req.user, { patient_id: id })).then(responseData => {
+                    if (responseData.success) {
+                        if (responseData.data && responseData.data.length > 0) {
                             ortherDt = responseData.data[0];
                         }
-                    }else{
+                    } else {
                         errors.push(responseData.message);
                     }
                 }));
             }
-            Promise.all(arrPromise).then(()=>{
+            Promise.all(arrPromise).then(() => {
                 delete ortherDt.id;
                 delete ortherDt.created_at;
                 delete ortherDt.updated_at;
                 detailPatient = commonService.extendObject({}, patientDt, ortherDt);
                 return res.render("patient/create", {
-                    user: req.user, 
+                    user: req.user,
                     path: req.params.path,
                     detailPatient: detailPatient,
                     moment: moment,
@@ -237,7 +238,7 @@ let patient = {
             return res.render("error");
         }
     },
-    create: async function(req, res){
+    create: async function (req, res) {
         try {
             var resultData = securityService.createErrorResponse("Tạo bệnh nhân thất bại");
             let checkUpdate = true;
@@ -274,38 +275,38 @@ let patient = {
                 created_by: req.user.id,
                 campaign_id: req.user.campaign_id
             };
-            switch(path){
+            switch (path) {
                 case 'viem-gan':
-                    parameter['type'] = 3; 
-                    if(!req.user.isAdmin && !req.user.role_id.includes(3)) checkUpdate = false;
+                    parameter['type'] = 3;
+                    if (!req.user.isAdmin && !req.user.role_id.includes(3)) checkUpdate = false;
                     break;
                 case 'uon-van':
-                    parameter['type'] = 4; 
-                    if(!req.user.isAdmin && !req.user.role_id.includes(4)) checkUpdate = false;
+                    parameter['type'] = 4;
+                    if (!req.user.isAdmin && !req.user.role_id.includes(4)) checkUpdate = false;
                     break
                 case 'hoi-chan':
-                    parameter['type'] = 5; 
+                    parameter['type'] = 5;
                     validateRules.pop();
-                    if(!req.user.isAdmin && !req.user.role_id.includes(5)) checkUpdate = false;
+                    if (!req.user.isAdmin && !req.user.role_id.includes(5)) checkUpdate = false;
                     break
                 case 'viem-gan-mt1':
-                    parameter['type'] = 6; 
+                    parameter['type'] = 6;
                     validateRules.pop();
-                    if(!req.user.isAdmin && !req.user.role_id.includes(6)) checkUpdate = false;
+                    if (!req.user.isAdmin && !req.user.role_id.includes(6)) checkUpdate = false;
                     break
                 case 'standard':
-                    parameter['type'] = 8; 
-                    if(!req.user.isAdmin && !req.user.role_id.includes(8)) checkUpdate = false;
+                    parameter['type'] = 8;
+                    if (!req.user.isAdmin && !req.user.role_id.includes(8)) checkUpdate = false;
                     break
                 default: break;
             }
-            
-            if(!checkUpdate){
+
+            if (!checkUpdate) {
                 resultData.message = 'Bạn không có quyền tạo bệnh nhân này';
                 return res.json(resultData);
             }
             var parameter2 = {};
-            if(path == 'viem-gan'){
+            if (path == 'viem-gan') {
                 parameter2 = {
                     so_lan_vgc: req.body.so_lan_vgc,
                     thoi_gian_vgm: req.body.thoi_gian_vgm,
@@ -323,41 +324,41 @@ let patient = {
                     ts_benh_4_so_nam: req.body.ts_benh_4_so_nam,
                     ts_benh_khac_5: req.body.ts_benh_khac_5,
                     ts_benh_5_so_nam: req.body.ts_benh_5_so_nam,
-                    created_by: req.user.id     
+                    created_by: req.user.id
                 }
             }
             const errors = securityService.validateInput(parameter, validateRules, { returnType: 'array' });
-            
-            if(errors.length > 0){
+
+            if (errors.length > 0) {
                 resultData.message = errors.map(s => s.message).join(', ');
                 return res.json(resultData);
-            }else{
-                if(parameter.ngay_nhap_vien) parameter.ngay_nhap_vien = parameter.ngay_nhap_vien.split("/").reverse().join("/");
-                if(parameter.ngay_hoi_chan) parameter.ngay_hoi_chan = parameter.ngay_hoi_chan.split("/").reverse().join("/");
-                if(parameter.birthday) parameter.birthday = parameter.birthday.split("/").reverse().join("/");
-                if(parameter.ngay_dieu_tra) parameter.ngay_dieu_tra = parameter.ngay_dieu_tra.split("/").reverse().join("/");
-                
+            } else {
+                if (parameter.ngay_nhap_vien) parameter.ngay_nhap_vien = parameter.ngay_nhap_vien.split("/").reverse().join("/");
+                if (parameter.ngay_hoi_chan) parameter.ngay_hoi_chan = parameter.ngay_hoi_chan.split("/").reverse().join("/");
+                if (parameter.birthday) parameter.birthday = parameter.birthday.split("/").reverse().join("/");
+                if (parameter.ngay_dieu_tra) parameter.ngay_dieu_tra = parameter.ngay_dieu_tra.split("/").reverse().join("/");
+
                 let checkExist = false;
-                if((!['hoi-chan', 'viem-gan-mt1'].includes(path) && !parameter.phone)){
+                if ((!['hoi-chan', 'viem-gan-mt1'].includes(path) && !parameter.phone)) {
                     // kiểm tra tồn tại bệnh nhân theo số điện thoại
-                    const responseData1 = await commonService.getAllDataTable('patients', {phone: parameter.phone, type: parameter.type, active: { op: 'IN', value: [1, 3] }, campaign_id: req.user.campaign_id})
-                    if(responseData1.success && responseData1.data && responseData1.data.length > 0){
+                    const responseData1 = await commonService.getAllDataTable('patients', { phone: parameter.phone, type: parameter.type, active: { op: 'IN', value: [1, 3] }, campaign_id: req.user.campaign_id })
+                    if (responseData1.success && responseData1.data && responseData1.data.length > 0) {
                         checkExist = true;
                     }
                 }
-                if(checkExist){
+                if (checkExist) {
                     resultData.message = `Bệnh nhân có số điện thoại ${parameter.phone} đã tồn tại!`;
                     res.json(resultData);
-                }else{
-                    commonService.addRecordTable(parameter, 'patients', true).then(responseData =>{
-                        if(responseData.success && responseData.data){
+                } else {
+                    commonService.addRecordTable(parameter, 'patients', true).then(responseData => {
+                        if (responseData.success && responseData.data) {
                             resultData.success = true;
                             resultData.message = 'Tạo mới bệnh nhân thành công!';
                             parameter2['patient_id'] = responseData.data.insertId;
-                            if(path == 'viem-gan'){
+                            if (path == 'viem-gan') {
                                 commonService.addRecordTable(parameter2, 'viem_gam_ttcb', true);
-                            } 
-                        }else{
+                            }
+                        } else {
                             resultData.message = responseData.message;
                         }
                         res.json(resultData);
@@ -369,7 +370,7 @@ let patient = {
             res.json(securityService.createErrorResponse("Có lỗi xảy ra, vui lòng thử lại sau!"));
         }
     },
-    update: async function(req, res){
+    update: async function (req, res) {
         try {
             var resultData = {
                 success: false,
@@ -383,7 +384,7 @@ let patient = {
                 { field: "fullname", type: "string", required: true, message: "Vui lòng nhập họ tên!" },
                 { field: "phone", type: "string", required: true, message: "Vui lòng nhập số điện thoại!" }
             ];
-    
+
             const parameter = {
                 fullname: req.body.fullname,
                 ma_benh_an: req.body.ma_benh_an,
@@ -410,37 +411,37 @@ let patient = {
                 ngay_hoi_chan: req.body.ngay_hoi_chan || null,
                 ngay_dieu_tra: req.body.ngay_dieu_tra
             };
-            switch(path){
+            switch (path) {
                 case 'viem-gan':
-                    parameter['type'] = 3; 
-                    if(!req.user.isAdmin && !req.user.role_id.includes(3)) checkUpdate = false;
+                    parameter['type'] = 3;
+                    if (!req.user.isAdmin && !req.user.role_id.includes(3)) checkUpdate = false;
                     break;
                 case 'uon-van':
-                    parameter['type'] = 4; 
-                    if(!req.user.isAdmin && !req.user.role_id.includes(4)) checkUpdate = false;
+                    parameter['type'] = 4;
+                    if (!req.user.isAdmin && !req.user.role_id.includes(4)) checkUpdate = false;
                     break
                 case 'hoi-chan':
-                    parameter['type'] = 5; 
+                    parameter['type'] = 5;
                     validateRules.pop();
-                    if(!req.user.isAdmin && !req.user.role_id.includes(5)) checkUpdate = false;
+                    if (!req.user.isAdmin && !req.user.role_id.includes(5)) checkUpdate = false;
                     break
                 case 'viem-gan-mt1':
-                    parameter['type'] = 6; 
+                    parameter['type'] = 6;
                     validateRules.pop();
-                    if(!req.user.isAdmin && !req.user.role_id.includes(6)) checkUpdate = false;
+                    if (!req.user.isAdmin && !req.user.role_id.includes(6)) checkUpdate = false;
                     break
                 case 'standard':
-                    parameter['type'] = 8; 
-                    if(!req.user.isAdmin && !req.user.role_id.includes(8)) checkUpdate = false;
+                    parameter['type'] = 8;
+                    if (!req.user.isAdmin && !req.user.role_id.includes(8)) checkUpdate = false;
                     break
                 default: break;
             }
-            if(!checkUpdate){
+            if (!checkUpdate) {
                 resultData.message = 'Bạn không có quyền sửa bệnh nhân này';
                 return res.json(resultData);
             }
             var parameter2 = {};
-            if(path == 'viem-gan'){
+            if (path == 'viem-gan') {
                 parameter2 = {
                     so_lan_vgc: req.body.so_lan_vgc,
                     thoi_gian_vgm: req.body.thoi_gian_vgm,
@@ -457,44 +458,44 @@ let patient = {
                     ts_benh_khac_4: req.body.ts_benh_khac_4,
                     ts_benh_4_so_nam: req.body.ts_benh_4_so_nam,
                     ts_benh_khac_5: req.body.ts_benh_khac_5,
-                    ts_benh_5_so_nam: req.body.ts_benh_5_so_nam   
+                    ts_benh_5_so_nam: req.body.ts_benh_5_so_nam
                 }
             }
             const id = req.body.id ? req.body.id : '';
-            
+
             const errors = securityService.validateInput(parameter, validateRules, { returnType: 'array' });
-            if(!id) errors.push('Thiếu Id bệnh nhân');
-            if(errors.length > 0){
+            if (!id) errors.push('Thiếu Id bệnh nhân');
+            if (errors.length > 0) {
                 resultData.message = errors.map(s => s.message).join(', ');
                 return res.json(resultData);
-            }else{
+            } else {
                 let checkExist = false;
-                if((!['hoi-chan', 'viem-gan-mt1'].includes(path) && !parameter.phone)){
+                if ((!['hoi-chan', 'viem-gan-mt1'].includes(path) && !parameter.phone)) {
                     // kiểm tra tồn tại bệnh nhân theo số điện thoại
-                    const responseData1 = await commonService.getAllDataTable('patients', {phone: parameter.phone, type: parameter.type, active: { op: 'IN', value: [1, 3] }, campaign_id: req.user.campaign_id})
-                    if(responseData1.success && responseData1.data && responseData1.data.length > 0){
-                        if(responseData1.data[0].id != parseInt(id)){
+                    const responseData1 = await commonService.getAllDataTable('patients', { phone: parameter.phone, type: parameter.type, active: { op: 'IN', value: [1, 3] }, campaign_id: req.user.campaign_id })
+                    if (responseData1.success && responseData1.data && responseData1.data.length > 0) {
+                        if (responseData1.data[0].id != parseInt(id)) {
                             checkExist = true;
                         }
                     }
                 }
-                
-                if(checkExist){
+
+                if (checkExist) {
                     resultData.message = `Bệnh nhân có số điện thoại ${parameter.phone} đã tồn tại!`;
                     res.json(resultData);
-                }else{
-                    if(parameter.ngay_nhap_vien) parameter.ngay_nhap_vien = parameter.ngay_nhap_vien.split("/").reverse().join("/");
-                    if(parameter.birthday) parameter.birthday = parameter.birthday.split("/").reverse().join("/");
-                    if(parameter.ngay_hoi_chan) parameter.ngay_hoi_chan = parameter.ngay_hoi_chan.split("/").reverse().join("/");
-                    if(parameter.ngay_dieu_tra) parameter.ngay_dieu_tra = parameter.ngay_dieu_tra.split("/").reverse().join("/");
-                    commonService.updateRecordTable(parameter, {id: id}, 'patients').then(responseData =>{
-                        if(responseData.success && responseData.data){
+                } else {
+                    if (parameter.ngay_nhap_vien) parameter.ngay_nhap_vien = parameter.ngay_nhap_vien.split("/").reverse().join("/");
+                    if (parameter.birthday) parameter.birthday = parameter.birthday.split("/").reverse().join("/");
+                    if (parameter.ngay_hoi_chan) parameter.ngay_hoi_chan = parameter.ngay_hoi_chan.split("/").reverse().join("/");
+                    if (parameter.ngay_dieu_tra) parameter.ngay_dieu_tra = parameter.ngay_dieu_tra.split("/").reverse().join("/");
+                    commonService.updateRecordTable(parameter, { id: id }, 'patients').then(responseData => {
+                        if (responseData.success && responseData.data) {
                             resultData.success = true;
                             resultData.message = 'Cập nhật thành công!';
-                            if(parameter.type == 3){
-                                commonService.updateRecordTable(parameter2, {patient_id: id},'viem_gam_ttcb');
-                            } 
-                        }else{
+                            if (parameter.type == 3) {
+                                commonService.updateRecordTable(parameter2, { patient_id: id }, 'viem_gam_ttcb');
+                            }
+                        } else {
                             resultData.message = responseData.message;
                         }
                         res.json(resultData);
@@ -507,7 +508,7 @@ let patient = {
             res.json(securityService.createErrorResponse("Có lỗi xảy ra, vui lòng thử lại sau!"));
         }
     },
-    active: function(req, res){
+    active: function (req, res) {
         try {
             var resultData = {
                 success: false,
@@ -520,30 +521,30 @@ let patient = {
             let khan_cap = req.body.khan_cap;
             let type = req.body.type;
             let checkRole = commonService.checkRoleUser(path, req.user);
-            if(checkRole.length > 0){
+            if (checkRole.length > 0) {
                 resultData.message = checkRole.join(', ');
                 return res.json(resultData);
             }
-            if(id){
-                let data = {active: active};
-                if(type == 'bien_ban') {
+            if (id) {
+                let data = { active: active };
+                if (type == 'bien_ban') {
                     data['bien_ban'] = bien_ban;
                     delete data.active;
                 }
-                if(type == 'khan_cap') {
+                if (type == 'khan_cap') {
                     data['khan_cap'] = khan_cap;
                     delete data.active;
                 }
-                commonService.updateRecordTable(data, {id: id}, 'patients').then(responseData =>{
-                    if(responseData.success){
+                commonService.updateRecordTable(data, { id: id }, 'patients').then(responseData => {
+                    if (responseData.success) {
                         resultData.success = true;
                         resultData.message = 'Thành công!';
-                    }else{
+                    } else {
                         resultData.message = responseData.message;
                     }
                     return res.json(resultData);
                 });
-            }else{
+            } else {
                 resultData.message = 'Thiếu Id bệnh nhân!';
                 return res.json(resultData);
             }
@@ -552,21 +553,21 @@ let patient = {
             res.json(securityService.createErrorResponse("Có lỗi xảy ra, vui lòng thử lại sau!"));
         }
     },
-    detail: function(req, res){
+    detail: function (req, res) {
         try {
             let user = req.user;
             // Nếu admin hoặc role viem gan chuyển viêm gan
-            if(req.params.path == 'viem-gan' && (user.isAdmin || user.role_id.includes(3))){
+            if (req.params.path == 'viem-gan' && (user.isAdmin || user.role_id.includes(3))) {
                 res.redirect('/viem-gan/' + req.params.id + '/dau-hieu-nhap-vien');
-            }else if(req.params.path == 'uon-van' && (user.isAdmin || user.role_id.includes(4))){
+            } else if (req.params.path == 'uon-van' && (user.isAdmin || user.role_id.includes(4))) {
                 res.redirect('/uon-van/' + req.params.id + '/lam-sang');
-            }else if(req.params.path == 'hoi-chan' && (user.isAdmin || user.role_id.includes(5))){
+            } else if (req.params.path == 'hoi-chan' && (user.isAdmin || user.role_id.includes(5))) {
                 res.redirect('/hoi-chan/' + req.params.id + '/khau-phan-an');
-            }else if(req.params.path == 'viem-gan-mt1' && (user.isAdmin || user.role_id.includes(6))){
+            } else if (req.params.path == 'viem-gan-mt1' && (user.isAdmin || user.role_id.includes(6))) {
                 res.redirect('/viem-gan-mt1/' + req.params.id + '/dau-hieu-nhap-vien');
-            }else if(req.params.path == 'standard' && (user.isAdmin || user.role_id.includes(8))){
+            } else if (req.params.path == 'standard' && (user.isAdmin || user.role_id.includes(8))) {
                 res.redirect('/standard/' + req.params.id + '/thong-tin-chung');
-            }else{
+            } else {
                 res.render('error');
             }
         } catch (error) {
@@ -574,100 +575,100 @@ let patient = {
             return res.render("error");
         }
     },
-    
+
     // Lưu cấu hình hiển thị bảng
-    saveTableDisplayConfig: async function(req, res) {
+    saveTableDisplayConfig: async function (req, res) {
         const resultData = {
             success: false,
             message: '',
             data: null
         };
-        
+
         try {
             const { patient_id, config } = req.body;
-            
+
             if (!patient_id || !config) {
                 resultData.message = 'Thiếu thông tin cần thiết!';
                 return res.json(resultData);
             }
-            
+
             // Cập nhật cấu hình cho bệnh nhân
             const updateData = {
                 table_display_config: config
             };
-            
+
             const responseData = await commonService.updateRecordTable(updateData, { id: patient_id }, 'patients_research');
-            
+
             resultData.success = responseData.success;
             resultData.message = responseData.success ? 'Lưu cấu hình thành công!' : responseData.message;
-            
+
         } catch (error) {
             commonService.saveLog(req, error.message, error.stack);
             resultData.message = 'Có lỗi xảy ra khi lưu cấu hình!';
         }
-        
+
         res.json(resultData);
     },
-    
+
     // Lấy cấu hình hiển thị bảng
-    getTableDisplayConfig: async function(req, res) {
+    getTableDisplayConfig: async function (req, res) {
         const resultData = {
             success: false,
             message: '',
             data: null
         };
-        
+
         try {
             const { patient_id } = req.query;
-            
+
             if (!patient_id) {
                 resultData.message = 'Thiếu ID bệnh nhân!';
                 return res.json(resultData);
             }
-            
+
             // Lấy thông tin bệnh nhân
             const responseData = await commonService.getAllDataTable('patients_research', { id: patient_id });
-            
+
             if (responseData.success && responseData.data && responseData.data.length > 0) {
                 resultData.success = true;
                 resultData.data = responseData.data[0];
             } else {
                 resultData.message = 'Không tìm thấy thông tin bệnh nhân!';
             }
-            
+
         } catch (error) {
-             commonService.saveLog(req, error.message, error.stack);
+            commonService.saveLog(req, error.message, error.stack);
             resultData.message = 'Có lỗi xảy ra khi lấy cấu hình!';
         }
-        
+
         res.json(resultData);
     },
 
     // Export patient data to Excel
-    exportToExcel: async function(req, res) {
+    exportToExcel: async function (req, res) {
         try {
             const path = req.params.path;
             const user = req.user;
-            
+
             // Kiểm tra quyền truy cập
             const checkRole = commonService.checkRoleUser(path, user);
             if (checkRole.length > 0) {
-                return res.status(403).json({ 
-                    success: false, 
-                    message: checkRole.join(', ') 
+                return res.status(403).json({
+                    success: false,
+                    message: checkRole.join(', ')
                 });
             }
 
             // Xác định type dựa trên path
             let type;
-            switch(path) {
+            switch (path) {
                 case 'viem-gan': type = 3; break;
                 case 'uon-van': type = 4; break;
                 case 'viem-gan-mt1': type = 6; break;
-                default: 
-                    return res.status(400).json({ 
-                        success: false, 
-                        message: 'Path không hợp lệ!' 
+                default:
+                    return res.status(400).json({
+                        success: false,
+                        message: 'Path không hợp lệ!'
                     });
             }
 
@@ -679,18 +680,18 @@ let patient = {
             });
 
             if (!patientsResponse.success) {
-                return res.status(500).json({ 
-                    success: false, 
-                    message: 'Không thể lấy dữ liệu bệnh nhân!' 
+                return res.status(500).json({
+                    success: false,
+                    message: 'Không thể lấy dữ liệu bệnh nhân!'
                 });
             }
 
             const patients = patientsResponse.data || [];
-            
+
             if (patients.length === 0) {
-                return res.status(404).json({ 
-                    success: false, 
-                    message: 'Không có dữ liệu bệnh nhân để xuất!' 
+                return res.status(404).json({
+                    success: false,
+                    message: 'Không có dữ liệu bệnh nhân để xuất!'
                 });
             }
 
@@ -699,10 +700,10 @@ let patient = {
             let i = 0;
             for (const patientItem of patients) {
                 let patientData = commonService.getBasicPatientData(patientItem);
-                
+
                 // Lấy dữ liệu chi tiết từ controller tương ứng
                 let detailController;
-                switch(path) {
+                switch (path) {
                     case 'viem-gan-mt1':
                         detailController = require('../controllers/hepstitisMt1Controller');
                         break;
@@ -714,11 +715,11 @@ let patient = {
                         break;
                     default: break;
                 }
-                
+
                 if (detailController && detailController.getPatientExportData) {
                     try {
                         const detailData = await detailController.getPatientExportData(patientItem.id, path, user);
-                        
+
                         patientData = { ...patientData, ...detailData };
                     } catch (error) {
                         console.error('Error getting detail data:', error);
@@ -733,17 +734,17 @@ let patient = {
         } catch (error) {
             console.log('error exportToExcel', error);
             commonService.saveLog(req, error.message, error.stack);
-            res.status(500).json({ 
-                success: false, 
-                message: 'Có lỗi xảy ra khi xuất dữ liệu!' 
+            res.status(500).json({
+                success: false,
+                message: 'Có lỗi xảy ra khi xuất dữ liệu!'
             });
         }
     },
 
     // Helper function để lấy tất cả các key unique từ array các object
-    getAllUniqueKeys: function(exportData) {
+    getAllUniqueKeys: function (exportData) {
         const allKeys = new Set();
-        
+
         // Duyệt qua tất cả các object trong exportData
         exportData.forEach(obj => {
             if (obj && typeof obj === 'object') {
@@ -753,13 +754,13 @@ let patient = {
                 });
             }
         });
-        
+
         // Chuyển Set thành Array và sắp xếp để có thứ tự nhất quán
         return Array.from(allKeys);
     },
-    
+
     // Helper function để tạo file Excel
-    createExcelFile: async function(res, exportData, headers, path) {
+    createExcelFile: async function (res, exportData, headers, path) {
         try {
             const ExcelJS = require('exceljs');
             const workbook = new ExcelJS.Workbook();
@@ -780,12 +781,12 @@ let patient = {
             // Thêm dữ liệu
             exportData.forEach(rowData => {
                 const row = [];
-                
+
                 // Map dữ liệu theo đúng thứ tự headers
                 headers.forEach(header => {
                     row.push(rowData[header] || '');
                 });
-                
+
                 worksheet.addRow(row);
             });
 
@@ -817,8 +818,8 @@ let patient = {
     },
 
     // Helper function để xóa các key không cần thiết
-    deletePatient: function(patientData, path) {
-        switch(path) {
+    deletePatient: function (patientData, path) {
+        switch (path) {
             case 'viem-gan-mt1':
                 delete patientData.que_quan;
                 delete patientData.xeploai_kinhte;
@@ -853,6 +854,94 @@ let patient = {
                 delete patientData.khancap;
                 break;
             default: break;
+        }
+    },
+
+    // ============== PATIENT PHOTOS ==============
+
+    /**
+     * Get all photos for a patient
+     */
+    getPhotos: async function (req, res) {
+        try {
+            const patientId = req.params.id;
+            const response = await commonService.getAllDataTable('patient_photos',
+                { patient_id: patientId },
+                { column: 'created_at', type: 'desc' }
+            );
+
+            res.json({
+                success: true,
+                photos: response.data || []
+            });
+        } catch (error) {
+            commonService.saveLog(req, error.message, error.stack);
+            res.json({ success: false, message: 'Có lỗi xảy ra khi lấy ảnh' });
+        }
+    },
+
+    /**
+     * Upload a new photo for a patient
+     */
+    uploadPhoto: async function (req, res) {
+        try {
+            const patientId = req.params.id;
+            const file = req.file;
+
+            if (!file) {
+                return res.json({ success: false, message: 'Không có file được upload' });
+            }
+
+            // Upload to Cloudinary
+            const result = await cloudinaryService.uploadPhoto(file.buffer, patientId);
+
+            // Save to database
+            const dbResult = await commonService.addRecordTable({
+                patient_id: patientId,
+                photo_url: result.secure_url,
+                public_id: result.public_id
+            }, 'patient_photos', true);
+
+            res.json({
+                success: true,
+                message: 'Upload thành công!',
+                photo_url: result.secure_url,
+                photo_id: dbResult.data?.insertId
+            });
+        } catch (error) {
+            console.error('Upload photo error:', error);
+            commonService.saveLog(req, error.message, error.stack);
+            res.json({ success: false, message: 'Có lỗi xảy ra khi upload ảnh' });
+        }
+    },
+
+    /**
+     * Delete a photo
+     */
+    deletePhoto: async function (req, res) {
+        try {
+            const photoId = req.params.photoId;
+
+            // Get photo info
+            const photoResponse = await commonService.getAllDataTable('patient_photos', { id: photoId });
+
+            if (!photoResponse.success || !photoResponse.data || photoResponse.data.length === 0) {
+                return res.json({ success: false, message: 'Không tìm thấy ảnh' });
+            }
+
+            const photo = photoResponse.data[0];
+
+            // Delete from Cloudinary
+            await cloudinaryService.deletePhoto(photo.public_id);
+
+            // Delete from database
+            await commonService.deleteRecordTable1({ id: photoId }, 'patient_photos');
+
+            res.json({ success: true, message: 'Xóa ảnh thành công!' });
+        } catch (error) {
+            console.error('Delete photo error:', error);
+            commonService.saveLog(req, error.message, error.stack);
+            res.json({ success: false, message: 'Có lỗi xảy ra khi xóa ảnh' });
         }
     }
 }

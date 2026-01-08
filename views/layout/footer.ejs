@@ -1,5 +1,5 @@
 <!-- Footer -->
- <footer class="sticky-footer bg-white">
+<footer class="sticky-footer bg-white">
     <div class="container my-auto">
         <div class="copyright text-center my-auto">
             <span>Copyright &copy; hotrodinhduongtoiuu@gmail.com</span>
@@ -18,25 +18,26 @@
 </div>
 <!-- Logout Modal-->
 <div class="modal fade" id="logoutModal" tabindex="-1" aria-hidden="true">
-   <div class="modal-dialog" role="document">
-       <div class="modal-content">
-           <div class="modal-header">
-               <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-               <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                   <span aria-hidden="true">×</span>
-               </button>
-           </div>
-           <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-           <div class="modal-footer">
-               <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-               <a class="btn btn-primary" href="/logout">Logout</a>
-           </div>
-       </div>
-   </div>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                <a class="btn btn-primary" href="/logout">Logout</a>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Modal hiển thị thông tin bệnh nhân đầy đủ -->
-<div class="modal fade" id="patientDetailModal" tabindex="-1" aria-labelledby="patientDetailModalLabel" aria-hidden="true">
+<div class="modal fade" id="patientDetailModal" tabindex="-1" aria-labelledby="patientDetailModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -75,26 +76,30 @@
 <script src="/vendor/virtual-select/virtual-select.min.js"></script>
 
 <!-- Custom scripts for all pages-->
- <!-- Page level plugins -->
- <script src="/vendor/datatables/dataTables.min.js"></script>
- <script src="/vendor/datatables/dataTables.bootstrap5.min.js"></script>
- <script src="/js/bootstrap.bundle.min.js"></script>
+<!-- Page level plugins -->
+<script src="/vendor/datatables/dataTables.min.js"></script>
+<script src="/vendor/datatables/dataTables.bootstrap5.min.js"></script>
+<script src="/js/bootstrap.bundle.min.js"></script>
 <script src="/js/sb-admin-2.min.js"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/2.0.0/cropper.min.js"></script> -->
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/js/glightbox.min.js"></script> -->
+<script src="/js/cropper.min.js"></script>
+<script src="/js/glightbox.min.js"></script>
 <script src="/js/main.js?v=<%= assetVersion %>"></script>
 <script src="/js/responsive-table.js?v=<%= assetVersion %>"></script>
 
 <!-- Pass user data to JavaScript -->
-<% if(typeof user !== 'undefined' && user) { %>
-<script>
-    window.currentUser = {
-        id: <%= user.id %>,
-        isAdmin: <%= user.isAdmin %>,
-        campaign_id: <%= user.campaign_id || 'null' %>
+<% if(typeof user !=='undefined' && user) { %>
+    <script>
+        window.currentUser = {
+            id: <%= user.id %>,
+            isAdmin: <%= user.isAdmin %>,
+            campaign_id: <%= user.campaign_id || 'null' %>
     };
-</script>
-<% } %>
+    </script>
+    <% } %>
 
-<!-- Campaign Selector for Admin -->
-<% if(typeof user !== 'undefined' && user && user.isAdmin) { %>
-<script src="/js/campaign-selector.js"></script>
-<% } %>
+        <!-- Campaign Selector for Admin -->
+        <% if(typeof user !=='undefined' && user && user.isAdmin) { %>
+            <script src="/js/campaign-selector.js"></script>
+            <% } %>
