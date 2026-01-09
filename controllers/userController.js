@@ -8,6 +8,7 @@ const env = require('dotenv').config();
 let user = {
     getLogin: function (req, res, next) {
         let reCAPTCHA_site_key = env.parsed.SITEKEYRECAPTCHA;
+        console.log("env.parsed.SITEKEYRECAPTCHA", env.parsed.SITEKEYRECAPTCHA);
         res.render('login', { reCAPTCHA_site_key: reCAPTCHA_site_key });
     },
     getSignUp: function (req, res, next) {
@@ -63,14 +64,14 @@ let user = {
                     remoteip: req.ip // Optional: Add user's IP for additional security
                 };
 
-                const captchaResponse = await commonService.postApiCommon(dataRecaptcha,'https://www.google.com/recaptcha/api/siteverify', { "Content-Type": "application/x-www-form-urlencoded" });
-                
+                const captchaResponse = await commonService.postApiCommon(dataRecaptcha, 'https://www.google.com/recaptcha/api/siteverify', { "Content-Type": "application/x-www-form-urlencoded" });
+
                 // Check if reCAPTCHA verification failed
                 if (!captchaResponse || !captchaResponse.success) {
                     resultData.message = "Đăng ký không thành công! Xác thực không hợp lệ";
                     return res.json(resultData);
                 }
-                commonService.sendMessageTelegram(`captchaResponse ${JSON.stringify(captchaResponse.data)}`);    
+                commonService.sendMessageTelegram(`captchaResponse ${JSON.stringify(captchaResponse.data)}`);
                 // Check score for v3 reCAPTCHA
                 if (captchaResponse.data && captchaResponse.data.success && captchaResponse.data.score && captchaResponse.data.score <= 0.5) {
                     resultData.message = "Đăng nhập không thành công! Hoạt động đáng ngờ được phát hiện";
@@ -157,14 +158,14 @@ let user = {
                     remoteip: req.ip // Optional: Add user's IP for additional security
                 };
 
-                const captchaResponse = await commonService.postApiCommon(dataRecaptcha,'https://www.google.com/recaptcha/api/siteverify', { "Content-Type": "application/x-www-form-urlencoded" });
-                
+                const captchaResponse = await commonService.postApiCommon(dataRecaptcha, 'https://www.google.com/recaptcha/api/siteverify', { "Content-Type": "application/x-www-form-urlencoded" });
+
                 // Check if reCAPTCHA verification failed
                 if (!captchaResponse || !captchaResponse.success) {
                     resultData.message = "Đăng nhập không thành công! Xác thực không hợp lệ";
                     return res.json(resultData);
                 }
-                commonService.sendMessageTelegram(`captchaResponse ${JSON.stringify(captchaResponse.data)}`);    
+                commonService.sendMessageTelegram(`captchaResponse ${JSON.stringify(captchaResponse.data)}`);
                 // Check score for v3 reCAPTCHA
                 if (captchaResponse.data && captchaResponse.data.success && captchaResponse.data.score && captchaResponse.data.score <= 0.5) {
                     resultData.message = "Đăng nhập không thành công! Hoạt động đáng ngờ được phát hiện";
@@ -178,7 +179,7 @@ let user = {
             try {
                 // Tìm user trong database
                 const userResult = await commonService.getAllDataTable('user', { email: email });
-                
+
                 if (!userResult.success || !userResult.data || userResult.data.length === 0) {
                     resultData.message = 'Tài khoản không tồn tại';
                     await auditService.logAuthEvent(email, 'LOGIN', false, { reason: 'user_not_found' }, req.ip);
@@ -187,7 +188,7 @@ let user = {
                 }
 
                 const user = userResult.data[0];
-                
+
                 // Kiểm tra mật khẩu
                 const isValidPassword = await bcrypt.compare(password, user.password);
                 if (!isValidPassword) {
@@ -221,13 +222,13 @@ let user = {
                 req.app.locals.setJWTCookie(res, jwtToken);
 
                 resultData = securityService.createSuccessResponse(null, 'Đăng nhập thành công');
-                
+
                 // Log successful login
                 await auditService.logAuthEvent(email, 'LOGIN', true, {
                     userId: user.id,
                     deviceInfo: deviceInfo.deviceName
                 }, req.ip);
-                
+
                 commonService.sendMessageTelegram(`Tài khoản ${email} vừa đăng nhập thành công!`);
                 return res.json(resultData);
 
@@ -260,7 +261,7 @@ let user = {
 
             // Xóa JWT cookie
             req.app.locals.clearJWTCookie(res);
-            
+
             res.redirect('/login');
         } catch (error) {
             commonService.saveLog(req, error.message, error.stack);
