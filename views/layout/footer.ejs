@@ -95,11 +95,11 @@
             id: <%= user.id %>,
             isAdmin: <%= user.isAdmin %>,
             campaign_id: <%= user.campaign_id || 'null' %>
-    };
+        };
     </script>
-    <% } %>
+<% } %>
 
-        <!-- Campaign Selector for Admin -->
-        <% if(typeof user !=='undefined' && user && user.isAdmin) { %>
-            <script src="/js/campaign-selector.js"></script>
-            <% } %>
+<!-- Campaign Selector for Admin -->
+<% if(typeof user !=='undefined' && user && user.isAdmin) { %>
+    <script src="/js/campaign-selector.js"></script>
+<% } %>
