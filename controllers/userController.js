@@ -3,16 +3,20 @@ const commonService = require("../services/commonService");
 const securityService = require("../services/securityService");
 const auditService = require("../services/auditService");
 const jwtService = require("../services/jwtService");
-const env = require('dotenv').config();
+// Load dotenv for local development, but use process.env for production (Vercel)
+require('dotenv').config({ quiet: true });
+
+// Helper function to get environment variable (works on both local and Vercel)
+const getEnv = (key) => process.env[key];
 
 let user = {
     getLogin: function (req, res, next) {
-        let reCAPTCHA_site_key = env.parsed.SITEKEYRECAPTCHA;
-        console.log("env.parsed.SITEKEYRECAPTCHA", env.parsed.SITEKEYRECAPTCHA);
+        let reCAPTCHA_site_key = getEnv('SITEKEYRECAPTCHA');
+        console.log("SITEKEYRECAPTCHA:", reCAPTCHA_site_key);
         res.render('login', { reCAPTCHA_site_key: reCAPTCHA_site_key });
     },
     getSignUp: function (req, res, next) {
-        let reCAPTCHA_site_key = env.parsed.SITEKEYRECAPTCHA;
+        let reCAPTCHA_site_key = getEnv('SITEKEYRECAPTCHA');
         res.render('sign-up', { reCAPTCHA_site_key: reCAPTCHA_site_key })
     },
     signUp: async function (req, res, next) {
@@ -50,7 +54,7 @@ let user = {
 
             const param = validation.data;
 
-            if (env.parsed.ENABLE_CAPTCHA == 1) {
+            if (getEnv('ENABLE_CAPTCHA') == 1) {
                 const token = req.body.token;
                 // Check if token exists
                 if (!token) {
@@ -59,7 +63,7 @@ let user = {
                 }
 
                 const dataRecaptcha = {
-                    secret: env.parsed.SECRETKEYRECAPTCHA,
+                    secret: getEnv('SECRETKEYRECAPTCHA'),
                     response: token,
                     remoteip: req.ip // Optional: Add user's IP for additional security
                 };
@@ -143,7 +147,7 @@ let user = {
                 return res.json(resultData);
             }
             // Step 1: Verify reCAPTCHA if enabled
-            if (env.parsed.ENABLE_CAPTCHA == 1) {
+            if (getEnv('ENABLE_CAPTCHA') == 1) {
                 const token = req.body.token;
 
                 // Check if token exists
@@ -153,7 +157,7 @@ let user = {
                 }
 
                 const dataRecaptcha = {
-                    secret: env.parsed.SECRETKEYRECAPTCHA,
+                    secret: getEnv('SECRETKEYRECAPTCHA'),
                     response: token,
                     remoteip: req.ip // Optional: Add user's IP for additional security
                 };

@@ -1,8 +1,9 @@
 var path = require('path'),
     axios = require('axios'),
     moment = require('moment'),
-    db = require('../config/db'),
-    env = require('dotenv').config();
+    db = require('../config/db');
+// Load dotenv for local development, use process.env for production (Vercel)
+require('dotenv').config({ quiet: true });
 const { Telegraf } = require('telegraf');
 const securityService = require('./securityService');
 
@@ -1128,10 +1129,10 @@ let mainService = {
     },
     sendMessageTelegram: function (message) {
         // return;
-        if (!env.parsed.TELEGRAM_BOT || !env.parsed.TELEGRAM_CHANNEL) return;
+        if (!process.env.TELEGRAM_BOT || !process.env.TELEGRAM_CHANNEL) return;
         try {
-            const bot = new Telegraf(env.parsed.TELEGRAM_BOT);
-            bot.telegram.sendMessage(env.parsed.TELEGRAM_CHANNEL, message)
+            const bot = new Telegraf(process.env.TELEGRAM_BOT);
+            bot.telegram.sendMessage(process.env.TELEGRAM_CHANNEL, message)
                 .catch(e => {
                     console.error("Error sending Telegram message:", e);
                 });

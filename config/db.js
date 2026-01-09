@@ -1,6 +1,6 @@
 var mysql = require('mysql2');
 const { Pool } = require('pg');
-require('dotenv').config();
+require('dotenv').config({ quiet: true });
 
 var state = {
     pool: null,
