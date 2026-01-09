@@ -1,4 +1,5 @@
 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+    <input type="hidden" id="menu_type" value="<%=type%>">
     <nav class="nav nav-underline nav-menu-main">
         <a class="nav-link <%=type == 'dau-hieu-nhap-vien' ? 'active' : ''%>" aria-current="page" href="/viem-gan/<%=patient.id%>/dau-hieu-nhap-vien" onclick="changeHepatitisPage(event, this, <%=patient.id%>, '<%=type%>')">Dấu hiệu nhập viện</a>
         <a class="nav-link <%=type == 'thoi-quen-an-uong' ? 'active' : ''%>" href="/viem-gan/<%=patient.id%>/thoi-quen-an-uong" onclick="changeHepatitisPage(event, this, <%=patient.id%>, '<%=type%>')">Thói quen ăn uống</a>

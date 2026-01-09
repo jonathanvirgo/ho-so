@@ -777,6 +777,10 @@ function showFields(fieldsToShow) {
 }
 
 function updateFieldVisibility() {
+    if(['dau-hieu-nhap-vien', 'thoi-quen-an-uong', 'che-do-an-noi-tru', 'che-do-an-ngoai-tru'].includes(document.getElementById('menu_type').value)){
+        return;
+    }
+    console.log('Updating field visibility for timeActive:', listTime, timeActive);
     const activeIndex = listTime.findIndex(time => time.id == timeActive);
     
     if (activeIndex === 0) { // Lần 1 - Show all fields

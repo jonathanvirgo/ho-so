@@ -1,5 +1,10 @@
 var initializedFlags = {};
 var loading = $("#loading-page");
+  let cropper = null;
+let currentPhotoId = null;
+let patientPhotos = [];
+let lightbox = null;
+
 
 function readyDom(fn) {
     if (document.readyState !== 'loading') {
@@ -802,3 +807,267 @@ function createSlug(text) {
         .replace(/-+/g, '-') // Thay nhiều dấu gạch ngang thành một
         .replace(/^-|-$/g, ''); // Xóa dấu gạch ngang ở đầu và cuối
 }
+
+function setupDeleteButton(patientId) {
+    const deleteBtn = document.getElementById('glightbox-delete-btn');
+    if (deleteBtn) {
+        deleteBtn.onclick = async function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            console.log('Delete button clicked, currentPhotoId:', currentPhotoId);
+
+            if (!currentPhotoId) {
+                toarstError('Không tìm thấy ảnh để xóa');
+                return;
+            }
+
+            // Use SweetAlert2 directly if confirmDialog not working
+            const result = await Swal.fire({
+                title: 'Xác nhận xóa',
+                text: 'Bạn có chắc muốn xóa ảnh này?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Xóa',
+                cancelButtonText: 'Hủy'
+            });
+
+            if (!result.isConfirmed) return;
+
+            loading.show();
+            try {
+                const response = await fetch(`/patient/${id}/photo/${currentPhotoId}`, { method: 'DELETE' });
+                const data = await response.json();
+                if (data.success) {
+                    if (lightbox) lightbox.close();
+                    toarstMessage('Đã xóa ảnh');
+                    loadPatientPhotos(patientId);
+                } else {
+                    toarstError(data.message || 'Xóa thất bại');
+                }
+            } catch (error) {
+                console.error('Delete error:', error);
+                toarstError('Có lỗi xảy ra khi xóa ảnh');
+            } finally {
+                loading.hide();
+            }
+        };
+    }
+}
+
+async function loadPatientPhotos(patientId) {
+    try {
+        const response = await fetch(`/patient/${patientId}/photos`);
+        const data = await response.json();
+        const container = document.getElementById(`gallery-${patientId}`);
+        patientPhotos = data.photos || [];
+
+        if (data.success && patientPhotos.length > 0) {
+            // Stacked photos display - show max 3 visible + count badge
+            const maxVisible = 3;
+            const visiblePhotos = patientPhotos.slice(0, maxVisible);
+            const remaining = patientPhotos.length - maxVisible;
+
+            let html = '<div class="stacked-photos" onclick="openGallery()" title="Xem ' + patientPhotos.length + ' ảnh">';
+            html += visiblePhotos.map((photo, i) =>
+                `<img src="${photo.photo_url}" class="gallery-thumb" data-id="${photo.id}">`
+            ).join('');
+
+            if (remaining > 0) {
+                html += `<span class="photo-count">+${remaining}</span>`;
+            }
+            html += '</div>';
+            container.innerHTML = html;
+        } else {
+            // container.innerHTML = '<span class="no-photos-badge"><i class="fas fa-image me-1"></i>Chưa có ảnh</span>';
+            container.innerHTML = '<span></span>'; // Empty to keep layout clean
+        }
+    } catch (error) {
+        console.error('Load photos error:', error);
+    }
+}
+
+function openGallery() {
+    if (patientPhotos.length === 0) return;
+
+    const deleteBtn = document.getElementById('glightbox-delete-btn');
+
+    // Prepare GLightbox elements
+    const elements = patientPhotos.map(photo => ({
+        href: photo.photo_url,
+        type: 'image'
+    }));
+
+    // Initialize GLightbox
+    lightbox = GLightbox({
+        elements: elements,
+        touchNavigation: true,
+        loop: true,
+        autoplayVideos: false,
+        closeButton: true
+    });
+
+    // Listen for slide change to update current photo ID
+    lightbox.on('slide_changed', ({ prev, current }) => {
+        updateCurrentPhotoId(current.index);
+    });
+
+    // Listen for close to hide delete button
+    lightbox.on('close', () => {
+        deleteBtn.style.display = 'none';
+        currentPhotoId = null;
+    });
+
+    // Open gallery
+    lightbox.open();
+
+    // Show delete button after gallery opens
+    setTimeout(() => {
+        deleteBtn.style.display = 'block';
+        updateCurrentPhotoId(0);
+    }, 100);
+}
+
+function updateCurrentPhotoId(index) {
+    if (patientPhotos[index]) {
+        currentPhotoId = patientPhotos[index].id;
+    }
+}
+
+function openPhotoUpload(patientId) {
+    document.getElementById(`photo-input-${patientId}`).click();
+}
+
+function openCamera(patientId) {
+    document.getElementById(`camera-input-${patientId}`).click();
+}
+
+function showCropModal(input) {
+    if (!input.files || !input.files[0]) return;
+
+    const file = input.files[0];
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+        toarstError('Vui lòng chọn file ảnh');
+        input.value = '';
+        return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+        toarstError('File quá lớn. Vui lòng chọn file nhỏ hơn 10MB');
+        input.value = '';
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const cropImage = document.getElementById('crop-image');
+        cropImage.src = e.target.result;
+
+        // Destroy existing cropper
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('cropPhotoModal'));
+        modal.show();
+
+        // Initialize cropper after modal is shown
+        document.getElementById('cropPhotoModal').addEventListener('shown.bs.modal', function initCropper() {
+            cropper = new Cropper(cropImage, {
+                aspectRatio: NaN, // Free-form cropping
+                viewMode: 2,
+                dragMode: 'move',
+                autoCropArea: 0.9,
+                cropBoxResizable: true,
+                cropBoxMovable: true,
+                guides: true,
+                center: true,
+                highlight: true,
+                background: true,
+                responsive: true
+            });
+            this.removeEventListener('shown.bs.modal', initCropper);
+        }, { once: true });
+    };
+
+    reader.readAsDataURL(file);
+    input.value = ''; // Reset input
+}
+
+function rotateCropImage(degree) {
+    if (cropper) cropper.rotate(degree);
+}
+
+function zoomCropImage(ratio) {
+    if (cropper) cropper.zoom(ratio);
+}
+
+async function uploadCroppedPhoto(patientId) {
+    console.log('Uploading cropped photo for patientId:', patientId);
+    if (!cropper || !patientId) return;
+
+    // Get cropped canvas (keep user's crop dimensions)
+    const canvas = cropper.getCroppedCanvas({
+        imageSmoothingEnabled: true,
+        imageSmoothingQuality: 'high'
+    });
+
+    if (!canvas) {
+        toarstError('Không thể cắt ảnh');
+        return;
+    }
+
+    // Close modal
+    bootstrap.Modal.getInstance(document.getElementById('cropPhotoModal')).hide();
+
+    // Show loading
+    loading.show();
+
+    // Convert canvas to blob and upload
+    canvas.toBlob(async function (blob) {
+        const formData = new FormData();
+        formData.append('photo', blob, 'patient-photo.jpg');
+
+        try {
+            const response = await fetch(`/patient/${patientId}/upload-photo`, {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                toarstMessage('Upload ảnh thành công!');
+                loadPatientPhotos(patientId);
+            } else {
+                toarstError(result.message || 'Upload thất bại');
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
+            toarstError('Có lỗi xảy ra khi upload ảnh');
+        } finally {
+            loading.hide();
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+        }
+    }, 'image/jpeg', 0.85);
+}
+
+// viewPhoto and deleteCurrentPhoto functions moved to GLightbox integration above
+
+// Clean up cropper when modal is hidden
+document.getElementById('cropPhotoModal')?.addEventListener('hidden.bs.modal', function () {
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
+});
