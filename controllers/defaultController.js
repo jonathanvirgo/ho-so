@@ -1,19 +1,19 @@
-var moment          = require('moment'),
-    url             = require('url'),
-    commonService   = require('../services/commonService'),
+var moment = require('moment'),
+    url = require('url'),
+    commonService = require('../services/commonService'),
     securityService = require('../services/securityService'),
-    env             = require('dotenv').config(),
-    util            = require('util');
+    util = require('util');
+require('dotenv').config({ quiet: true });
 
 let patient = {
-    list: function(req, res, next){
+    list: function (req, res, next) {
         // This appears to be a placeholder controller
         const errorResponse = securityService.createErrorResponse(
             'Chức năng này chưa được triển khai',
             null,
             501
         );
-        
+
         if (req.method === 'POST') {
             return res.status(501).json(errorResponse);
         } else {
