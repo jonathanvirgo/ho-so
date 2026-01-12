@@ -1,7 +1,6 @@
  var passport        = require('passport');
     JwtStrategy = require('passport-jwt').Strategy,
-    ExtractJwt = require('passport-jwt').ExtractJwt,
-    commonService = require("../services/commonService");
+    ExtractJwt = require('passport-jwt').ExtractJwt;
 
 module.exports = function(passport) {
     // JWT Strategy (for protected routes)

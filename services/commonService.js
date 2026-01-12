@@ -7,6 +7,22 @@ require('dotenv').config({ quiet: true });
 const { Telegraf } = require('telegraf');
 const securityService = require('./securityService');
 
+// =============================================================================
+// Prisma Integration Flag
+// Set USE_PRISMA=true in .env to use Prisma for CRUD operations
+// =============================================================================
+const USE_PRISMA = process.env.USE_PRISMA === 'true';
+let prismaService = null;
+
+if (USE_PRISMA) {
+    try {
+        prismaService = require('./prismaService');
+        console.log('[commonService] Using Prisma for CRUD operations');
+    } catch (err) {
+        console.warn('[commonService] Failed to load prismaService, falling back to raw SQL:', err.message);
+    }
+}
+
 let mainService = {
     getApiCommon: function (url, access_token) {
         try {
@@ -190,6 +206,11 @@ let mainService = {
         }
     },
     addRecordTable: function (param, table, isCreated_at = false) {
+        // Use Prisma if enabled
+        if (USE_PRISMA && prismaService) {
+            return prismaService.addRecordTable(param, table, isCreated_at);
+        }
+        
         return new Promise((resolve, reject) => {
             if (db.getDbType() === 'postgres') {
                 let cols = [];
@@ -271,6 +292,11 @@ let mainService = {
         });
     },
     addMutilRecordTable: function (paramArr, table, isCreated_at = false) {
+        // Use Prisma if enabled
+        if (USE_PRISMA && prismaService) {
+            return prismaService.addMutilRecordTable(paramArr, table, isCreated_at);
+        }
+        
         return new Promise((resolve, reject) => {
             if (db.getDbType() === 'postgres') {
                 // PostgreSQL version
@@ -385,6 +411,11 @@ let mainService = {
         })
     },
     deleteRecordTable: function (conditionEqual, conditionUnEqual, table) {
+        // Use Prisma if enabled
+        if (USE_PRISMA && prismaService) {
+            return prismaService.deleteRecordTable(conditionEqual, conditionUnEqual, table);
+        }
+        
         return new Promise((resolve, reject) => {
             if (db.getDbType() === 'postgres') {
                 let sql = 'DELETE FROM "' + table + '" WHERE ';
@@ -476,6 +507,11 @@ let mainService = {
         })
     },
     deleteRecordTable1: function (condition, table) {
+        // Use Prisma if enabled
+        if (USE_PRISMA && prismaService) {
+            return prismaService.deleteRecordTable1(condition, table);
+        }
+        
         return new Promise((resolve, reject) => {
             if (db.getDbType() === 'postgres') {
                 let sql = 'DELETE FROM "' + table + '" WHERE ';
@@ -525,6 +561,11 @@ let mainService = {
         })
     },
     updateRecordTable: function (param, condition, table) {
+        // Use Prisma if enabled
+        if (USE_PRISMA && prismaService) {
+            return prismaService.updateRecordTable(param, condition, table);
+        }
+        
         return new Promise((resolve, reject) => {
             if (db.getDbType() === 'postgres') {
                 let sql = 'UPDATE "' + table + '" SET ';
@@ -669,6 +710,11 @@ let mainService = {
         });
     },
     countListTable: function (table, param) {
+        // Use Prisma if enabled
+        if (USE_PRISMA && prismaService) {
+            return prismaService.countListTable(table, param);
+        }
+        
         return new Promise((resolve, reject) => {
             let results = {
                 success: false,
@@ -732,6 +778,11 @@ let mainService = {
     //     type: 'asc'
     // };
     getAllDataTable: function (table, conditions = {}, order = { column: 'id', type: 'desc' }, logic = 'AND', fields = '*') {
+        // Use Prisma if enabled
+        if (USE_PRISMA && prismaService) {
+            return prismaService.getAllDataTable(table, conditions, order, logic, fields);
+        }
+        
         return new Promise((resolve, reject) => {
             let results = {
                 success: false,
@@ -1022,6 +1073,11 @@ let mainService = {
         next();
     },
     countAllPatients: function (parameter) {
+        // Use Prisma if enabled
+        if (USE_PRISMA && prismaService) {
+            return prismaService.countAllPatients(parameter);
+        }
+        
         var paraSQL = [];
         var sql = 'SELECT COUNT(*) AS count FROM patients WHERE active != 0 AND type = ?';
         paraSQL.push(parameter.type);
@@ -1032,6 +1088,11 @@ let mainService = {
         return mainService.getListTable(sql, paraSQL);
     },
     getAllPatients: function (parameter) {
+        // Use Prisma if enabled
+        if (USE_PRISMA && prismaService) {
+            return prismaService.getAllPatients(parameter);
+        }
+        
         var paraSQL = [];
         var sql = 'SELECT * FROM patients WHERE active != 0 AND type = ?';
         paraSQL.push(parameter.type);
@@ -1043,6 +1104,11 @@ let mainService = {
         return mainService.getListTable(sql, paraSQL)
     },
     countAllBoarding: function (parameter) {
+        // Use Prisma if enabled
+        if (USE_PRISMA && prismaService) {
+            return prismaService.countAllBoarding(parameter);
+        }
+        
         var paraSQL = [];
         var sql = `SELECT COUNT(*) AS count FROM ${parameter.table} WHERE active = 1 AND patient_id = ?`;
         paraSQL.push(parameter.patient_id);
@@ -1060,6 +1126,11 @@ let mainService = {
         return mainService.getListTable(sql, paraSQL);
     },
     getAllBoarding: function (parameter) {
+        // Use Prisma if enabled
+        if (USE_PRISMA && prismaService) {
+            return prismaService.getAllBoarding(parameter);
+        }
+        
         var paraSQL = [];
         var sql = `SELECT * FROM ${parameter.table} WHERE active = 1 AND patient_id = ?`;
         paraSQL.push(parameter.patient_id);

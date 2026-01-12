@@ -1,0 +1,1283 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// =====================================================
+// AUDIT & AUTH LOGS
+// =====================================================
+
+model audit_logs {
+  id         Int       @id @default(autoincrement())
+  user_id    Int?
+  email      String?   @db.VarChar(256)
+  action     String?   @db.VarChar(50)
+  resource   String?   @db.VarChar(50)
+  details    Json?
+  ip_address String?   @db.VarChar(45)
+  timestamp  DateTime? @db.Timestamp(6)
+  created_at DateTime  @default(now()) @db.Timestamp(6)
+  active     Int?      @default(1) @db.SmallInt
+}
+
+model auth_logs {
+  id         Int       @id @default(autoincrement())
+  email      String?   @db.VarChar(255)
+  action     String?   @db.VarChar(50)
+  success    Int?      @db.SmallInt
+  details    Json?
+  ip_address String?   @db.VarChar(45)
+  timestamp  DateTime? @db.Timestamp(6)
+  created_at DateTime  @default(now()) @db.Timestamp(6)
+  active     Int?      @default(1) @db.SmallInt
+}
+
+// =====================================================
+// CAMPAIGN
+// =====================================================
+
+model campaign {
+  id         Int       @id @default(autoincrement())
+  name       String?   @db.VarChar(256)
+  active     Int       @default(1) @db.SmallInt
+  created_by BigInt?
+  created_at DateTime? @db.Timestamp(6)
+  updated_at DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+// =====================================================
+// PATIENTS
+// =====================================================
+
+model patients {
+  id              BigInt    @id @default(autoincrement())
+  fullname        String    @default("") @db.VarChar(255)
+  phone           String?   @db.VarChar(255)
+  gender          Int?      @db.SmallInt
+  birthday        DateTime? @db.Date
+  address         String?   @db.VarChar(1024)
+  ngay_nhap_vien  DateTime? @db.Timestamp(6)
+  ma_benh_an      String?   @db.VarChar(255)
+  phong_dieu_tri  String?   @db.VarChar(255)
+  dan_toc         String?   @db.VarChar(512)
+  dan_toc_khac    String?   @db.VarChar(512)
+  trinh_do        Int?      @db.SmallInt
+  nghe_nghiep     Int?      @db.SmallInt
+  nghe_nghiep_khac String?  @db.VarChar(1024)
+  noi_o           String?   @db.VarChar(1024)
+  xep_loai_kt     Int?      @db.SmallInt
+  chuan_doan      String?
+  khoa            String?   @db.VarChar(128)
+  que_quan        String?   @db.VarChar(256)
+  type            Int       @db.SmallInt
+  moi_quan_he     String?
+  dieu_tra_vien   String?   @db.VarChar(1024)
+  tien_su_benh    String?
+  cn              String?   @db.VarChar(128)
+  cc              String?   @db.VarChar(128)
+  bien_ban        Int?      @default(0) @db.SmallInt
+  khan_cap        Int?      @default(0) @db.SmallInt
+  ngay_hoi_chan   DateTime? @db.Timestamp(6)
+  ngay_dieu_tra   DateTime? @db.Timestamp(6)
+  active          Int       @default(1) @db.SmallInt
+  created_by      BigInt?
+  campaign_id     BigInt?
+  created_at      DateTime? @db.Timestamp(6)
+  updated_at      DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+  
+  patient_photos  patient_photos[]
+}
+
+model patients_research {
+  id              BigInt    @id @default(autoincrement())
+  fullname        String?   @db.VarChar(512)
+  phone           String?   @db.VarChar(128)
+  gender          Int?      @db.SmallInt
+  birthday        DateTime? @db.Date
+  address         String?   @db.VarChar(3072)
+  ngay_nhap_vien  DateTime? @db.Timestamp(6)
+  ma_benh_an      String?   @db.VarChar(128)
+  phong_dieu_tri  String?   @db.VarChar(128)
+  dan_toc         String?   @db.VarChar(256)
+  dan_toc_khac    String?   @db.VarChar(256)
+  trinh_do        Int?      @db.SmallInt
+  nghe_nghiep     Int?      @db.SmallInt
+  nghe_nghiep_khac String?  @db.VarChar(512)
+  noi_o           String?   @db.VarChar(1024)
+  xep_loai_kt     Int?      @db.SmallInt
+  chuan_doan      String?
+  khoa            String?   @db.VarChar(128)
+  que_quan        String?   @db.VarChar(256)
+  id_research     BigInt?
+  menu_example    String?
+  active          Int       @default(1) @db.SmallInt
+  campaign_id     Int?
+  created_by      BigInt?
+  created_at      DateTime? @db.Timestamp(6)
+  updated_at      DateTime  @default(now()) @db.Timestamp(6)
+}
+
+model patient_photos {
+  id         Int      @id @default(autoincrement())
+  patient_id BigInt
+  photo_url  String   @db.VarChar(500)
+  public_id  String   @db.VarChar(255)
+  caption    String?  @db.VarChar(255)
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  
+  patient    patients @relation(fields: [patient_id], references: [id], onDelete: Cascade)
+
+  @@index([patient_id])
+}
+
+// =====================================================
+// USER & SESSIONS
+// =====================================================
+
+model user {
+  id                      Int       @id @default(autoincrement())
+  fullname                String    @db.VarChar(250)
+  password                String
+  email                   String    @unique @db.VarChar(400)
+  phone                   String?   @db.VarChar(45)
+  gender                  Int?      @db.SmallInt
+  active                  Int       @default(0) @db.SmallInt
+  jwt_token_id            String?   @db.VarChar(255)
+  device_info             String?
+  token_created_at        DateTime? @db.Timestamp(6)
+  last_login              DateTime? @db.Timestamp(6)
+  created_at              DateTime? @db.Timestamp(6)
+  max_sessions            Int?      @default(5)
+  allow_multiple_devices  Int?      @default(1) @db.SmallInt
+  campaign_id             BigInt?
+  
+  user_sessions           user_sessions[]
+  user_session_settings   user_session_settings?
+
+  @@index([jwt_token_id])
+}
+
+model user_sessions {
+  id                 Int       @id @default(autoincrement())
+  user_id            Int
+  jwt_token_id       String    @db.VarChar(255)
+  device_name        String?   @db.VarChar(255)
+  device_type        String?   @default("unknown") @db.VarChar(50)
+  browser            String?   @db.VarChar(100)
+  os                 String?   @db.VarChar(100)
+  device_info        String?
+  ip_address         String?   @db.VarChar(45)
+  user_agent         String?
+  location           String?   @db.VarChar(255)
+  login_at           DateTime  @default(now()) @db.Timestamp(6)
+  last_activity      DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+  logout_at          DateTime? @db.Timestamp(6)
+  is_active          Int?      @default(1) @db.SmallInt
+  is_current_session Int?      @default(0) @db.SmallInt
+  
+  user               user      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([jwt_token_id])
+  @@index([is_active])
+  @@index([last_activity])
+}
+
+model user_session_settings {
+  id                    Int       @id @default(autoincrement())
+  user_id               Int       @unique
+  max_sessions          Int?      @default(5)
+  session_timeout_hours Int?      @default(24)
+  allow_multiple_devices Int?     @default(1) @db.SmallInt
+  notify_new_login      Int?      @default(1) @db.SmallInt
+  auto_logout_inactive  Int?      @default(1) @db.SmallInt
+  created_at            DateTime? @db.Timestamp(6)
+  updated_at            DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+  
+  user                  user      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+// =====================================================
+// ROLES
+// =====================================================
+
+model role {
+  role_id   Int         @id @default(autoincrement())
+  role_name String      @db.VarChar(60)
+  
+  role_user role_user[]
+}
+
+model role_user {
+  id      BigInt @id @default(autoincrement())
+  role_id Int
+  user_id Int
+  
+  role    role   @relation(fields: [role_id], references: [role_id], onDelete: Cascade)
+
+  @@index([role_id])
+}
+
+// =====================================================
+// FOOD & DISHES
+// =====================================================
+
+model food_info {
+  id                  Int       @id @default(autoincrement())
+  code                String?   @db.VarChar(128)
+  name                String    @db.VarChar(512)
+  type                String?   @default("raw") @db.VarChar(50)
+  type_year           String?   @default("2017") @db.VarChar(10)
+  ten                 String?   @db.VarChar(512)
+  active              Int?      @db.SmallInt
+  total_sugar         Float?
+  galactose           Float?
+  maltose             Float?
+  lactose             Float?
+  fructose            Float?
+  glucose             Float?
+  sucrose             Float?
+  lycopene            Float?
+  lutein_zeaxanthin   Float?
+  total_isoflavone    Float?
+  daidzein            Float?
+  genistein           Float?
+  glycetin            Float?
+  phytosterol         Float?
+  purine              Float?
+  weight              Int?
+  protein             Float?
+  lysin               Float?
+  methionin           Float?
+  tryptophan          Float?
+  phenylalanin        Float?
+  threonin            Float?
+  isoleucine          Float?
+  arginine            Float?
+  histidine           Float?
+  alanine             Float?
+  aspartic_acid       Float?
+  glutamic_acid       Float?
+  glycine             Float?
+  proline             Float?
+  serine              Float?
+  animal_protein      Float?
+  unanimal_protein    Float?
+  cystine             Float?
+  valine              Float?
+  tyrosine            Float?
+  leucine             Float?
+  lignoceric          Float?
+  animal_lipid        Float?
+  unanimal_lipid      Float?
+  riboflavin          Float?
+  thiamine            Float?
+  niacin              Float?
+  pantothenic_acid    Float?
+  folic_acid          Float?
+  biotin              Float?
+  caroten             Float?
+  vitamin_a_rae       Float?
+  vitamin_b6          Float?
+  vitamin_b12         Float?
+  vitamin_c           Float?
+  vitamin_e           Float?
+  vitamin_k           Float?
+  b_carotene          Float?
+  a_carotene          Float?
+  b_cryptoxanthin     Float?
+  edible              Int?
+  energy              Int?
+  water               Float?
+  fat                 Float?
+  carbohydrate        Float?
+  fiber               Float?
+  ash                 Float?
+  calci               Float?
+  phosphorous         Float?
+  fe                  Float?
+  zinc                Float?
+  sodium              Int?
+  potassium           Int?
+  magnesium           Int?
+  manganese           Float?
+  copper              Int?
+  selenium            Float?
+  fluoride            Float?
+  iodine              Float?
+  total_saturated_fat Float?
+  palmitic            Float?
+  margaric            Float?
+  stearic             Float?
+  arachidic           Float?
+  behenic             Float?
+  mufa                Float?
+  myristoleic         Float?
+  palmitoleic         Float?
+  oleic               Float?
+  pufa                Float?
+  linoleic            Float?
+  linolenic           Float?
+  arachidonic         Float?
+  dha                 Float?
+  trans_fatty_acids   Float?
+  cholesterol         Float?
+  vitamin_a_ui        Float?
+  vitamin_d_ui        Float?
+  vitamin_d           Float?
+  epa                 Float?
+  choline             Float?
+  taurine             Float?
+  mct                 Float?
+  created_by          Int?
+  note                String?
+  created_at          DateTime? @db.Timestamp(6)
+  updated_at          DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+
+  @@index([type, type_year])
+  @@index([name, type, type_year])
+}
+
+model dishes {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(255)
+  description String?
+  category    String?   @db.VarChar(100)
+  created_by  Int?
+  campaign_id Int?
+  created_at  DateTime? @db.Timestamp(6)
+  updated_at  DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+  active      Int       @default(1) @db.SmallInt
+  share       Int       @default(0) @db.SmallInt
+
+  dish_foods  dish_foods[]
+
+  @@index([active])
+  @@index([category])
+  @@index([created_by])
+}
+
+model dish_foods {
+  id          Int      @id @default(autoincrement())
+  dish_id     Int
+  food_id     Int
+  weight      Int      @default(0)
+  order_index Int?     @default(0)
+  created_at  DateTime @default(now()) @db.Timestamp(6)
+  created_by  Int?
+  
+  dish        dishes   @relation(fields: [dish_id], references: [id], onDelete: Cascade)
+
+  @@index([dish_id])
+}
+
+// =====================================================
+// MENU
+// =====================================================
+
+model menu_time {
+  id          Int       @id @default(autoincrement())
+  name        String?   @db.VarChar(255)
+  time        String    @db.VarChar(255)
+  share       Int?      @db.SmallInt
+  order_sort  Int?      @db.SmallInt
+  campaign_id Int?
+  created_by  Int?
+  created_at  DateTime? @db.Timestamp(6)
+  updated_at  DateTime  @default(now()) @db.Timestamp(6)
+  
+  menu_build_details menu_build_details[]
+}
+
+model menu_example {
+  id          Int       @id @default(autoincrement())
+  name_menu   String    @db.VarChar(255)
+  detail      String
+  share       Int?      @db.SmallInt
+  active      Int?      @default(1) @db.SmallInt
+  campaign_id Int?
+  created_by  Int?
+  created_at  DateTime? @db.Timestamp(6)
+  updated_at  DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+model menu_builds {
+  id                  Int       @id @default(autoincrement())
+  name                String    @db.VarChar(255)
+  description         String?
+  view_type           String?   @default("month") @db.VarChar(20)
+  selected_week       Int?      @db.SmallInt
+  visible_meal_times  String?
+  visible_categories  String?
+  start_date          DateTime? @db.Date
+  end_date            DateTime? @db.Date
+  status              String?   @default("draft") @db.VarChar(20)
+  note                String?
+  active              Int?      @default(1) @db.SmallInt
+  created_by          Int
+  campaign_id         Int?
+  created_at          DateTime? @default(now()) @db.Timestamp(6)
+  updated_at          DateTime? @updatedAt @db.Timestamp(6)
+  
+  menu_build_details  menu_build_details[]
+  inventory_issues    inventory_issues[]
+
+  @@index([created_by])
+  @@index([status])
+  @@index([view_type])
+  @@index([start_date, end_date])
+}
+
+model menu_build_details {
+  id            Int       @id @default(autoincrement())
+  menu_build_id Int
+  week_number   Int       @db.SmallInt
+  day_of_week   Int       @db.SmallInt
+  menu_time_id  Int       @default(5)
+  detail        String?
+  note          String?
+  active        Int?      @default(1) @db.SmallInt
+  created_at    DateTime? @default(now()) @db.Timestamp(6)
+  updated_at    DateTime? @updatedAt @db.Timestamp(6)
+  
+  menu_build    menu_builds @relation(fields: [menu_build_id], references: [id], onDelete: Cascade)
+  menu_time     menu_time   @relation(fields: [menu_time_id], references: [id])
+
+  @@index([menu_build_id])
+  @@index([week_number])
+  @@index([day_of_week])
+  @@index([menu_time_id])
+}
+
+// =====================================================
+// INVENTORY
+// =====================================================
+
+model inventory_warehouses {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(255)
+  campaign_id Int
+  location    String?   @db.VarChar(255)
+  description String?
+  active      Int?      @default(1) @db.SmallInt
+  created_by  Int
+  created_at  DateTime? @default(now()) @db.Timestamp(6)
+  updated_at  DateTime? @updatedAt @db.Timestamp(6)
+  
+  inventory_receipts inventory_receipts[]
+  inventory_issues   inventory_issues[]
+  inventory_stock    inventory_stock[]
+
+  @@index([campaign_id])
+  @@index([active])
+  @@index([created_by])
+}
+
+model inventory_receipts {
+  id           Int       @id @default(autoincrement())
+  warehouse_id Int
+  receipt_code String    @unique @db.VarChar(50)
+  receipt_date DateTime  @db.Date
+  supplier     String?   @db.VarChar(255)
+  total_amount Decimal?  @default(0.00) @db.Decimal(15, 2)
+  note         String?
+  status       String?   @default("confirmed") @db.VarChar(20)
+  created_by   Int
+  created_at   DateTime? @default(now()) @db.Timestamp(6)
+  updated_at   DateTime? @updatedAt @db.Timestamp(6)
+  
+  warehouse              inventory_warehouses     @relation(fields: [warehouse_id], references: [id])
+  inventory_receipt_items inventory_receipt_items[]
+
+  @@index([warehouse_id])
+  @@index([receipt_date])
+  @@index([status])
+  @@index([created_by])
+}
+
+model inventory_receipt_items {
+  id          Int       @id @default(autoincrement())
+  receipt_id  Int
+  food_id     Int
+  quantity    Decimal   @db.Decimal(10, 2)
+  unit        String?   @default("kg") @db.VarChar(20)
+  unit_price  Decimal?  @default(0.00) @db.Decimal(10, 2)
+  total_price Decimal?  @default(0.00) @db.Decimal(15, 2)
+  expiry_date DateTime? @db.Date
+  batch_code  String?   @db.VarChar(50)
+  note        String?
+  created_at  DateTime? @default(now()) @db.Timestamp(6)
+  updated_at  DateTime? @updatedAt @db.Timestamp(6)
+  
+  receipt            inventory_receipts    @relation(fields: [receipt_id], references: [id], onDelete: Cascade)
+  inventory_stock    inventory_stock[]
+  inventory_issue_items inventory_issue_items[]
+
+  @@index([receipt_id])
+  @@index([food_id])
+  @@index([expiry_date])
+  @@index([batch_code])
+}
+
+model inventory_issues {
+  id            Int       @id @default(autoincrement())
+  warehouse_id  Int
+  issue_code    String    @unique @db.VarChar(50)
+  issue_date    DateTime  @db.Date
+  issue_type    String?   @default("manual") @db.VarChar(20)
+  menu_build_id Int?
+  menu_week     Int?
+  menu_day      Int?
+  receiver      String?   @db.VarChar(255)
+  note          String?
+  status        String?   @default("confirmed") @db.VarChar(20)
+  created_by    Int
+  created_at    DateTime? @default(now()) @db.Timestamp(6)
+  updated_at    DateTime? @updatedAt @db.Timestamp(6)
+  
+  warehouse              inventory_warehouses    @relation(fields: [warehouse_id], references: [id])
+  menu_build             menu_builds?            @relation(fields: [menu_build_id], references: [id], onDelete: SetNull)
+  inventory_issue_items  inventory_issue_items[]
+
+  @@index([warehouse_id])
+  @@index([issue_date])
+  @@index([issue_type])
+  @@index([menu_build_id])
+  @@index([status])
+  @@index([created_by])
+}
+
+model inventory_issue_items {
+  id              Int       @id @default(autoincrement())
+  issue_id        Int
+  food_id         Int
+  receipt_item_id Int?
+  quantity        Decimal   @db.Decimal(10, 2)
+  unit            String?   @default("kg") @db.VarChar(20)
+  note            String?
+  created_at      DateTime? @default(now()) @db.Timestamp(6)
+  updated_at      DateTime? @updatedAt @db.Timestamp(6)
+  
+  issue        inventory_issues         @relation(fields: [issue_id], references: [id], onDelete: Cascade)
+  receipt_item inventory_receipt_items? @relation(fields: [receipt_item_id], references: [id], onDelete: SetNull)
+
+  @@index([issue_id])
+  @@index([food_id])
+  @@index([receipt_item_id])
+}
+
+model inventory_stock {
+  id                 Int       @id @default(autoincrement())
+  warehouse_id       Int
+  food_id            Int
+  receipt_item_id    Int
+  batch_code         String?   @db.VarChar(50)
+  expiry_date        DateTime? @db.Date
+  quantity_in        Decimal   @db.Decimal(10, 2)
+  quantity_out       Decimal?  @default(0.00) @db.Decimal(10, 2)
+  quantity_available Decimal   @db.Decimal(10, 2)
+  unit               String?   @default("kg") @db.VarChar(20)
+  unit_price         Decimal?  @default(0.00) @db.Decimal(10, 2)
+  receipt_date       DateTime  @db.Date
+  updated_at         DateTime? @default(now()) @updatedAt @db.Timestamp(6)
+  
+  warehouse    inventory_warehouses    @relation(fields: [warehouse_id], references: [id], onDelete: Cascade)
+  receipt_item inventory_receipt_items @relation(fields: [receipt_item_id], references: [id], onDelete: Cascade)
+
+  @@unique([warehouse_id, receipt_item_id])
+  @@index([warehouse_id, food_id])
+  @@index([food_id])
+  @@index([expiry_date])
+  @@index([batch_code])
+  @@index([quantity_available])
+}
+
+// =====================================================
+// PROJECTS & SURVEYS
+// =====================================================
+
+model projects {
+  id              Int       @id @default(autoincrement())
+  name            String    @db.VarChar(255)
+  description     String?
+  start_date      DateTime? @db.Date
+  end_date        DateTime? @db.Date
+  google_sheet_id String?   @db.VarChar(255)
+  google_sheet_url String?
+  created_by      Int
+  sqlite_db_path  String?
+  campaign_id     Int?
+  active          Int?      @default(1) @db.SmallInt
+  created_at      DateTime? @default(now()) @db.Timestamp(6)
+  updated_at      DateTime? @updatedAt @db.Timestamp(6)
+  
+  survey_configs  survey_configs[]
+
+  @@index([created_by])
+  @@index([campaign_id])
+}
+
+model survey_configs {
+  id                       Int       @id @default(autoincrement())
+  project_id               Int
+  name                     String    @db.VarChar(255)
+  description              String?
+  survey_url_slug          String    @unique @db.VarChar(255)
+  allow_multiple_responses Int?      @default(0) @db.SmallInt
+  require_email            Int?      @default(0) @db.SmallInt
+  success_message          String?
+  settings                 Json?
+  created_by               Int
+  campaign_id              Int?
+  active                   Int?      @default(1) @db.SmallInt
+  created_at               DateTime? @default(now()) @db.Timestamp(6)
+  updated_at               DateTime? @updatedAt @db.Timestamp(6)
+  
+  project          projects           @relation(fields: [project_id], references: [id], onDelete: Cascade)
+  survey_fields    survey_fields[]
+  survey_responses survey_responses[]
+
+  @@index([project_id])
+  @@index([created_by])
+  @@index([campaign_id])
+  @@index([survey_url_slug])
+}
+
+model survey_fields {
+  id                Int       @id @default(autoincrement())
+  survey_config_id  Int
+  field_name        String    @db.VarChar(255)
+  field_label       String    @db.VarChar(255)
+  field_type        String    @db.VarChar(50)
+  field_options     Json?
+  is_required       Int?      @default(0) @db.SmallInt
+  placeholder       String?   @db.VarChar(255)
+  help_text         String?
+  validation_rules  Json?
+  field_order       Int?      @default(0)
+  field_settings    Json?
+  created_by        Int
+  active            Int?      @default(1) @db.SmallInt
+  created_at        DateTime? @default(now()) @db.Timestamp(6)
+  updated_at        DateTime? @updatedAt @db.Timestamp(6)
+  
+  survey_config         survey_configs       @relation(fields: [survey_config_id], references: [id], onDelete: Cascade)
+  survey_response_data  survey_response_data[]
+
+  @@unique([survey_config_id, field_name, active])
+  @@index([survey_config_id])
+  @@index([created_by])
+  @@index([field_order])
+}
+
+model survey_responses {
+  id                  Int       @id @default(autoincrement())
+  survey_config_id    Int
+  respondent_email    String?   @db.VarChar(255)
+  respondent_ip       String?   @db.VarChar(45)
+  user_agent          String?
+  session_id          String?   @db.VarChar(255)
+  is_completed        Int?      @default(0) @db.SmallInt
+  submitted_at        DateTime? @db.Timestamp(6)
+  google_sheet_row_id Int?
+  metadata            Json?
+  active              Int?      @default(1) @db.SmallInt
+  created_at          DateTime? @default(now()) @db.Timestamp(6)
+  updated_at          DateTime? @updatedAt @db.Timestamp(6)
+  
+  survey_config        survey_configs        @relation(fields: [survey_config_id], references: [id], onDelete: Cascade)
+  survey_response_data survey_response_data[]
+
+  @@index([survey_config_id])
+  @@index([respondent_email])
+  @@index([submitted_at])
+  @@index([is_completed])
+}
+
+model survey_response_data {
+  id                 Int       @id @default(autoincrement())
+  survey_response_id Int
+  survey_field_id    Int
+  field_name         String    @db.VarChar(255)
+  field_value        String?
+  field_value_json   Json?
+  active             Int?      @default(1) @db.SmallInt
+  created_at         DateTime? @default(now()) @db.Timestamp(6)
+  updated_at         DateTime? @updatedAt @db.Timestamp(6)
+  
+  survey_response survey_responses @relation(fields: [survey_response_id], references: [id], onDelete: Cascade)
+  survey_field    survey_fields    @relation(fields: [survey_field_id], references: [id], onDelete: Cascade)
+
+  @@index([survey_response_id])
+  @@index([survey_field_id])
+  @@index([field_name])
+}
+
+// =====================================================
+// NOTIFICATIONS & SETTINGS
+// =====================================================
+
+model notification_settings {
+  id                String    @id @db.VarChar(36)
+  user_id           String    @db.VarChar(36)
+  survey_config_id  String?   @db.VarChar(36)
+  notification_type String    @db.VarChar(50)
+  event_type        String    @db.VarChar(50)
+  enabled           Int?      @default(1) @db.SmallInt
+  settings          String?
+  created_at        DateTime  @default(now()) @db.Timestamp(6)
+  updated_at        DateTime  @default(now()) @db.Timestamp(6)
+
+  @@unique([user_id, survey_config_id, notification_type, event_type])
+  @@index([user_id])
+  @@index([survey_config_id])
+  @@index([notification_type])
+  @@index([event_type])
+}
+
+model setting {
+  id         Int    @id @default(autoincrement())
+  systemname String
+  body       String
+}
+
+model uploaded_files {
+  id             String   @id @db.VarChar(36)
+  original_name  String   @db.VarChar(255)
+  filename       String   @db.VarChar(255)
+  file_path      String
+  thumbnail_path String?
+  mime_type      String   @db.VarChar(100)
+  file_size      BigInt
+  file_hash      String   @db.VarChar(32)
+  survey_id      String?  @db.VarChar(36)
+  uploaded_by    String   @db.VarChar(36)
+  created_at     DateTime @default(now()) @db.Timestamp(6)
+  updated_at     DateTime @default(now()) @db.Timestamp(6)
+
+  @@index([survey_id])
+  @@index([uploaded_by])
+  @@index([file_hash])
+  @@index([created_at])
+}
+
+// =====================================================
+// LOGS & ACTIVITIES
+// =====================================================
+
+model log_activities {
+  id           BigInt    @id @default(autoincrement())
+  user_id      BigInt?
+  name         String?   @db.VarChar(255)
+  message      String?
+  full_message String?
+  url          String?   @db.VarChar(255)
+  method       String?   @db.VarChar(255)
+  ip           String?   @db.VarChar(255)
+  agent        String?   @db.VarChar(255)
+  form_data    String?
+  created_at   DateTime? @db.Timestamp(6)
+  active       Int?      @default(1) @db.SmallInt
+  updated_at   DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+model times {
+  id          BigInt    @id @default(autoincrement())
+  patient_id  BigInt
+  time        DateTime? @db.Timestamp(6)
+  type        String?   @db.VarChar(128)
+  active      Int?      @default(1) @db.SmallInt
+  project     String?   @db.VarChar(128)
+  campaign_id Int?
+  created_by  BigInt?
+  created_at  DateTime? @db.Timestamp(6)
+  updated_at  DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+model research {
+  id          BigInt    @id @default(autoincrement())
+  name        String?   @db.VarChar(1024)
+  created_at  DateTime? @db.Timestamp(6)
+  updated_at  DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+  campaign_id Int?
+  created_by  BigInt?
+  active      Int?      @default(1) @db.SmallInt
+  note        String?
+}
+
+// =====================================================
+// VIEM GAN (Hepatitis) TABLES
+// =====================================================
+
+model viem_gam_ttcb {
+  id                  BigInt    @id @default(autoincrement())
+  patient_id          BigInt
+  so_lan_vgc          Int?      @db.SmallInt
+  thoi_gian_vgm       Int?      @db.SmallInt
+  thoi_gian_vg_ruou   Int?      @db.SmallInt
+  thoi_gian_vg_virus  Int?      @db.SmallInt
+  benh_gan_mat_khac   String?   @db.VarChar(1024)
+  thoi_gian_gm_khac   Int?      @db.SmallInt
+  ts_benh_khac_1      String?   @db.VarChar(1024)
+  ts_benh_1_so_nam    Int?      @db.SmallInt
+  ts_benh_khac_2      String?   @db.VarChar(1024)
+  ts_benh_2_so_nam    Int?      @db.SmallInt
+  ts_benh_khac_3      String?   @db.VarChar(1024)
+  ts_benh_3_so_nam    Int?      @db.SmallInt
+  ts_benh_khac_4      String?   @db.VarChar(1024)
+  ts_benh_4_so_nam    Int?      @db.SmallInt
+  ts_benh_khac_5      String?   @db.VarChar(1024)
+  ts_benh_5_so_nam    Int?      @db.SmallInt
+  created_by          BigInt?
+  campaign_id         Int?
+  created_at          DateTime? @db.Timestamp(6)
+  updated_at          DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+model viem_gan_ctdd {
+  id                   BigInt    @id @default(autoincrement())
+  patient_id           BigInt
+  time_id              BigInt
+  chan_an              Int?      @db.SmallInt
+  chan_an_note         String?   @db.VarChar(1024)
+  an_khong_ngon        Int?      @db.SmallInt
+  an_khong_ngon_note   String?   @db.VarChar(1024)
+  buon_non             Int?      @db.SmallInt
+  buon_non_note        String?   @db.VarChar(1024)
+  non                  Int?      @db.SmallInt
+  non_note             String?   @db.VarChar(1024)
+  tao_bon              Int?      @db.SmallInt
+  tao_bon_note         String?   @db.VarChar(1024)
+  tieu_chay            Int?      @db.SmallInt
+  tieu_chay_note       String?   @db.VarChar(1024)
+  song_phan            Int?      @db.SmallInt
+  song_phan_note       String?   @db.VarChar(1024)
+  nhiet_mieng          Int?      @db.SmallInt
+  nhiet_mieng_note     String?   @db.VarChar(1024)
+  thay_doi_vi_giac     Int?      @db.SmallInt
+  thay_doi_vi_giac_note String?  @db.VarChar(1024)
+  khac                 Int?      @db.SmallInt
+  khac_note            String?
+  co_chuong            Int?      @db.SmallInt
+  co_chuong_note       String?   @db.VarChar(1024)
+  met_moi              Int?      @db.SmallInt
+  met_moi_note         String?   @db.VarChar(1024)
+  dau                  Int?      @db.SmallInt
+  dau_note             String?   @db.VarChar(1024)
+  active               Int?      @default(1) @db.SmallInt
+  created_by           BigInt?
+  campaign_id          Int?
+  created_at           DateTime? @db.Timestamp(6)
+  updated_at           DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+model viem_gan_dhnv {
+  id                   BigInt    @id @default(autoincrement())
+  patient_id           BigInt
+  chan_an_met_moi      Int?      @db.SmallInt
+  bieu_hien_tieu_hoa   Int?      @db.SmallInt
+  bieu_hien_tieu_hoa_khac String? @db.VarChar(1024)
+  dau_tuc_hsp          Int?      @db.SmallInt
+  dau_tuc_hsp_khi      Int?      @db.SmallInt
+  dau_tuc_hsp_khac     String?   @db.VarChar(1024)
+  vang_da_vang_mat     Int?      @db.SmallInt
+  bieu_hien_phu        Int?      @db.SmallInt
+  bieu_hien_co_chuong  Int?      @db.SmallInt
+  ngua_da              Int?      @db.SmallInt
+  ngua_da_khac         String?   @db.VarChar(1024)
+  xuat_huyet_tieu_hoa  Int?      @db.SmallInt
+  active               Int?      @default(1) @db.SmallInt
+  created_by           BigInt?
+  campaign_id          Int?
+  created_at           DateTime? @db.Timestamp(6)
+  updated_at           DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+model viem_gan_sga {
+  id              BigInt    @id @default(autoincrement())
+  patient_id      BigInt
+  time_id         BigInt
+  cn_6_thang      Int?      @db.SmallInt
+  cn_2_tuan       Int?      @db.SmallInt
+  khau_phan_an_ht Int?      @db.SmallInt
+  tieu_chung_th   Int?      @db.SmallInt
+  giam_chuc_nang  Int?      @db.SmallInt
+  nc_chuyen_hoa   Int?      @db.SmallInt
+  mo_duoi_da      Int?      @db.SmallInt
+  teo_co          Int?      @db.SmallInt
+  phu             Int?      @db.SmallInt
+  co_chuong       Int?      @db.SmallInt
+  phan_loai       Int?      @db.SmallInt
+  total_point     Int?
+  active          Int?      @default(1) @db.SmallInt
+  created_by      BigInt?
+  campaign_id     Int?
+  created_at      DateTime? @db.Timestamp(6)
+  updated_at      DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+model viem_gan_td_ngt {
+  id          BigInt    @id @default(autoincrement())
+  patient_id  BigInt
+  time        DateTime? @db.Timestamp(6)
+  cn          Float?    @db.Real
+  bat_thuong  String?
+  tu_van      String?
+  note        String?
+  active      Int?      @default(1) @db.SmallInt
+  created_by  BigInt?
+  campaign_id Int?
+  created_at  DateTime? @db.Timestamp(6)
+  updated_at  DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+model viem_gan_td_not {
+  id          BigInt    @id @default(autoincrement())
+  patient_id  BigInt
+  time        DateTime? @db.Timestamp(6)
+  nd_duong_th String?
+  nd_tinh_mac String?
+  note        String?
+  active      Int?      @default(1) @db.SmallInt
+  created_by  BigInt?
+  campaign_id Int?
+  created_at  DateTime? @db.Timestamp(6)
+  updated_at  DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+model viem_gan_tqau {
+  id                  BigInt    @id @default(autoincrement())
+  patient_id          BigInt
+  bua_chinh           Int?      @db.SmallInt
+  bua_phu             Int?      @db.SmallInt
+  bua_phu_an          String?   @db.VarChar(255)
+  bua_phu_an_khac     String?   @db.VarChar(1024)
+  an_kieng            Int?      @db.SmallInt
+  an_kieng_loai       String?   @db.VarChar(255)
+  an_kieng_loai_khac  String?   @db.VarChar(1024)
+  ruou_bia            Int?      @db.SmallInt
+  ruou_bia_ts         Int?      @db.SmallInt
+  ml_ruou             Int?
+  ml_bia              Int?
+  do_uong_khac        Int?      @db.SmallInt
+  do_uong_khac_ts     Int?      @db.SmallInt
+  loai_do_uong        String?   @db.VarChar(255)
+  loai_do_uong_khac   String?   @db.VarChar(1024)
+  su_dung_la_cay      Int?      @db.SmallInt
+  loai_la_cay         String?   @db.VarChar(1024)
+  cham_soc_dd         Int?      @db.SmallInt
+  cham_soc_dd_khac    String?   @db.VarChar(1024)
+  active              Int?      @default(1) @db.SmallInt
+  created_by          BigInt?
+  campaign_id         Int?
+  created_at          DateTime? @db.Timestamp(6)
+  updated_at          DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+model viem_gan_ttdd {
+  id            BigInt    @id @default(autoincrement())
+  patient_id    BigInt
+  time_id       BigInt
+  cn            String?   @db.VarChar(128)
+  cc            String?   @db.VarChar(128)
+  vong_bap_chan String?   @db.VarChar(128)
+  glucose       String?   @db.VarChar(128)
+  ure           String?   @db.VarChar(128)
+  creatinin     String?   @db.VarChar(128)
+  got           String?   @db.VarChar(128)
+  gpt           String?   @db.VarChar(128)
+  ggt           String?   @db.VarChar(128)
+  hong_cau      String?   @db.VarChar(128)
+  hemoglobin    String?   @db.VarChar(128)
+  pre_albumin   String?   @db.VarChar(128)
+  albumin       String?   @db.VarChar(128)
+  protein_tp    String?   @db.VarChar(128)
+  sat_huyet_thanh String? @db.VarChar(128)
+  ferritin      String?   @db.VarChar(128)
+  active        Int?      @default(1) @db.SmallInt
+  created_by    BigInt?
+  campaign_id   Int?
+  created_at    DateTime? @db.Timestamp(6)
+  updated_at    DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+model viem_gan_mt1_dhnv {
+  id                BigInt    @id @default(autoincrement())
+  patient_id        BigInt?
+  chan_doan_benh    Int?      @db.SmallInt
+  nguyen_nhan       Int?      @db.SmallInt
+  nguyen_nhan_khac  String?   @db.VarChar(1024)
+  cn                String?   @db.VarChar(512)
+  cc                String?   @db.VarChar(384)
+  vong_bap_chan     String?   @db.VarChar(384)
+  got               String?   @db.VarChar(384)
+  gpt               String?   @db.VarChar(384)
+  hemoglobin        String?   @db.VarChar(384)
+  bua_chinh         Int?      @db.SmallInt
+  bua_phu           Int?      @db.SmallInt
+  bua_phu_an        String?   @db.VarChar(255)
+  bua_phu_an_khac   String?   @db.VarChar(1024)
+  an_kieng          Int?      @db.SmallInt
+  an_kieng_loai     String?   @db.VarChar(255)
+  an_kieng_loai_khac String?  @db.VarChar(1024)
+  ruou_bia          Int?      @db.SmallInt
+  ruou_bia_ts       Int?      @db.SmallInt
+  ml_ruou           Int?
+  ml_bia            Int?
+  do_uong_khac      Int?      @db.SmallInt
+  do_uong_khac_ts   Int?      @db.SmallInt
+  loai_do_uong      String?   @db.VarChar(255)
+  loai_do_uong_khac String?   @db.VarChar(3072)
+  su_dung_la_cay    Int?      @db.SmallInt
+  loai_la_cay       String?   @db.VarChar(1024)
+  note              String
+  active            Int       @default(1) @db.SmallInt
+  created_by        BigInt?
+  campaign_id       Int?
+  created_at        DateTime? @db.Timestamp(6)
+  updated_at        DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+model viem_gan_mt1_kpa_not {
+  id                 Int       @id @default(autoincrement())
+  patient_id         Int
+  time               DateTime  @db.Timestamp(6)
+  nd_duong_th_sang   String?   @db.VarChar(255)
+  nd_duong_th_trua   String?   @db.VarChar(255)
+  nd_duong_th_toi    String?   @db.VarChar(255)
+  nd_duong_th_bua_phu String?  @db.VarChar(255)
+  nd_tinh_mac        String?   @db.VarChar(255)
+  note               String?   @db.VarChar(255)
+  active             Int?      @default(1) @db.SmallInt
+  created_at         DateTime? @default(now()) @db.Timestamp(6)
+  updated_at         DateTime? @db.Timestamp(6)
+  created_by         Int?
+  campaign_id        Int?
+}
+
+model viem_gan_mt1_sga {
+  id              BigInt    @id @default(autoincrement())
+  patient_id      BigInt?
+  time_id         BigInt?
+  cn_6_thang      Int?      @db.SmallInt
+  cn_2_tuan       Int?      @db.SmallInt
+  khau_phan_an_ht Int?      @db.SmallInt
+  tieu_chung_th   Int?      @db.SmallInt
+  giam_chuc_nang  Int?      @db.SmallInt
+  nc_chuyen_hoa   Int?      @db.SmallInt
+  mo_duoi_da      Int?      @db.SmallInt
+  teo_co          Int?      @db.SmallInt
+  phu             Int?      @db.SmallInt
+  co_chuong       Int?      @db.SmallInt
+  phan_loai       Int?      @db.SmallInt
+  total_point     Int?
+  active          Int       @default(1) @db.SmallInt
+  created_by      BigInt?
+  campaign_id     Int?
+  created_at      DateTime? @db.Timestamp(6)
+  updated_at      DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+model viem_gan_mt1_so_gan {
+  id                    Int       @id @default(autoincrement())
+  patient_id            Int
+  tinh_trang_gan        Int?      @db.SmallInt
+  muc_do_xo_gan         Int?      @db.SmallInt
+  albumin               String?   @db.VarChar(50)
+  tu_van_dd             Int?      @db.SmallInt
+  so_bua_moi_ngay       Int?      @db.SmallInt
+  bua_dem               Int?      @db.SmallInt
+  benh_ly_kem_theo      String?   @db.VarChar(255)
+  benh_ly_kem_theo_khac String?   @db.VarChar(512)
+  active                Int?      @default(1) @db.SmallInt
+  created_at            DateTime? @default(now()) @db.Timestamp(6)
+  updated_at            DateTime? @db.Timestamp(6)
+  created_by            Int?
+  campaign_id           Int?
+}
+
+// =====================================================
+// UON VAN (Tetanus) TABLES
+// =====================================================
+
+model uon_van_kpa {
+  id          BigInt    @id @default(autoincrement())
+  patient_id  BigInt
+  time        DateTime? @db.Timestamp(6)
+  nd_duong_th String?
+  nd_tinh_mac String?
+  note        String?
+  campaign_id Int?
+  active      Int?      @default(1) @db.SmallInt
+  created_by  BigInt?
+  created_at  DateTime? @db.Timestamp(6)
+  updated_at  DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+model uon_van_ls {
+  id            BigInt    @id @default(autoincrement())
+  patient_id    BigInt?
+  time_id       BigInt?
+  cn            String?   @db.VarChar(128)
+  vong_bap_chan String?   @db.VarChar(128)
+  cc            String?   @db.VarChar(128)
+  albumin       String?   @db.VarChar(128)
+  pre_albumin   String?   @db.VarChar(128)
+  hemoglobin    String?   @db.VarChar(128)
+  protein       String?   @db.VarChar(128)
+  phospho       String?   @db.VarChar(128)
+  glucose       String?   @db.VarChar(128)
+  magie         String?   @db.VarChar(128)
+  kali          String?   @db.VarChar(128)
+  ck            String?   @db.VarChar(128)
+  ure           String?   @db.VarChar(128)
+  bilirubin     String?   @db.VarChar(128)
+  creatinin     String?   @db.VarChar(128)
+  benh_ly       String?
+  thuoc         String?
+  active        Int?      @default(1) @db.SmallInt
+  campaign_id   Int?
+  created_by    BigInt?
+  created_at    DateTime? @db.Timestamp(6)
+  updated_at    DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+model uon_van_med {
+  id          BigInt  @id @default(autoincrement())
+  name        String  @db.VarChar(256)
+  type        String  @db.VarChar(128)
+  active      Int?    @default(1) @db.SmallInt
+  campaign_id Int?
+}
+
+model uon_van_sga {
+  id              BigInt    @id @default(autoincrement())
+  patient_id      BigInt
+  time_id         BigInt
+  cn_6_thang      Int?      @db.SmallInt
+  cn_2_tuan       Int?      @db.SmallInt
+  khau_phan_an_ht Int?      @db.SmallInt
+  tieu_chung_th   Int?      @db.SmallInt
+  giam_chuc_nang  Int?      @db.SmallInt
+  nc_chuyen_hoa   Int?      @db.SmallInt
+  mo_duoi_da      Int?      @db.SmallInt
+  teo_co          Int?      @db.SmallInt
+  phu             Int?      @db.SmallInt
+  co_chuong       Int?      @db.SmallInt
+  phan_loai       Int?      @db.SmallInt
+  total_point     Int?
+  active          Int?      @default(1) @db.SmallInt
+  campaign_id     Int?
+  created_by      BigInt?
+  created_at      DateTime? @db.Timestamp(6)
+  updated_at      DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+model uon_van_ttth {
+  id               BigInt    @id @default(autoincrement())
+  patient_id       BigInt?
+  time_id          BigInt?
+  chuong_bung      Int?      @db.SmallInt
+  trao_nguoc       Int?      @db.SmallInt
+  tao_bon          Int?      @db.SmallInt
+  phan_long_3_ngay Int?      @db.SmallInt
+  duong_mau_10     Int?      @db.SmallInt
+  duong_mau_20     Int?      @db.SmallInt
+  so_lan_di_ngoai  Int?
+  tinh_trang_phan  String?   @db.VarChar(512)
+  dich_ton_du      String?   @db.VarChar(128)
+  active           Int?      @default(1) @db.SmallInt
+  campaign_id      Int?
+  created_by       BigInt?
+  created_at       DateTime? @db.Timestamp(6)
+  updated_at       DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+// =====================================================
+// CAT GAN NHO (Liver Section) TABLES
+// =====================================================
+
+model cat_gan_nho_kpa {
+  id          BigInt    @id @default(autoincrement())
+  patient_id  BigInt?
+  time        DateTime? @db.Timestamp(6)
+  nd_duong_th String?
+  nd_tinh_mac String?
+  note        String?
+  xet_nghiem  String
+  y_kien_bs   String?
+  active      Int       @default(1) @db.SmallInt
+  campaign_id BigInt?
+  created_by  BigInt?
+  created_at  DateTime? @db.Timestamp(6)
+  updated_at  DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+// =====================================================
+// PHIEU HOI CHAN (Consultation Forms)
+// =====================================================
+
+model phieu_hoi_chan_danh_gia {
+  id                    BigInt    @id @default(autoincrement())
+  patient_id            BigInt?
+  time_id               BigInt?
+  tinh_trang_nguoi_benh String?
+  khau_phan_an_24h      String?
+  tieu_hoa              String?
+  danh_gia              String?
+  ket_qua_can_lam_sang  String?
+  can_thiep_kcal        String?   @db.VarChar(96)
+  can_thiep_kg          String?   @db.VarChar(96)
+  can_thiep_note        String?
+  che_do_dinh_duong     String?   @db.VarChar(96)
+  che_do_dinh_duong_note String?
+  bo_sung               String?
+  chu_y                 String?
+  active                Int?      @default(1) @db.SmallInt
+  campaign_id           Int?
+  created_by            BigInt?
+  created_at            DateTime? @db.Timestamp(6)
+  updated_at            DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+model phieu_hoi_chan_ttc {
+  id                    BigInt    @id @default(autoincrement())
+  patient_id            BigInt?
+  cn                    String?   @db.VarChar(384)
+  cc                    String?   @db.VarChar(384)
+  ctc                   String?   @db.VarChar(384)
+  chuan_doan_ls         String?
+  ngay_hoi_chan         DateTime? @db.Date
+  cn_1_thang            String?   @db.VarChar(96)
+  khau_phan_an          String?   @db.VarChar(96)
+  trieu_chung_th        String?   @db.VarChar(96)
+  giam_chuc_nang_hd     String?   @db.VarChar(96)
+  nhu_cau_chuyen_hoa    String?   @db.VarChar(96)
+  kham_lam_sang         String?   @db.VarChar(96)
+  chon_tt_1             String?   @db.VarChar(96)
+  tien_su_benh          String?
+  tinh_trang_nguoi_benh String?
+  khau_phan_an_24h      String?
+  tieu_hoa              String?
+  che_do_dinh_duong     String?   @db.VarChar(96)
+  che_do_dinh_duong_note String?
+  duong_nuoi            String?   @db.VarChar(32)
+  dich_vao              Int?
+  dich_ra               Int?
+  e_nckn                String?   @db.VarChar(384)
+  can_thiep_kcal        String?   @db.VarChar(384)
+  can_thiep_kg          String?   @db.VarChar(384)
+  can_thiep_note        String?
+  ket_qua_can_lam_sang  String?
+  bo_sung               String?
+  chu_y                 String?
+  campaign_id           Int?
+  active                Int?      @default(1) @db.SmallInt
+  created_by            BigInt?
+  created_at            DateTime? @db.Timestamp(6)
+  updated_at            DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+}
