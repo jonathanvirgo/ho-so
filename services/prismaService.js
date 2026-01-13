@@ -77,24 +77,50 @@ if (process.env.NODE_ENV !== 'production') {
 // Connection Health Check
 // =============================================================================
 
+// Helper function to mask sensitive parts of DATABASE_URL
+const getMaskedDatabaseUrl = () => {
+    if (!DATABASE_URL) return 'NOT SET';
+    try {
+        const url = new URL(DATABASE_URL);
+        const maskedPassword = url.password ? '****' : '';
+        return `${url.protocol}//${url.username}:${maskedPassword}@${url.host}${url.pathname}`;
+    } catch (e) {
+        return 'INVALID_URL';
+    }
+};
+
 const testConnection = async () => {
     const startTime = Date.now();
+    console.log('[Prisma] ========== DATABASE CONNECTION TEST ==========');
+    console.log('[Prisma] Timestamp:', new Date().toISOString());
+    console.log('[Prisma] NODE_ENV:', process.env.NODE_ENV);
+    console.log('[Prisma] Database URL (masked):', getMaskedDatabaseUrl());
+    
     try {
         const client = await pool.connect();
         const duration = Date.now() - startTime;
-        console.log(`[Prisma] ✅ Database connection successful (${duration}ms)`);
-        console.log(`[Prisma] Pool stats: total=${pool.totalCount}, idle=${pool.idleCount}, waiting=${pool.waitingCount}`);
+        
+        // Get database name and version
+        const dbInfo = await client.query('SELECT current_database() as db, version() as version');
+        const dbName = dbInfo.rows[0]?.db || 'unknown';
+        const dbVersion = dbInfo.rows[0]?.version?.split(' ').slice(0, 2).join(' ') || 'unknown';
+        
+        console.log('[Prisma] ✅ Database connection successful');
+        console.log('[Prisma] Database name:', dbName);
+        console.log('[Prisma] Database version:', dbVersion);
+        console.log('[Prisma] Connection time:', duration + 'ms');
+        console.log('[Prisma] Pool stats: total=' + pool.totalCount + ', idle=' + pool.idleCount + ', waiting=' + pool.waitingCount);
+        console.log('[Prisma] ================================================');
+        
         client.release();
         return true;
     } catch (err) {
         const duration = Date.now() - startTime;
-        console.error('='.repeat(80));
-        console.error(`[Prisma] ❌ DATABASE CONNECTION ERROR`);
-        console.error('='.repeat(80));
-        console.error(`Timestamp: ${new Date().toISOString()}`);
-        console.error(`Duration: ${duration}ms`);
-        console.error(`Error: ${err.message}`);
-        console.error('='.repeat(80));
+        console.error('[Prisma] ========== DATABASE CONNECTION ERROR ==========');
+        console.error('[Prisma] ❌ Connection FAILED');
+        console.error('[Prisma] Error:', err.message);
+        console.error('[Prisma] Duration:', duration + 'ms');
+        console.error('[Prisma] ================================================');
         return false;
     }
 };
@@ -219,8 +245,9 @@ const prismaService = {
      */
     updateRecordTable: async function(data, condition, table) {
         try {
+            const where = this._buildWhereClause(condition);
             const result = await prisma[table].updateMany({
-                where: condition,
+                where: where,
                 data: data
             });
             

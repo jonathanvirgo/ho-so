@@ -125,6 +125,15 @@ let user = {
     login: async function (req, res, next) {
         let resultData = securityService.createErrorResponse("Đăng nhập thất bại");
 
+        // Debug logging for Vercel
+        console.log('[LOGIN] ========== LOGIN ATTEMPT START ==========');
+        console.log('[LOGIN] Timestamp:', new Date().toISOString());
+        console.log('[LOGIN] Email:', req.body?.email);
+        console.log('[LOGIN] Has password:', !!req.body?.password);
+        console.log('[LOGIN] Has token:', !!req.body?.token);
+        console.log('[LOGIN] ENABLE_CAPTCHA:', getEnv('ENABLE_CAPTCHA'));
+        console.log('[LOGIN] NODE_ENV:', process.env.NODE_ENV);
+
         try {
             // Validate input
             const validationSchema = {
@@ -182,9 +191,17 @@ let user = {
 
             try {
                 // Tìm user trong database
+                console.log('[LOGIN] Step 2: Querying database for user...');
                 const userResult = await commonService.getAllDataTable('user', { email: email });
+                console.log('[LOGIN] Database query result:', JSON.stringify({
+                    success: userResult.success,
+                    hasData: !!userResult.data,
+                    dataLength: userResult.data?.length,
+                    message: userResult.message
+                }));
 
                 if (!userResult.success || !userResult.data || userResult.data.length === 0) {
+                    console.log('[LOGIN] FAILED: User not found in database');
                     resultData.message = 'Tài khoản không tồn tại';
                     await auditService.logAuthEvent(email, 'LOGIN', false, { reason: 'user_not_found' }, req.ip);
                     commonService.sendMessageTelegram(`Tài khoản ${email} vừa đăng nhập thất bại! Tài khoản không tồn tại`);
@@ -192,10 +209,14 @@ let user = {
                 }
 
                 const user = userResult.data[0];
+                console.log('[LOGIN] User found:', { id: user.id, email: user.email, active: user.active });
 
                 // Kiểm tra mật khẩu
+                console.log('[LOGIN] Step 3: Verifying password...');
                 const isValidPassword = await bcrypt.compare(password, user.password);
+                console.log('[LOGIN] Password valid:', isValidPassword);
                 if (!isValidPassword) {
+                    console.log('[LOGIN] FAILED: Invalid password');
                     resultData.message = 'Sai mật khẩu';
                     commonService.sendMessageTelegram(`Tài khoản ${email} vừa đăng nhập thất bại! Sai mật khẩu`);
                     return res.json(resultData);
@@ -203,26 +224,34 @@ let user = {
 
                 // Kiểm tra tài khoản có active không
                 if (user.active !== 1) {
+                    console.log('[LOGIN] FAILED: Account not active, active =', user.active);
                     resultData.message = 'Tài khoản chưa được kích hoạt';
                     commonService.sendMessageTelegram(`Tài khoản ${email} vừa đăng nhập thất bại! Tài khoản chưa kích hoạt`);
                     return res.json(resultData);
                 }
 
                 // Tạo JWT token với token ID duy nhất
+                console.log('[LOGIN] Step 4: Creating JWT token...');
                 const { token: jwtToken, tokenId } = jwtService.createToken(user);
+                console.log('[LOGIN] JWT token created, tokenId:', tokenId);
 
                 // Lấy thông tin thiết bị
                 const deviceInfo = jwtService.getDeviceInfo(req);
+                console.log('[LOGIN] Device info:', JSON.stringify(deviceInfo));
 
                 // Lưu token vào database với multi-device support
+                console.log('[LOGIN] Step 5: Saving token to database...');
                 const saveResult = await jwtService.saveTokenToDatabase(user.id, tokenId, deviceInfo, req.ip);
+                console.log('[LOGIN] Save token result:', JSON.stringify(saveResult));
 
                 if (!saveResult.success) {
+                    console.log('[LOGIN] FAILED: Could not save token to database');
                     resultData.message = saveResult.message;
                     return res.status(500).json(resultData);
                 }
 
                 // Set JWT cookie
+                console.log('[LOGIN] Step 6: Setting JWT cookie...');
                 req.app.locals.setJWTCookie(res, jwtToken);
 
                 resultData = securityService.createSuccessResponse(null, 'Đăng nhập thành công');
@@ -233,18 +262,22 @@ let user = {
                     deviceInfo: deviceInfo.deviceName
                 }, req.ip);
 
+                console.log('[LOGIN] ========== LOGIN SUCCESS ==========');
                 commonService.sendMessageTelegram(`Tài khoản ${email} vừa đăng nhập thành công!`);
                 return res.json(resultData);
 
             } catch (authError) {
-                console.error('Authentication error:', authError);
+                console.error('[LOGIN] Authentication error:', authError.message);
+                console.error('[LOGIN] Error stack:', authError.stack);
                 resultData.message = 'Lỗi xác thực, vui lòng thử lại sau';
                 return res.status(500).json(resultData);
             }
 
         } catch (globalError) {
-            commonService.saveLog(req, error.message, error.stack);
-            res.json(securityService.createErrorResponse(error.message || 'Đã xảy ra lỗi khi xử lý yêu cầu!', error, 500));
+            console.error('[LOGIN] Global error:', globalError.message);
+            console.error('[LOGIN] Error stack:', globalError.stack);
+            commonService.saveLog(req, globalError.message, globalError.stack);
+            res.json(securityService.createErrorResponse(globalError.message || 'Đã xảy ra lỗi khi xử lý yêu cầu!', globalError, 500));
         }
     },
     logout: async function (req, res, next) {
