@@ -140,14 +140,23 @@
         
         // Mapping số ngày nhập viện với màu sắc
         // Chỉ hiển thị icon khi > 3 ngày
-        const dayColorMapping = [
-            { minDays: 3, maxDays: 5, color: '#28a745', label: '3-5 ngày' },      // Xanh lá
-            { minDays: 6, maxDays: 7, color: '#17a2b8', label: '6-7 ngày' },      // Xanh dương
-            { minDays: 8, maxDays: 10, color: '#ffc107', label: '8-10 ngày' },    // Vàng
-            { minDays: 11, maxDays: 13, color: '#fd7e14', label: '11-13 ngày' },  // Cam
-            { minDays: 14, maxDays: Infinity, color: '#dc3545', label: '14+ ngày', critical: true } // Đỏ + hiệu ứng
-        ];
+        // const dayColorMapping = [
+        //     { minDays: 3, maxDays: 5, color: '#28a745', label: '3-5 ngày' },      // Xanh lá
+        //     { minDays: 6, maxDays: 7, color: '#17a2b8', label: '6-7 ngày' },      // Xanh dương
+        //     { minDays: 8, maxDays: 10, color: '#ffc107', label: '8-10 ngày' },    // Vàng
+        //     { minDays: 11, maxDays: 13, color: '#fd7e14', label: '11-13 ngày' },  // Cam
+        //     { minDays: 14, maxDays: Infinity, color: '#dc3545', label: '14+ ngày', critical: true } // Đỏ + hiệu ứng
+        // ];
         
+        const dayColorMapping = [
+            { minDays: 4, maxDays: 7, color: '#28a745', label: '4-7 ngày' },           // Xanh lá
+            { minDays: 8, maxDays: 14, color: '#ffc107', label: '2 tuần' },          // Vàng
+            { minDays: 15, maxDays: 21, color: '#fd7e14', label: '3 tuần', critical: true },         // Cam
+            { minDays: 22, maxDays: 28, color: '#ff6b6b', label: '4 tuần',critical: true },         // Đỏ nhạt
+            { minDays: 29, maxDays: 35, color: '#ee5a52', label: '5 tuần',critical: true },         // Đỏ vừa
+            { minDays: 36, maxDays: 42, color: '#dc3545', label: '6 tuần',critical: true },         // Đỏ đậm
+            { minDays: 43, maxDays: Infinity, color: '#c82333', label: '7+ tuần', critical: true } // Đỏ rất đậm + hiệu ứng
+        ];
         // Hàm tính số ngày từ ngày nhập viện đến hiện tại
         function getDaysSinceAdmission(admissionDate) {
             if (!admissionDate) return 0;
