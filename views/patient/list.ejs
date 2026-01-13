@@ -3,6 +3,71 @@
 <head>
     <%- include('../layout/head') %>
     <title>Danh sách bệnh nhân - Patients</title>
+    <style>
+        /* Hospitalization Day Indicator Styles */
+        .day-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 6px;
+            vertical-align: middle;
+            position: relative;
+        }
+        
+        /* Wave/Pulse animation for critical cases (14+ days) */
+        .day-indicator.critical {
+            animation: pulse-wave 1.5s ease-in-out infinite;
+        }
+        
+        .day-indicator.critical::before,
+        .day-indicator.critical::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: inherit;
+            opacity: 0;
+        }
+        
+        .day-indicator.critical::before {
+            width: 100%;
+            height: 100%;
+            animation: wave-expand 1.5s ease-out infinite;
+        }
+        
+        .day-indicator.critical::after {
+            width: 100%;
+            height: 100%;
+            animation: wave-expand 1.5s ease-out infinite 0.5s;
+        }
+        
+        @keyframes pulse-wave {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 currentColor;
+            }
+            50% {
+                transform: scale(1.1);
+                box-shadow: 0 0 8px 2px currentColor;
+            }
+        }
+        
+        @keyframes wave-expand {
+            0% {
+                width: 100%;
+                height: 100%;
+                opacity: 0.6;
+            }
+            100% {
+                width: 250%;
+                height: 250%;
+                opacity: 0;
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -72,6 +137,56 @@
     <script type="text/javascript">
         let path = "<%=path%>";
         var dataTable;
+        
+        // Mapping số ngày nhập viện với màu sắc
+        // Chỉ hiển thị icon khi > 3 ngày
+        const dayColorMapping = [
+            { minDays: 3, maxDays: 5, color: '#28a745', label: '3-5 ngày' },      // Xanh lá
+            { minDays: 6, maxDays: 7, color: '#17a2b8', label: '6-7 ngày' },      // Xanh dương
+            { minDays: 8, maxDays: 10, color: '#ffc107', label: '8-10 ngày' },    // Vàng
+            { minDays: 11, maxDays: 13, color: '#fd7e14', label: '11-13 ngày' },  // Cam
+            { minDays: 14, maxDays: Infinity, color: '#dc3545', label: '14+ ngày', critical: true } // Đỏ + hiệu ứng
+        ];
+        
+        // Hàm tính số ngày từ ngày nhập viện đến hiện tại
+        function getDaysSinceAdmission(admissionDate) {
+            if (!admissionDate) return 0;
+            const admission = moment(admissionDate);
+            const today = moment();
+            return today.diff(admission, 'days');
+        }
+        
+        // Hàm lấy thông tin màu sắc dựa trên số ngày
+        function getDayIndicator(days) {
+            for (const mapping of dayColorMapping) {
+                if (days > mapping.minDays && (days <= mapping.maxDays || mapping.maxDays === Infinity)) {
+                    return mapping;
+                }
+            }
+            return null;
+        }
+        
+        // Hàm tạo HTML cho icon indicator
+        function createDayIndicatorHtml(admissionDate, active) {
+            console.log("createDayIndicatorHtml", admissionDate, active);
+            
+            // Không hiển thị nếu đã ra viện
+            if (active == 2) return '';
+            
+            const days = getDaysSinceAdmission(admissionDate);
+            console.log("days", days);
+            
+            if (days <= 3) return ''; // Không hiển thị nếu <= 3 ngày
+            
+            const indicator = getDayIndicator(days);
+            if (!indicator) return '';
+            
+            const criticalClass = indicator.critical ? ' critical' : '';
+            return `<span class="day-indicator${criticalClass}" 
+                          style="background-color: ${indicator.color}; color: ${indicator.color};" 
+                          title="${indicator.label} (${days} ngày)"></span>`;
+        }
+        
         $(document).ready(function () {
             dataTable = $('#dataTable').DataTable({
                 serverSide: true,
@@ -126,6 +241,7 @@
                         orderable: true, // Cho phép sort
                         searchable: true, // Cho phép search
                         render: function(data, type, row) {
+                            console.log("ten", data, type, row);
                             let classAttr = '';
                             let styleAttr = '';
                             if (row.active == 2) {
@@ -134,7 +250,14 @@
                                 classAttr = 'class="text-success"';
                             }
                             if(row.bien_ban == 1) styleAttr = 'style="background-color: #faebd7;"';
-                            return `<a ${classAttr} ${styleAttr} href='/patient/detail/<%=path%>/${row.id}'>${data}</a>`;
+                            
+                            // Thêm icon indicator cho ngày nhập viện (chỉ cho path hoi-chan)
+                            let dayIndicator = '';
+                            <% if(path == 'hoi-chan'){ %>
+                                dayIndicator = createDayIndicatorHtml(row.ngay_nhap_vien, row.active);
+                            <% } %>
+                            
+                            return `<a ${classAttr} ${styleAttr} href='/patient/detail/<%=path%>/${row.id}'>${data}</a> &nbsp; ${dayIndicator}`;
                         },
                         className: 'min-width-110'
                     },

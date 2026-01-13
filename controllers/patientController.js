@@ -73,7 +73,7 @@ let patient = {
             // Cấu hình DataTable
             const config = {
                 table: 'patients',
-                columns: ['id', 'fullname', 'phone', 'ma_benh_an', 'phong_dieu_tri', 'khoa', 'chuan_doan', 'ngay_hoi_chan', 'khan_cap', 'dieu_tra_vien', 'active', 'bien_ban', 'ngay_dieu_tra'],
+                columns: ['id', 'fullname', 'phone', 'ma_benh_an', 'phong_dieu_tri', 'khoa', 'chuan_doan', 'ngay_hoi_chan', 'khan_cap', 'dieu_tra_vien', 'active', 'bien_ban', 'ngay_dieu_tra', 'ngay_nhap_vien'],
                 primaryKey: 'id',
                 active: 0,
                 activeOperator: '!=',
