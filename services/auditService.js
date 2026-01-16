@@ -2,20 +2,21 @@ const commonService = require('./commonService');
 
 const auditService = {
     /**
-     * Log user activities safely
+     * Log user activities safely to audit_logs table
      */
     logActivity: async function(userId, action, resource, email, details = null, ipAddress = null) {
         try {
             const logData = {
                 user_id: userId,
-                email: email ? email.substring(0, 100) : null,
+                email: email ? email.substring(0, 256) : null,
                 action: this.sanitizeAction(action),
                 resource: this.sanitizeResource(resource),
-                details: details ? JSON.stringify(this.sanitizeDetails(details)) : null,
-                ip_address: ipAddress
+                details: details ? (typeof details === 'string' ? details : JSON.stringify(details)) : null,
+                ip_address: ipAddress ? ipAddress.substring(0, 45) : null,
+                timestamp: new Date()
             };
-            // Save to audit_logs table (you may need to create this table)
-            // await commonService.addRecordTable(logData, 'audit_logs', true);
+            // Save to audit_logs table - ENABLED for Vercel monitoring
+            await commonService.addRecordTable(logData, 'audit_logs', true);
         } catch (error) {
             // Don't throw error to prevent breaking the main flow
             console.error('Audit logging failed:', error.message);
@@ -30,13 +31,15 @@ const auditService = {
             return 'UNKNOWN';
         }
         
-        // Only allow specific actions
+        // Allow more actions for detailed logging
         const allowedActions = [
-            'LOGIN', 'LOGOUT', 'CREATE', 'UPDATE', 'DELETE', 'VIEW', 'EXPORT', 'IMPORT'
+            'LOGIN', 'LOGOUT', 'CREATE', 'UPDATE', 'DELETE', 'VIEW', 'EXPORT', 'IMPORT',
+            'LOGIN_START', 'LOGIN_STEP', 'LOGIN_SUCCESS', 'LOGIN_FAILED', 'LOGIN_ERROR',
+            'SIGNUP', 'PASSWORD_CHECK', 'TOKEN_CREATE', 'SESSION_SAVE'
         ];
         
         const upperAction = action.toUpperCase();
-        return allowedActions.includes(upperAction) ? upperAction : 'OTHER';
+        return allowedActions.includes(upperAction) ? upperAction : action.substring(0, 50);
     },
 
     /**
@@ -52,7 +55,7 @@ const auditService = {
     },
 
     /**
-     * Sanitize details object
+     * Sanitize details object - allow more fields for debugging
      */
     sanitizeDetails: function(details) {
         if (!details || typeof details !== 'object') {
@@ -60,12 +63,17 @@ const auditService = {
         }
 
         const sanitized = {};
-        const allowedFields = ['id', 'name', 'status', 'type', 'count'];
+        // Allow more fields for debugging during migration
+        const allowedFields = [
+            'id', 'name', 'status', 'type', 'count', 'reason', 'step', 'message',
+            'userId', 'deviceInfo', 'userAgent', 'method', 'usePrisma', 'dbType',
+            'querySuccess', 'dataLength', 'error', 'tokenId', 'sessionId'
+        ];
 
         for (const [key, value] of Object.entries(details)) {
             if (allowedFields.includes(key)) {
                 if (typeof value === 'string') {
-                    sanitized[key] = value.substring(0, 100);
+                    sanitized[key] = value.substring(0, 255);
                 } else if (typeof value === 'number') {
                     sanitized[key] = value;
                 } else if (typeof value === 'boolean') {
@@ -105,21 +113,72 @@ const auditService = {
     },
 
     /**
-     * Log authentication events
+     * Log authentication events to auth_logs table - ENABLED for Vercel monitoring
+     * This logs detailed step-by-step information for debugging login flow
      */
     logAuthEvent: async function(email, action, success, details = null, ipAddress = null) {
         try {
-            const logData = {
-                email: email ? email.substring(0, 100) : null,
-                action: this.sanitizeAction(action),
-                success: success ? 1 : 0,
-                details: details ? JSON.stringify(this.sanitizeDetails(details)) : null,
-                ip_address: ipAddress
+            // Get environment info
+            const usePrisma = process.env.USE_PRISMA === 'true';
+            const dbType = process.env.DB_TYPE || 'unknown';
+
+            // Merge environment info with details
+            const fullDetails = {
+                ...this.sanitizeDetails(details || {}),
+                usePrisma: usePrisma,
+                dbType: dbType,
+                nodeEnv: process.env.NODE_ENV || 'unknown'
             };
 
-            // await commonService.addRecordTable(logData, 'auth_logs', true);
+            const logData = {
+                email: email ? email.substring(0, 255) : null,
+                action: this.sanitizeAction(action),
+                success: success ? 1 : 0,
+                details: JSON.stringify(fullDetails),
+                ip_address: ipAddress ? ipAddress.substring(0, 45) : null,
+                timestamp: new Date()
+            };
+
+            // ENABLED: Save to auth_logs table for Vercel monitoring
+            await commonService.addRecordTable(logData, 'auth_logs', true);
         } catch (error) {
             console.error('Auth logging failed:', error.message);
+        }
+    },
+
+    /**
+     * Log login step for detailed debugging on Vercel
+     * @param {string} email - User email
+     * @param {number} step - Step number (1-6)
+     * @param {string} stepName - Name of the step
+     * @param {boolean} success - Whether step succeeded
+     * @param {object} details - Additional details
+     * @param {string} ipAddress - Client IP
+     */
+    logLoginStep: async function(email, step, stepName, success, details = null, ipAddress = null) {
+        try {
+            const usePrisma = process.env.USE_PRISMA === 'true';
+            const dbType = process.env.DB_TYPE || 'unknown';
+
+            const logData = {
+                email: email ? email.substring(0, 255) : null,
+                action: 'LOGIN_STEP',
+                success: success ? 1 : 0,
+                details: JSON.stringify({
+                    step: step,
+                    stepName: stepName,
+                    usePrisma: usePrisma,
+                    dbType: dbType,
+                    nodeEnv: process.env.NODE_ENV || 'unknown',
+                    ...(details || {})
+                }),
+                ip_address: ipAddress ? ipAddress.substring(0, 45) : null,
+                timestamp: new Date()
+            };
+
+            await commonService.addRecordTable(logData, 'auth_logs', true);
+        } catch (error) {
+            console.error('Login step logging failed:', error.message);
         }
     }
 };
